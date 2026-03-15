@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: borshchevyk.gateway
+
+  main:
+    web-application-type: reactive
+
+  autoconfigure:
+    exclude: org.springframework.cloud.autoconfigure.LifecycleMvcEndpointAutoConfiguration
+
+  threads:
+    virtual:
+      enabled: true
+
+  cloud:
+    gateway:
+      routes:
+        - id: auth-service
+          uri: ${AUTH_SERVICE_URL}
+          predicates:
+            - Path=/api/v1/auth/**
+
+        - id: user-service
+          uri: ${USER_SERVICE_URL}
+          predicates:
+            - Path=/api/v1/users/**
+          filters:
+            - JwtAuthenticationFilter
+
+        - id: auth-service-swagger
+          uri: ${AUTH_SERVICE_URL}
+          predicates:
+            - Path=/v3/api-docs/auth
+          filters:
+            - RewritePath=/v3/api-docs/auth, /v3/api-docs
+
+        - id: user-service-swagger
+          uri: ${USER_SERVICE_URL}
+          predicates:
+            - Path=/v3/api-docs/user
+          filters:
+            - RewritePath=/v3/api-docs/user, /v3/api-docs
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: auth-service
+        url: /v3/api-docs/auth
+      - name: user-service
+        url: /v3/api-docs/user
+
+jwt:
+  secret: ${JWT_SECRET}
