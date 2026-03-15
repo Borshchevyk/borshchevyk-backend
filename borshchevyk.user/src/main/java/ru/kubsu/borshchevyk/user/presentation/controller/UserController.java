@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.user.application.dto.command.EditUserCommand;
@@ -19,6 +20,14 @@ import ru.kubsu.borshchevyk.user.presentation.dto.request.EditUserRequest;
 import ru.kubsu.borshchevyk.user.presentation.dto.response.EditUserResponse;
 import ru.kubsu.borshchevyk.user.presentation.mapper.UserMapper;
 
+/**
+ * Controller for managing user-related operations.
+ * Provides endpoints for editing and deleting user profiles.
+ *
+ * @author Aleksey Timko
+ * @since 2026-03-15
+ */
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -29,6 +38,16 @@ public class UserController {
     private final DeleteUserUseCase deleteUserUseCase;
     private final UserMapper userMapper;
 
+    /**
+     * Updates user profile data.
+     * Only the user themselves can update their profile.
+     *
+     * @param userId UUID of the user to update
+     * @param requestUserId ID of the user from the request header (X-User-Id)
+     * @param request Object containing fields to update
+     * @return Updated user profile details
+     * @throws UserForbiddenException if trying to update someone else's profile
+     */
     @Operation(summary = "Edit user profile", description = "Partially updates user profile data such as email or tag.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User profile successfully updated",
@@ -50,8 +69,11 @@ public class UserController {
             @RequestHeader("X-User-Id") String requestUserId,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Fields to update", required = true)
             @RequestBody EditUserRequest request) {
+
+        log.info("Received request to edit user with ID: {}", userId);
         
         if (!userId.equals(requestUserId)) {
+            log.warn("Access denied: User {} tried to edit profile of user {}", requestUserId, userId);
             throw new ru.kubsu.borshchevyk.user.domain.exception.UserForbiddenException("You can only edit your own profile");
         }
         
@@ -59,9 +81,19 @@ public class UserController {
         EditUserResult result = editUserUseCase.editUser(command);
         EditUserResponse response = userMapper.toResponse(result);
         
+        log.info("Successfully updated user profile for ID: {}", userId);
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Deletes a user profile.
+     * Only the user themselves can delete their profile.
+     *
+     * @param userId UUID of the user to delete
+     * @param requestUserId ID of the user from the request header (X-User-Id)
+     * @return No content on success
+     * @throws UserForbiddenException if trying to delete someone else's profile
+     */
     @Operation(summary = "Delete user", description = "Permanently deletes a user from the system.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "User successfully deleted"),
@@ -78,12 +110,16 @@ public class UserController {
             @PathVariable String userId,
             @Parameter(hidden = true)
             @RequestHeader("X-User-Id") String requestUserId) {
+
+        log.info("Received request to delete user with ID: {}", userId);
         
         if (!userId.equals(requestUserId)) {
+            log.warn("Access denied: User {} tried to delete profile of user {}", requestUserId, userId);
             throw new ru.kubsu.borshchevyk.user.domain.exception.UserForbiddenException("You can only delete your own profile");
         }
         
         deleteUserUseCase.deleteUser(userId);
+        log.info("Successfully deleted user with ID: {}", userId);
         return ResponseEntity.noContent().build();
     }
 }

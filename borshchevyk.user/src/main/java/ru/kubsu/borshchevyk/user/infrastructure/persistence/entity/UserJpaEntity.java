@@ -11,6 +11,13 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
+/**
+ * JPA entity representing a user in the "users" table.
+ * This class is used for persistence in the relational database.
+ *
+ * @author Aleksey Timko
+ * @since 2026-03-15
+ */
 @Entity
 @Table(name = "users")
 @Data

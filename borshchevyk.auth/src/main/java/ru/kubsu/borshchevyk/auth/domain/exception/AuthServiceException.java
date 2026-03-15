@@ -1,19 +1,49 @@
 package ru.kubsu.borshchevyk.auth.domain.exception;
 
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Base exception for all authentication-related service errors.
+ *
+ * @author Aleksey Timko
+ * @since 2026-03-14
+ */
+@Slf4j
 @Getter
 public abstract class AuthServiceException extends RuntimeException {
+    /**
+     * The unique business error code associated with this exception.
+     */
     private final ErrorCode code;
 
+    /**
+     * Constructs a new authentication service exception.
+     *
+     * @param code the business error code
+     * @param message the descriptive error message
+     */
     public AuthServiceException(ErrorCode code, String message) {
         super(message);
         this.code = code;
+        log.error("Authentication service error [{}]: {}", code, message);
     }
 
+    /**
+     * Supported business error codes.
+     */
     public enum ErrorCode {
+        /**
+         * User with the given email already exists in the system.
+         */
         USER_ALREADY_EXISTS,
+        /**
+         * Provided login credentials (email or password) are incorrect.
+         */
         INVALID_CREDENTIALS,
+        /**
+         * Input format for email or tag is invalid.
+         */
         INCORRECT_FORMAT
     }
 }

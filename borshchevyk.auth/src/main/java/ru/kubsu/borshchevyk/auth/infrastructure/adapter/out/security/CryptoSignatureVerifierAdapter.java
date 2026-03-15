@@ -10,6 +10,12 @@ import java.security.Signature;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
+/**
+ * Adapter for verifying cryptographic signatures using RSA.
+ *
+ * @author Aleksey Timko
+ * @since 2026-03-14
+ */
 @Component
 @Slf4j
 public class CryptoSignatureVerifierAdapter implements SignatureVerifierPort {
@@ -17,8 +23,17 @@ public class CryptoSignatureVerifierAdapter implements SignatureVerifierPort {
     private static final String KEY_ALGORITHM = "RSA";
     private static final String SIGNATURE_ALGORITHM = "SHA256withRSA";
 
+    /**
+     * Verifies a cryptographic signature.
+     *
+     * @param challenge       the original challenge string
+     * @param signature       the base64 encoded signature
+     * @param publicKeyBase64 the base64 encoded public key
+     * @return true if the signature is valid, false otherwise
+     */
     @Override
     public boolean verifySignature(String challenge, String signature, String publicKeyBase64) {
+        log.debug("Verifying signature for challenge: {}", challenge);
         try {
             byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyBase64);
             X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
@@ -30,7 +45,9 @@ public class CryptoSignatureVerifierAdapter implements SignatureVerifierPort {
             sig.update(challenge.getBytes());
 
             byte[] signatureBytes = Base64.getDecoder().decode(signature);
-            return sig.verify(signatureBytes);
+            boolean isValid = sig.verify(signatureBytes);
+            log.debug("Signature verification result: {}", isValid);
+            return isValid;
         } catch (Exception e) {
             log.error("Failed to verify signature", e);
             return false;

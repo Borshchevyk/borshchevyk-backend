@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.auth.application.dto.command.*;
@@ -26,10 +27,17 @@ import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.response.Register
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.response.VerifyResponse;
 import ru.kubsu.borshchevyk.auth.infrastructure.mapper.*;
 
+/**
+ * REST controller for authentication-related operations.
+ *
+ * @author Aleksey Timko
+ * @since 2026-03-14
+ */
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication", description = "Endpoints for user registration, authentication, and password management")
+@Slf4j
 public class AuthController {
 
     private final RegisterUseCase registerUseCase;
@@ -44,6 +52,12 @@ public class AuthController {
     private final VerifyMapper verifyMapper;
     private final ChangePasswordMapper changePasswordMapper;
 
+    /**
+     * Registers a new user.
+     *
+     * @param registerRequest the registration details
+     * @return the registration response
+     */
     @Operation(summary = "Register a new user", description = "Creates a new user account with the provided email, tag, and password.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User successfully registered",
@@ -59,12 +73,20 @@ public class AuthController {
     public ResponseEntity<RegisterResponse> register(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Registration details", required = true)
             @RequestBody RegisterRequest registerRequest) {
+        log.info("Registering user with email: {}", registerRequest.email());
         RegisterCommand registerCommand = registerMapper.toCommand(registerRequest);
         RegisterResult registerResult = registerUseCase.register(registerCommand);
         RegisterResponse registerResponse = registerMapper.toResponse(registerResult);
+        log.info("User registered successfully: {}", registerResponse.userId());
         return ResponseEntity.ok(registerResponse);
     }
 
+    /**
+     * Logins an existing user (Phase 1).
+     *
+     * @param loginRequest the login credentials
+     * @return the login response (including public key for challenge)
+     */
     @Operation(summary = "Login an existing user", description = "Authenticates a user and returns an access token if credentials are valid.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User successfully logged in",
@@ -80,12 +102,20 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Login credentials", required = true)
             @RequestBody LoginRequest loginRequest) {
+        log.info("Login request for user: {}", loginRequest.email());
         LoginCommand loginCommand = loginMapper.toCommand(loginRequest);
         LoginResult loginResult = loginUseCase.login(loginCommand);
         LoginResponse loginResponse = loginMapper.toResponse(loginResult);
+        log.info("Login phase 1 successful for user: {}", loginRequest.email());
         return ResponseEntity.ok(loginResponse);
     }
 
+    /**
+     * Requests a cryptographic challenge for authentication.
+     *
+     * @param challengeRequest the challenge request details
+     * @return the generated challenge
+     */
     @Operation(summary = "Request cryptographic challenge", description = "Generates a cryptographic challenge for client verification.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Challenge successfully generated",
@@ -99,12 +129,20 @@ public class AuthController {
     public ResponseEntity<ChallengeResponse> challenge(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Challenge request details", required = true)
             @RequestBody ChallengeRequest challengeRequest) {
+        log.info("Challenge requested for user: {}", challengeRequest.userId());
         ChallengeCommand challengeCommand = challengeMapper.toCommand(challengeRequest);
         ChallengeResult challengeResult = challengeUseCase.challenge(challengeCommand);
         ChallengeResponse challengeResponse = challengeMapper.toResponse(challengeResult);
+        log.info("Challenge generated for user: {}", challengeRequest.userId());
         return ResponseEntity.ok(challengeResponse);
     }
 
+    /**
+     * Verifies the cryptographic challenge signature.
+     *
+     * @param verifyRequest the verification details
+     * @return the JWT tokens if verification is successful
+     */
     @Operation(summary = "Verify cryptographic challenge", description = "Verifies the signature of the generated challenge to authenticate.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Challenge successfully verified",
@@ -120,12 +158,20 @@ public class AuthController {
     public ResponseEntity<VerifyResponse> verify(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Verification details", required = true)
             @RequestBody VerifyRequest verifyRequest) {
+        log.info("Verifying challenge for user: {}", verifyRequest.userId());
         VerifyCommand verifyCommand = verifyMapper.toCommand(verifyRequest);
         VerifyResult verifyResult = verifyUseCase.verify(verifyCommand);
         VerifyResponse verifyResponse = verifyMapper.toResponse(verifyResult);
+        log.info("Challenge verified successfully for user: {}", verifyRequest.userId());
         return ResponseEntity.ok(verifyResponse);
     }
 
+    /**
+     * Changes the user's password.
+     *
+     * @param changePasswordRequest the password change details
+     * @return 200 OK if successful
+     */
     @Operation(summary = "Change user password", description = "Updates the user's password if the old password matches.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password successfully changed",
@@ -141,8 +187,10 @@ public class AuthController {
     public ResponseEntity<Void> changePassword(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Password change details", required = true)
             @RequestBody ChangePasswordRequest changePasswordRequest) {
+        log.info("Password change requested for user: {}", changePasswordRequest.getEmail());
         ChangePasswordCommand changePasswordCommand = changePasswordMapper.toCommand(changePasswordRequest);
         changePasswordUseCase.changePassword(changePasswordCommand);
+        log.info("Password changed successfully for user: {}", changePasswordRequest.getEmail());
         return ResponseEntity.ok().build();
     }
 }

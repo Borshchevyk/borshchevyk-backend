@@ -4,6 +4,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import java.util.UUID;
 
+/**
+ * Successful login response (Phase 1).
+ *
+ * @param userId              Internal user UUID
+ * @param publicKey           Base64 encoded RSA Public Key
+ * @param encryptedPrivateKey Base64 encoded encrypted Private Key
+ * @author Aleksey Timko
+ * @since 2026-03-14
+ */
 @Builder
 @Schema(description = "Successful login response (Phase 1)")
 public record LoginResponse(

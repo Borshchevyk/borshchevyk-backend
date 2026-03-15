@@ -1,6 +1,7 @@
 package ru.kubsu.borshchevyk.user.application.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.kubsu.borshchevyk.user.application.port.in.DeleteUserUseCase;
 import ru.kubsu.borshchevyk.user.application.port.out.DeleteUserPort;
@@ -10,6 +11,14 @@ import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 
 import java.util.UUID;
 
+/**
+ * Service for deleting user profiles.
+ * Removes user from the database and publishes a deletion event.
+ *
+ * @author Aleksey Timko
+ * @since 2026-03-15
+ */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DeleteUserService implements DeleteUserUseCase {
@@ -17,13 +26,22 @@ public class DeleteUserService implements DeleteUserUseCase {
     private final DeleteUserPort deleteUserPort;
     private final UserEventPublisherPort userEventPublisherPort;
 
+    /**
+     * Deletes a user profile by ID.
+     *
+     * @param userId UUID of the user to delete
+     */
     @Override
     public void deleteUser(String userId) {
+        log.info("Deleting user profile with ID: {}", userId);
+        
         UserId id = new UserId(UUID.fromString(userId));
         deleteUserPort.deleteUser(id);
         
         userEventPublisherPort.publishDeleted(UserDeletedEvent.builder()
                 .userId(id.getValue())
                 .build());
+        
+        log.info("Successfully deleted user and published event for ID: {}", userId);
     }
 }

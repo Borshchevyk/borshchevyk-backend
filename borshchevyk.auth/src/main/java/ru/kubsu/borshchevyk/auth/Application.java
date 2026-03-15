@@ -1,13 +1,27 @@
 package ru.kubsu.borshchevyk.auth;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * Entry point for the Auth microservice.
+ *
+ * @author Aleksey Timko
+ * @since 2026-03-14
+ */
+@Slf4j
 @SpringBootApplication
 public class Application {
 
-	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
-	}
+    /**
+     * Main method to start the Spring Boot application.
+     *
+     * @param args command line arguments
+     */
+    public static void main(String[] args) {
+        log.info("Starting Auth microservice application...");
+        SpringApplication.run(Application.class, args);
+    }
 
 }

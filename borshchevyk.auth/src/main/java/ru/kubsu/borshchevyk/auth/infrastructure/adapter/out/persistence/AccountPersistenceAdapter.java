@@ -1,6 +1,7 @@
 package ru.kubsu.borshchevyk.auth.infrastructure.adapter.out.persistence;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.kubsu.borshchevyk.auth.application.port.out.LoadAccountPort;
 import ru.kubsu.borshchevyk.auth.domain.model.account.Account;
@@ -10,6 +11,13 @@ import ru.kubsu.borshchevyk.auth.infrastructure.adapter.out.persistence.reposito
 
 import java.util.Optional;
 
+/**
+ * Adapter for loading accounts by ID from the database.
+ *
+ * @author Aleksey Timko
+ * @since 2026-03-14
+ */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AccountPersistenceAdapter implements LoadAccountPort {
@@ -19,6 +27,7 @@ public class AccountPersistenceAdapter implements LoadAccountPort {
 
     @Override
     public Optional<Account> loadAccount(AccountId accountId) {
+        log.info("Loading account with ID: {}", accountId.value());
         return accountRepository.findById(accountId.value())
                 .map(accountMapper::toDomain);
     }

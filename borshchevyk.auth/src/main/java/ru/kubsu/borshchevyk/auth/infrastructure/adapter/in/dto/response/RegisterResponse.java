@@ -4,6 +4,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import java.util.UUID;
 
+/**
+ * Successful registration response.
+ *
+ * @param userId UUID of the newly created user
+ * @author Aleksey Timko
+ * @since 2026-03-14
+ */
 @Builder
 @Schema(description = "Successful registration response")
 public record RegisterResponse(

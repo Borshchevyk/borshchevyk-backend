@@ -16,6 +16,12 @@ import ru.kubsu.borshchevyk.auth.domain.model.value.Tag;
 
 import java.util.Optional;
 
+/**
+ * Service for synchronizing account data based on user events.
+ *
+ * @author Aleksey Timko
+ * @since 2026-03-14
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -25,8 +31,14 @@ public class SyncAccountService implements SyncAccountUseCase {
     private final SaveAccountPort saveAccountPort;
     private final DeleteAccountPort deleteAccountPort;
 
+    /**
+     * Syncs account details when a user updated event is received.
+     *
+     * @param event the user updated event
+     */
     @Override
     public void syncUpdated(UserUpdatedEvent event) {
+        log.info("Processing sync update for user: {}", event.userId());
         Optional<Account> accountOpt = loadAccountPort.loadAccount(new AccountId(event.userId()));
         if (accountOpt.isPresent()) {
             Account account = accountOpt.get();
@@ -43,9 +55,15 @@ public class SyncAccountService implements SyncAccountUseCase {
         }
     }
 
+    /**
+     * Deletes account when a user deleted event is received.
+     *
+     * @param event the user deleted event
+     */
     @Override
     public void syncDeleted(UserDeletedEvent event) {
-        deleteAccountPort.deleteAccount(new AccountId(event.userId()));
+        log.info("Processing sync delete for user: {}", event.userId());
+        deleteAccountPort.delete(new AccountId(event.userId()));
         log.info("Successfully synced deleted account for user: {}", event.userId());
     }
 }
