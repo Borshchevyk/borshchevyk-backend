@@ -1,0 +1,36 @@
+server:
+  port: ${USER_SERVICE_PORT}
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: ${USER_SERVICE_NAME}
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_HIBERNATE_DDL-AUTO}
+    database: ${JPA_DATABASE}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      key-serializer: ${KAFKA_PRODUCER_KEY_SERIALIZER}
+      value-serializer: ${KAFKA_PRODUCER_VALUE_SERIALIZER}
+    consumer:
+      group-id: user-service-group
+
+app:
+  kafka:
+    topics:
+      user-registered: ${KAFKA_TOPIC_USER_REGISTERED}
+      user-updated: ${KAFKA_TOPIC_USER_UPDATED}
+      user-deleted: ${KAFKA_TOPIC_USER_DELETED}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+  api-docs:
+    path: /v3/api-docs

@@ -1,0 +1,45 @@
+server:
+  port: ${AUTH_SERVICE_PORT}
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: ${AUTH_SERVICE_NAME}
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_HIBERNATE_DDL-AUTO}
+    database: ${JPA_DATABASE}
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST}
+      port: ${SPRING_REDIS_PORT}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      key-serializer: ${KAFKA_PRODUCER_KEY_SERIALIZER}
+      value-serializer: ${KAFKA_PRODUCER_VALUE_SERIALIZER}
+    consumer:
+      group-id: auth-service-group
+
+app:
+  kafka:
+    topics:
+      user-registered: ${KAFKA_TOPIC_USER_REGISTERED}
+      user-updated: ${KAFKA_TOPIC_USER_UPDATED}
+      user-deleted: ${KAFKA_TOPIC_USER_DELETED}
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-expiration-ms: ${JWT_ACCESS_EXPIRATION_MS}
+  refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+  api-docs:
+    path: /v3/api-docs
