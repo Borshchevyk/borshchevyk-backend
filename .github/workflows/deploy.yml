@@ -16,8 +16,8 @@ jobs:
           username: ${{ secrets.VPS_SSH_USERNAME }}
           password: ${{ secrets.VPS_SSH_PASSWORD }}
           script: |
-            cd /borshchevyk-backend
-            git pull origin main
+            cd ~/borshchevyk-backend
+            git pull origin dev
             echo "${{ secrets.PROD_ENV_FILE }}" > .env
             docker-compose build
             docker-compose down
