@@ -19,8 +19,6 @@ jobs:
             cd ~/borshchevyk-backend
             git pull origin dev
             echo "${{ secrets.PROD_ENV_FILE }}" > .env
-            chmod +x mvnw
-            ./mvnw clean package -DskipTests
             docker-compose build
             docker-compose down
             docker-compose up -d
