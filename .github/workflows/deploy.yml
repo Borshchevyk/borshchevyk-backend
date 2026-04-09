@@ -19,6 +19,16 @@ jobs:
             cd ~/borshchevyk-backend
             git pull origin dev
             echo "${{ secrets.PROD_ENV_FILE }}" > .env
+            
+            # Устанавливаем Maven на сервер, если он еще не установлен
+            if ! command -v mvn &> /dev/null; then
+              sudo apt-get update
+              sudo apt-get install -y maven
+            fi
+            
+            # Собираем все микросервисы (используя установленный на сервере Maven)
+            mvn clean package -DskipTests
+            
             docker-compose build
             docker-compose down
             docker-compose up -d
