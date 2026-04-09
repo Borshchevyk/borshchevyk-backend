@@ -26,8 +26,11 @@ jobs:
               sudo apt-get install -y maven
             fi
             
-            # Собираем все микросервисы (используя установленный на сервере Maven)
-            mvn clean package -DskipTests
+            # Собираем каждый микросервис отдельно
+            mvn -f borshchevyk.auth/pom.xml clean package -DskipTests
+            mvn -f borshchevyk.gateway/pom.xml clean package -DskipTests
+            mvn -f borshchevyk.message/pom.xml clean package -DskipTests
+            mvn -f borshchevyk.user/pom.xml clean package -DskipTests
             
             docker-compose build
             docker-compose down
