@@ -19,4 +19,8 @@ public interface LoadUserPort {
      * @return an Optional containing the user if found, or empty otherwise
      */
     Optional<User> loadUserById(UserId userId);
+    
+    Optional<User> loadUserByTag(ru.kubsu.borshchevyk.user.domain.model.value.Tag tag);
+    
+    java.util.List<User> searchUsers(String query);
 }

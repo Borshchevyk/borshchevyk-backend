@@ -35,4 +35,16 @@ public class UserJpaEntity {
 
     @Column(name = "tag", unique = true, nullable = false)
     private String tag;
+
+    @Column(name = "first_name")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @Column(name = "bio")
+    private String bio;
+
+    @Column(name = "avatar_url")
+    private String avatarUrl;
 }

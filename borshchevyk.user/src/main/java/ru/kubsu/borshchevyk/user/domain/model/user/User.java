@@ -39,4 +39,24 @@ public class User {
      * User's unique display tag.
      */
     private Tag tag;
+
+    /**
+     * User's first name.
+     */
+    private String firstName;
+
+    /**
+     * User's last name.
+     */
+    private String lastName;
+
+    /**
+     * User's biography.
+     */
+    private String bio;
+
+    /**
+     * URL to the user's avatar image.
+     */
+    private String avatarUrl;
 }

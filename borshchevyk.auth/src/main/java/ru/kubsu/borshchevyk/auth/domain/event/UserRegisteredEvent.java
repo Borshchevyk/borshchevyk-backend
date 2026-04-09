@@ -13,11 +13,13 @@ import java.util.UUID;
  * @param userId the unique identifier of the registered user
  * @param email the email address of the registered user
  * @param tag the user's tag or display name
+ * @param firstName the user's first name
  */
 @Slf4j
 @Builder
 public record UserRegisteredEvent(
         UUID userId,
         String email,
-        String tag
+        String tag,
+        String firstName
 ) {}

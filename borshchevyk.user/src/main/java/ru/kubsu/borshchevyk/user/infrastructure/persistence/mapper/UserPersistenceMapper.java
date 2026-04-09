@@ -30,6 +30,10 @@ public interface UserPersistenceMapper {
     @Mapping(target = "id", source = "userId.value")
     @Mapping(target = "email", source = "email.value")
     @Mapping(target = "tag", source = "tag.value")
+    @Mapping(target = "firstName", source = "firstName")
+    @Mapping(target = "lastName", source = "lastName")
+    @Mapping(target = "bio", source = "bio")
+    @Mapping(target = "avatarUrl", source = "avatarUrl")
     UserJpaEntity toEntity(User user);
 
     /**
@@ -41,6 +45,10 @@ public interface UserPersistenceMapper {
     @Mapping(target = "userId", source = "id", qualifiedByName = "mapToUserId")
     @Mapping(target = "email", source = "email", qualifiedByName = "mapToEmail")
     @Mapping(target = "tag", source = "tag", qualifiedByName = "mapToTag")
+    @Mapping(target = "firstName", source = "firstName")
+    @Mapping(target = "lastName", source = "lastName")
+    @Mapping(target = "bio", source = "bio")
+    @Mapping(target = "avatarUrl", source = "avatarUrl")
     User toDomain(UserJpaEntity entity);
 
     /**

@@ -37,4 +37,17 @@ public class LoadUserAdapter implements LoadUserPort {
         return userRepository.findById(userId.getValue())
                 .map(userMapper::toDomain);
     }
+
+    @Override
+    public Optional<User> loadUserByTag(ru.kubsu.borshchevyk.user.domain.model.value.Tag tag) {
+        return userRepository.findByTag(tag.getValue())
+                .map(userMapper::toDomain);
+    }
+
+    @Override
+    public java.util.List<User> searchUsers(String query) {
+        return userRepository.search(query).stream()
+                .map(userMapper::toDomain)
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

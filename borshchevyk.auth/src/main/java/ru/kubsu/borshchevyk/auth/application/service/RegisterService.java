@@ -74,6 +74,7 @@ public class RegisterService implements RegisterUseCase {
                 .userId(accountId.value())
                 .email(email.getValue())
                 .tag(tag.getValue())
+                .firstName(command.firstName())
                 .build());
 
         log.info("Successfully registered new user with ID: {}", accountId.value());
