@@ -24,6 +24,14 @@ public interface VerifyMapper {
     VerifyCommand toCommand(VerifyRequest request);
 
     /**
+     * Maps refresh request to command.
+     *
+     * @param request the request DTO
+     * @return the command
+     */
+    ru.kubsu.borshchevyk.auth.application.dto.command.RefreshCommand toCommand(ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.RefreshRequest request);
+
+    /**
      * Maps result to response.
      *
      * @param result the domain result

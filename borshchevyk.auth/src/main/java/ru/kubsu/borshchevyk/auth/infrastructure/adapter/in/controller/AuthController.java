@@ -44,6 +44,7 @@ public class AuthController {
     private final LoginUseCase loginUseCase;
     private final ChallengeUseCase challengeUseCase;
     private final VerifyUseCase verifyUseCase;
+    private final RefreshUseCase refreshUseCase;
     private final ChangePasswordUseCase changePasswordUseCase;
 
     private final RegisterMapper registerMapper;
@@ -192,5 +193,32 @@ public class AuthController {
         changePasswordUseCase.changePassword(changePasswordCommand);
         log.info("Password changed successfully for user: {}", changePasswordRequest.getEmail());
         return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Refreshes access and refresh tokens.
+     *
+     * @param refreshRequest the refresh details
+     * @return the new JWT tokens if successful
+     */
+    @Operation(summary = "Refresh tokens", description = "Refreshes access and refresh tokens using a valid refresh token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Tokens successfully refreshed",
+                    content = @Content(schema = @Schema(implementation = VerifyResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token",
+                    content = @Content(schema = @Schema(implementation = AuthServiceException.class))),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = AuthServiceException.class)))
+    })
+    @PostMapping("/refresh")
+    public ResponseEntity<VerifyResponse> refresh(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Refresh details", required = true)
+            @RequestBody RefreshRequest refreshRequest) {
+        log.info("Refresh tokens requested");
+        RefreshCommand refreshCommand = verifyMapper.toCommand(refreshRequest);
+        VerifyResult verifyResult = refreshUseCase.refresh(refreshCommand);
+        VerifyResponse verifyResponse = verifyMapper.toResponse(verifyResult);
+        log.info("Tokens refreshed successfully");
+        return ResponseEntity.ok(verifyResponse);
     }
 }

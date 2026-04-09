@@ -22,7 +22,7 @@ import java.util.Date;
  */
 @Slf4j
 @Component
-public class JwtTokenAdapter implements TokenGeneratorPort {
+public class JwtTokenAdapter implements TokenGeneratorPort, ru.kubsu.borshchevyk.auth.application.port.out.TokenParserPort {
 
     private final SecretKey secretKey;
     private final long accessTokenExpirationMs;
@@ -79,5 +79,27 @@ public class JwtTokenAdapter implements TokenGeneratorPort {
                 .expiration(Date.from(Instant.now().plus(refreshTokenExpirationMs, ChronoUnit.MILLIS)))
                 .signWith(secretKey)
                 .compact();
+    }
+
+    /**
+     * Parses a refresh token and extracts the account ID.
+     *
+     * @param token the refresh token
+     * @return the extracted account ID
+     */
+    @Override
+    public ru.kubsu.borshchevyk.auth.domain.model.value.AccountId parseRefreshToken(String token) {
+        try {
+            String subject = Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getSubject();
+            return new ru.kubsu.borshchevyk.auth.domain.model.value.AccountId(java.util.UUID.fromString(subject));
+        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
+            log.warn("Invalid refresh token: {}", e.getMessage());
+            throw new ru.kubsu.borshchevyk.auth.domain.exception.InvalidCredentialsException();
+        }
     }
 }
