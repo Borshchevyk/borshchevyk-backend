@@ -49,6 +49,7 @@ services:
       retries: 5
 
   auth-service:
+    image: ghcr.io/borshchevyk/borshchevyk-backend/auth-service:latest
     build:
       context: ./borshchevyk.auth
     restart: on-failure
@@ -70,6 +71,7 @@ services:
         condition: service_healthy
 
   user-service:
+    image: ghcr.io/borshchevyk/borshchevyk-backend/user-service:latest
     build:
       context: ./borshchevyk.user
     restart: on-failure
@@ -87,6 +89,7 @@ services:
         condition: service_started
 
   message-service:
+    image: ghcr.io/borshchevyk/borshchevyk-backend/message-service:latest
     build:
       context: ./borshchevyk.message
     restart: on-failure
@@ -108,6 +111,7 @@ services:
         condition: service_healthy
 
   gateway-service:
+    image: ghcr.io/borshchevyk/borshchevyk-backend/gateway-service:latest
     build:
       context: ./borshchevyk.gateway
     ports:
