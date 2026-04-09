@@ -1,0 +1,61 @@
+package ru.kubsu.borshchevyk.message.infrastructure.messaging;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Component;
+import ru.kubsu.borshchevyk.message.application.port.out.MessageEventPublisherPort;
+import ru.kubsu.borshchevyk.message.domain.event.MessageCreatedEvent;
+import ru.kubsu.borshchevyk.message.domain.event.MessageDeletedEvent;
+import ru.kubsu.borshchevyk.message.domain.model.message.Message;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherPort {
+
+    private static final String TOPIC = "messages.events";
+    private static final String TOPIC_DELETED = "messages.deleted.events";
+
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
+
+    @Override
+    public void publishMessageCreatedEvent(Message message) {
+        MessageCreatedEvent event = new MessageCreatedEvent(
+                message.getId() != null ? message.getId().value() : null,
+                message.getChatId() != null ? message.getChatId().value() : null,
+                message.getAuthorId() != null ? message.getAuthorId().value() : null,
+                message.getText(),
+                message.getCreatedAt()
+        );
+
+        try {
+            String payload = objectMapper.writeValueAsString(event);
+            kafkaTemplate.send(TOPIC, message.getId().value().toString(), payload);
+            log.info("Published MessageCreatedEvent to topic {}: {}", TOPIC, payload);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize MessageCreatedEvent", e);
+            throw new RuntimeException("Failed to serialize event", e);
+        }
+    }
+
+    @Override
+    public void publishMessageDeletedEvent(Message message) {
+        MessageDeletedEvent event = new MessageDeletedEvent(
+                message.getId() != null ? message.getId().value() : null,
+                message.getChatId() != null ? message.getChatId().value() : null
+        );
+
+        try {
+            String payload = objectMapper.writeValueAsString(event);
+            kafkaTemplate.send(TOPIC_DELETED, message.getId().value().toString(), payload);
+            log.info("Published MessageDeletedEvent to topic {}: {}", TOPIC_DELETED, payload);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize MessageDeletedEvent", e);
+            throw new RuntimeException("Failed to serialize event", e);
+        }
+    }
+}

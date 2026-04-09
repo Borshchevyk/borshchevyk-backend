@@ -86,17 +86,39 @@ services:
       kafka:
         condition: service_started
 
+  message-service:
+    build:
+      context: ./borshchevyk.message
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_MESSAGE}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+      - SPRING_REDIS_HOST=${SPRING_REDIS_HOST}
+      - SPRING_REDIS_PORT=${SPRING_REDIS_PORT}
+    depends_on:
+      borshchevyk-postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+      borshchevyk-redis:
+        condition: service_healthy
+
   gateway-service:
     build:
       context: ./borshchevyk.gateway
     ports:
-      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+      - "${GATEWAY_PORT}:8080"
     restart: on-failure
     env_file:
       - .env
     depends_on:
       - auth-service
       - user-service
+      - message-service
 
 volumes:
   postgres-data:

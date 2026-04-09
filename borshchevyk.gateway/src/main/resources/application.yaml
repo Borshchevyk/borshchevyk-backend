@@ -27,6 +27,20 @@ spring:
           filters:
             - JwtAuthenticationFilter
 
+        - id: message-service-ws
+          uri: ws://message-service:8083
+          predicates:
+            - Path=/api/v1/messages/ws-message/**
+          filters:
+            - StripPrefix=3
+
+        - id: message-service
+          uri: ${MESSAGE_SERVICE_URL}
+          predicates:
+            - Path=/api/v1/messages/**
+          filters:
+            - JwtAuthenticationFilter
+
         - id: auth-service-swagger
           uri: ${AUTH_SERVICE_URL}
           predicates:
@@ -41,6 +55,13 @@ spring:
           filters:
             - RewritePath=/v3/api-docs/user, /v3/api-docs
 
+        - id: message-service-swagger
+          uri: ${MESSAGE_SERVICE_URL}
+          predicates:
+            - Path=/v3/api-docs/message
+          filters:
+            - RewritePath=/v3/api-docs/message, /v3/api-docs
+
 server:
   port: 8080
 
@@ -52,6 +73,8 @@ springdoc:
         url: /v3/api-docs/auth
       - name: user-service
         url: /v3/api-docs/user
+      - name: message-service
+        url: /v3/api-docs/message
 
 jwt:
   secret: ${JWT_SECRET}

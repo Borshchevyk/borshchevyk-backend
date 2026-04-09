@@ -1,0 +1,38 @@
+package ru.kubsu.borshchevyk.message.infrastructure.persistence.mapper;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember;
+import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
+import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
+import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.ChatMemberEntity;
+
+import java.util.UUID;
+
+@Mapper(componentModel = "spring")
+public interface ChatMemberMapper {
+
+    @Mapping(target = "chatId", source = "chatId")
+    @Mapping(target = "userId", source = "userId")
+    ChatMemberEntity toEntity(ChatMember domain);
+
+    @Mapping(target = "chatId", source = "chatId")
+    @Mapping(target = "userId", source = "userId")
+    ChatMember toDomain(ChatMemberEntity entity);
+
+    default UUID map(ChatId value) {
+        return value != null ? value.value() : null;
+    }
+
+    default ChatId mapChatId(UUID value) {
+        return value != null ? new ChatId(value) : null;
+    }
+
+    default UUID map(UserId value) {
+        return value != null ? value.value() : null;
+    }
+
+    default UserId mapUserId(UUID value) {
+        return value != null ? new UserId(value) : null;
+    }
+}
