@@ -9,7 +9,7 @@ services:
       - POSTGRES_MULTIPLE_DATABASES=${POSTGRES_DB_NAMES}
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./init-dbs.sql:/docker-entrypoint-initdb.d/init-dbs.sql
+      - ./init-dbs.sh:/docker-entrypoint-initdb.d/init-dbs.sh
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
