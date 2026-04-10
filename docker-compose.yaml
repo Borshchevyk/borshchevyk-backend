@@ -1,6 +1,6 @@
 services:
   borshchevyk-postgres:
-    image: postgres:16-alpine
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -15,14 +15,14 @@ services:
       retries: 5
 
   zookeeper:
-    image: confluentinc/cp-zookeeper:7.3.2
+    image: ${ZOOKEEPER_IMAGE:-confluentinc/cp-zookeeper:7.3.2}
     hostname: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
       ZOOKEEPER_TICK_TIME: ${ZOOKEEPER_TICK_TIME}
 
   kafka:
-    image: confluentinc/cp-kafka:7.3.2
+    image: ${KAFKA_IMAGE:-confluentinc/cp-kafka:7.3.2}
     hostname: kafka
     depends_on:
       - zookeeper
@@ -35,7 +35,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}
 
   borshchevyk-redis:
-    image: redis:7-alpine
+    image: ${REDIS_IMAGE:-redis:7-alpine}
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -43,7 +43,7 @@ services:
       retries: 5
 
   auth-service:
-    image: ghcr.io/borshchevyk/borshchevyk-backend/auth-service:latest
+    image: ${AUTH_SERVICE_IMAGE}
     build:
       context: ./borshchevyk.auth
     restart: on-failure
@@ -65,7 +65,7 @@ services:
         condition: service_healthy
 
   user-service:
-    image: ghcr.io/borshchevyk/borshchevyk-backend/user-service:latest
+    image: ${USER_SERVICE_IMAGE}
     build:
       context: ./borshchevyk.user
     restart: on-failure
@@ -83,7 +83,7 @@ services:
         condition: service_started
 
   message-service:
-    image: ghcr.io/borshchevyk/borshchevyk-backend/message-service:latest
+    image: ${MESSAGE_SERVICE_IMAGE}
     build:
       context: ./borshchevyk.message
     restart: on-failure
@@ -105,11 +105,11 @@ services:
         condition: service_healthy
 
   gateway-service:
-    image: ghcr.io/borshchevyk/borshchevyk-backend/gateway-service:latest
+    image: ${GATEWAY_SERVICE_IMAGE}
     build:
       context: ./borshchevyk.gateway
     ports:
-      - "${GATEWAY_PORT}:8080"
+      - "${GATEWAY_PORT}:${GATEWAY_INTERNAL_PORT:-8080}"
     restart: on-failure
     env_file:
       - .env
@@ -117,9 +117,6 @@ services:
       - auth-service
       - user-service
       - message-service
-
-volumes:
-  postgres-data:     - message-service
 
 volumes:
   postgres-data:
