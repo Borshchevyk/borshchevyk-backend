@@ -38,8 +38,6 @@ services:
 
   borshchevyk-redis:
     image: redis:7-alpine
-    ports:
-      - "${SPRING_REDIS_PORT}:${SPRING_REDIS_PORT}"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -121,6 +119,9 @@ services:
       - auth-service
       - user-service
       - message-service
+
+volumes:
+  postgres-data:     - message-service
 
 volumes:
   postgres-data:
