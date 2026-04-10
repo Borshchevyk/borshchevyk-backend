@@ -107,6 +107,12 @@ jobs:
             sudo docker compose pull
             sudo docker compose up -d
             sudo docker image prune -af
+сно
+            echo "$GH_TOKEN" | sudo docker login ghcr.io -u "$GH_ACTOR" --password-stdin
+            
+            sudo docker compose pull
+            sudo docker compose up -d
+            sudo docker image prune -af
   
             sudo docker compose pull
             sudo docker compose up -d
