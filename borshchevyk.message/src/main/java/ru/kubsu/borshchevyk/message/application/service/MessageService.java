@@ -131,15 +131,13 @@ public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCas
             if (isAuthor || (isAdminOrOwner && canDelete)) {
                 message.setDeleted(true);
                 messagePort.save(message);
-                messageEventPublisherPort.publishMessageDeletedEvent(message);
+
+                List<ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember> members = chatMemberPort.findByChatId(chatId);
+                List<String> memberIds = members.stream().map(m -> m.getUserId().value().toString()).collect(Collectors.toList());
+
+                messageEventPublisherPort.publishMessageDeletedEvent(message, memberIds);
             } else {
                 throw new ForbiddenActionException("User is not allowed to delete this message for everyone");
-            }
-        } else {
-            deletedMessagePort.save(messageId, requesterId);
-        }
-    }
-}er is not allowed to delete this message for everyone");
             }
         } else {
             deletedMessagePort.save(messageId, requesterId);
