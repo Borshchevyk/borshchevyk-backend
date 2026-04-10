@@ -8,10 +8,14 @@ spring:
   boot:
     admin:
       context-path: /admin
+      monitor:
+        period: 2s
       ui:
         public-url: "https://borshchevik.su/admin"
         title: "Borshchevyk Monitoring"
         brand: "<img src='assets/img/icon-spring-boot-admin.svg'><span>Borshchevyk</span>"
+      instance-proxy:
+        enabled: true
   security:
     user:
       name: ${ADMIN_USERNAME:admin}
