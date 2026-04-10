@@ -23,7 +23,7 @@ spring:
         - id: user-service
           uri: ${USER_SERVICE_URL}
           predicates:
-            - Path=/api/v1/users/**
+            - Path=/api/v1/users/**, /api/v1/contacts/**
           filters:
             - JwtAuthenticationFilter
 
@@ -37,7 +37,14 @@ spring:
         - id: message-service
           uri: ${MESSAGE_SERVICE_URL}
           predicates:
-            - Path=/api/v1/messages/**
+            - Path=/api/v1/messages/**, /api/v1/chats/**
+          filters:
+            - JwtAuthenticationFilter
+
+        - id: sync-service
+          uri: ${SYNC_SERVICE_URL}
+          predicates:
+            - Path=/api/v1/sync/**
           filters:
             - JwtAuthenticationFilter
 
@@ -62,6 +69,13 @@ spring:
           filters:
             - RewritePath=/v3/api-docs/message, /v3/api-docs
 
+        - id: sync-service-swagger
+          uri: ${SYNC_SERVICE_URL}
+          predicates:
+            - Path=/v3/api-docs/sync
+          filters:
+            - RewritePath=/v3/api-docs/sync, /v3/api-docs
+
 server:
   port: 8080
 
@@ -77,13 +91,6 @@ springdoc:
         url: /v3/api-docs/message
       - name: sync-service
         url: /v3/api-docs/sync
-
-jwt:
-  secret: ${JWT_SECRET}
- - name: user-service
-        url: /v3/api-docs/user
-      - name: message-service
-        url: /v3/api-docs/message
 
 jwt:
   secret: ${JWT_SECRET}
