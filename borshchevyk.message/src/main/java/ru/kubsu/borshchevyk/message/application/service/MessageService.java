@@ -70,9 +70,10 @@ public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCas
 
         Message savedMessage = messagePort.save(message);
 
-        messageEventPublisherPort.publishMessageCreatedEvent(savedMessage);
-
         List<ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember> members = chatMemberPort.findByChatId(chatId);
+        List<String> memberIds = members.stream().map(m -> m.getUserId().value().toString()).collect(Collectors.toList());
+
+        messageEventPublisherPort.publishMessageCreatedEvent(savedMessage, memberIds);
         for (ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember member : members) {
             realtimeNotificationPort.notifyUser(member.getUserId(), savedMessage);
         }
@@ -133,6 +134,12 @@ public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCas
                 messageEventPublisherPort.publishMessageDeletedEvent(message);
             } else {
                 throw new ForbiddenActionException("User is not allowed to delete this message for everyone");
+            }
+        } else {
+            deletedMessagePort.save(messageId, requesterId);
+        }
+    }
+}er is not allowed to delete this message for everyone");
             }
         } else {
             deletedMessagePort.save(messageId, requesterId);

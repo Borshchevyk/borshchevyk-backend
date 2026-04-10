@@ -1,6 +1,7 @@
 package ru.kubsu.borshchevyk.message.domain.event;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record MessageCreatedEvent(
@@ -8,6 +9,7 @@ public record MessageCreatedEvent(
         UUID chatId,
         UUID authorId,
         String text,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        List<String> targetUserIds
 ) {
 }

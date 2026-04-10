@@ -1,19 +1,15 @@
-package ru.kubsu.borshchevyk.message.domain.event;
+package ru.kubsu.borshchevyk.sync.infrastructure.adapter.in.messaging.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-import java.util.UUID;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class MessageDeletedEvent {
-    private UUID messageId;
-    private UUID chatId;
-    private List<String> targetUserIds;
+    private String messageId;
+    private String deletedBy;
 }

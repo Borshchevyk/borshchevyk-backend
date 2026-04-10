@@ -1,0 +1,37 @@
+server:
+  port: ${SYNC_SERVICE_PORT:8085}
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: ${SYNC_SERVICE_NAME:borshchevyk.sync}
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/borshchevyk_sync}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_HIBERNATE_DDL-AUTO:update}
+    database: ${JPA_DATABASE:postgresql}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: sync-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+app:
+  kafka:
+    topics:
+      user-registered: user-registered-events
+      user-updated: user-updated-events
+      message-created: message-created-events
+      message-deleted: message-deleted-events
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+  api-docs:
+    path: /v3/api-docs

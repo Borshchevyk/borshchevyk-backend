@@ -11,6 +11,8 @@ import ru.kubsu.borshchevyk.message.domain.event.MessageCreatedEvent;
 import ru.kubsu.borshchevyk.message.domain.event.MessageDeletedEvent;
 import ru.kubsu.borshchevyk.message.domain.model.message.Message;
 
+import java.util.List;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -23,13 +25,14 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
     private final ObjectMapper objectMapper;
 
     @Override
-    public void publishMessageCreatedEvent(Message message) {
+    public void publishMessageCreatedEvent(Message message, List<String> targetUserIds) {
         MessageCreatedEvent event = new MessageCreatedEvent(
                 message.getId() != null ? message.getId().value() : null,
                 message.getChatId() != null ? message.getChatId().value() : null,
                 message.getAuthorId() != null ? message.getAuthorId().value() : null,
                 message.getText(),
-                message.getCreatedAt()
+                message.getCreatedAt(),
+                targetUserIds
         );
 
         try {
@@ -43,10 +46,11 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
     }
 
     @Override
-    public void publishMessageDeletedEvent(Message message) {
+    public void publishMessageDeletedEvent(Message message, List<String> targetUserIds) {
         MessageDeletedEvent event = new MessageDeletedEvent(
                 message.getId() != null ? message.getId().value() : null,
-                message.getChatId() != null ? message.getChatId().value() : null
+                message.getChatId() != null ? message.getChatId().value() : null,
+                targetUserIds
         );
 
         try {
