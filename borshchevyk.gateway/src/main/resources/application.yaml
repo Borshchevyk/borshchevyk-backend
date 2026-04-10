@@ -107,7 +107,11 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health,info,env,metrics,loggers,httpexchanges"
+        include: "health,info,env,metrics,loggers,httpexchanges,logfile"
   endpoint:
     health:
       show-details: always
+
+logging:
+  file:
+    name: logs/${spring.application.name}.log
