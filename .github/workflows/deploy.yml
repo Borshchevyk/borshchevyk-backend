@@ -69,6 +69,13 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_NAME_PREFIX }}/message-service:latest
 
+      - name: Build and push Sync Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./borshchevyk.sync
+          push: true
+          tags: ${{ env.IMAGE_NAME_PREFIX }}/sync-service:latest
+
       - name: Build and push Gateway Service
         uses: docker/build-push-action@v5
         with:
@@ -104,16 +111,6 @@ jobs:
             # Логинимся в GHCR безопасно
             echo "$GH_TOKEN" | sudo docker login ghcr.io -u "$GH_ACTOR" --password-stdin
             
-            sudo docker compose pull
-            sudo docker compose up -d
-            sudo docker image prune -af
-сно
-            echo "$GH_TOKEN" | sudo docker login ghcr.io -u "$GH_ACTOR" --password-stdin
-            
-            sudo docker compose pull
-            sudo docker compose up -d
-            sudo docker image prune -af
-  
             sudo docker compose pull
             sudo docker compose up -d
             sudo docker image prune -af
