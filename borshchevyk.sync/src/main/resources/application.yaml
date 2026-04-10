@@ -1,5 +1,5 @@
 server:
-  port: ${SYNC_SERVICE_PORT:8085}
+  port: ${SYNC_SERVICE_PORT:8084}
   forward-headers-strategy: framework
 
 spring:
