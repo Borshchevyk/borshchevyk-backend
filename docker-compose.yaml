@@ -52,6 +52,7 @@ services:
     env_file:
       - .env
     environment:
+      - AUTH_SERVICE_PORT=${AUTH_SERVICE_PORT:-8081}
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_AUTH:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_auth}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
@@ -74,6 +75,7 @@ services:
     env_file:
       - .env
     environment:
+      - USER_SERVICE_PORT=${USER_SERVICE_PORT:-8082}
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_USER:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_user}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
@@ -92,6 +94,7 @@ services:
     env_file:
       - .env
     environment:
+      - MESSAGE_SERVICE_PORT=${MESSAGE_SERVICE_PORT:-8083}
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_MESSAGE:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_message}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
@@ -114,6 +117,7 @@ services:
     env_file:
       - .env
     environment:
+      - SYNC_SERVICE_PORT=${SYNC_SERVICE_PORT:-8084}
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_SYNC:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_sync}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
