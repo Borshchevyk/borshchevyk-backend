@@ -105,7 +105,7 @@ services:
         condition: service_healthy
 
   gateway-service:
-    image: ${GATEWAY_SERVICE_IMAGE}
+    image: ${GATEWAY_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/gateway-service:latest}
     build:
       context: ./borshchevyk.gateway
     restart: on-failure
@@ -128,6 +128,14 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     env_file:
+      - .env
+    depends_on:
+      - gateway-service
+
+volumes:
+  postgres-data:
+  caddy_data:
+  caddy_config:file:
       - .env
     depends_on:
       - gateway-service
