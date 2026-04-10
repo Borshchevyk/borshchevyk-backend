@@ -38,7 +38,13 @@ app:
 jwt:
   secret: ${JWT_SECRET}
 
-spring.boot.admin.client.url: "http://admin-service:8085/admin"
+spring:
+  boot:
+    admin:
+      client:
+        url: "http://admin-service:8085/admin"
+        username: ${ADMIN_USERNAME:admin}
+        password: ${ADMIN_PASSWORD:admin}
 
 management:
   endpoints:
