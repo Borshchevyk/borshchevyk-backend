@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   borshchevyk-postgres:
     image: ${POSTGRES_IMAGE:-postgres:16-alpine}
@@ -43,19 +45,19 @@ services:
       retries: 5
 
   auth-service:
-    image: ${AUTH_SERVICE_IMAGE}
+    image: ${AUTH_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/auth-service:latest}
     build:
       context: ./borshchevyk.auth
     restart: on-failure
     env_file:
       - .env
     environment:
-      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_AUTH}
-      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
-      - SPRING_REDIS_HOST=${SPRING_REDIS_HOST}
-      - SPRING_REDIS_PORT=${SPRING_REDIS_PORT}
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_AUTH:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_auth}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}
+      - SPRING_REDIS_HOST=${SPRING_REDIS_HOST:-borshchevyk-redis}
+      - SPRING_REDIS_PORT=${SPRING_REDIS_PORT:-6379}
     depends_on:
       borshchevyk-postgres:
         condition: service_healthy
@@ -65,17 +67,17 @@ services:
         condition: service_healthy
 
   user-service:
-    image: ${USER_SERVICE_IMAGE}
+    image: ${USER_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/user-service:latest}
     build:
       context: ./borshchevyk.user
     restart: on-failure
     env_file:
       - .env
     environment:
-      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_USER}
-      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_USER:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_user}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}
     depends_on:
       borshchevyk-postgres:
         condition: service_healthy
@@ -83,19 +85,19 @@ services:
         condition: service_started
 
   message-service:
-    image: ${MESSAGE_SERVICE_IMAGE}
+    image: ${MESSAGE_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/message-service:latest}
     build:
       context: ./borshchevyk.message
     restart: on-failure
     env_file:
       - .env
     environment:
-      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_MESSAGE}
-      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
-      - SPRING_REDIS_HOST=${SPRING_REDIS_HOST}
-      - SPRING_REDIS_PORT=${SPRING_REDIS_PORT}
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_MESSAGE:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_message}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}
+      - SPRING_REDIS_HOST=${SPRING_REDIS_HOST:-borshchevyk-redis}
+      - SPRING_REDIS_PORT=${SPRING_REDIS_PORT:-6379}
     depends_on:
       borshchevyk-postgres:
         condition: service_healthy
@@ -103,6 +105,24 @@ services:
         condition: service_started
       borshchevyk-redis:
         condition: service_healthy
+
+  sync-service:
+    image: ${SYNC_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/sync-service:latest}
+    build:
+      context: ./borshchevyk.sync
+    restart: on-failure
+    env_file:
+      - .env
+    environment:
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_SYNC:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_sync}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}
+    depends_on:
+      borshchevyk-postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
 
   gateway-service:
     image: ${GATEWAY_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/gateway-service:latest}
@@ -134,49 +154,6 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     env_file:
-      - .env
-    depends_on:
-      - gateway-service
-
-volumes:
-  postgres-data:
-  caddy_data:
-  caddy_config:file:
-      - .env
-    depends_on:
-      - gateway-service
-
-volumes:
-  postgres-data:
-  caddy_data:
-  caddy_config:  restart: on-failure
-    env_file:
-      - .env
-    depends_on:
-      - auth-service
-      - user-service
-      - message-service
-
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "${CADDY_HTTP_PORT:-80}:80"
-      - "${CADDY_HTTPS_PORT:-443}:443"
-      - "${CADDY_HTTPS_PORT:-443}:443/udp"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    env_file:
-      - .env
-    depends_on:
-      - gateway-service
-
-volumes:
-  postgres-data:
-  caddy_data:
-  caddy_config:file:
       - .env
     depends_on:
       - gateway-service
