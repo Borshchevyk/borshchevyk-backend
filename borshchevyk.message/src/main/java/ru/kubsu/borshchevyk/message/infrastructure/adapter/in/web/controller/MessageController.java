@@ -18,6 +18,7 @@ import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request.SendMessageRequest;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.MessageResponse;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.mapper.PresentationMessageMapper;
+import ru.kubsu.borshchevyk.message.infrastructure.exception.MessageErrorResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -38,8 +39,10 @@ public class MessageController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Message sent successfully",
                     content = @Content(schema = @Schema(implementation = MessageResponse.class))),
-            @ApiResponse(responseCode = "403", description = "User is not a member of the chat"),
-            @ApiResponse(responseCode = "404", description = "Chat not found")
+            @ApiResponse(responseCode = "403", description = "User is not a member of the chat",
+                    content = @Content(schema = @Schema(implementation = MessageErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Chat not found",
+                    content = @Content(schema = @Schema(implementation = MessageErrorResponse.class)))
     })
     @PostMapping
     public MessageResponse sendMessage(
@@ -76,7 +79,8 @@ public class MessageController {
     @Operation(summary = "Delete a message", description = "Deletes a specific message.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Message deleted successfully"),
-            @ApiResponse(responseCode = "403", description = "User is not allowed to delete this message")
+            @ApiResponse(responseCode = "403", description = "User is not allowed to delete this message",
+                    content = @Content(schema = @Schema(implementation = MessageErrorResponse.class)))
     })
     @DeleteMapping("/{messageId}")
     public void deleteMessage(

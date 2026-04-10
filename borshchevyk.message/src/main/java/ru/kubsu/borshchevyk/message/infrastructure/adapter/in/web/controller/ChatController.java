@@ -20,6 +20,7 @@ import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request.CreateChatRequest;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ChatResponse;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.mapper.PresentationChatMapper;
+import ru.kubsu.borshchevyk.message.infrastructure.exception.MessageErrorResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -42,7 +43,8 @@ public class ChatController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Chat created successfully",
                     content = @Content(schema = @Schema(implementation = ChatResponse.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid request format")
+            @ApiResponse(responseCode = "400", description = "Invalid request format",
+                    content = @Content(schema = @Schema(implementation = MessageErrorResponse.class)))
     })
     @PostMapping
     public ChatResponse createChat(
@@ -76,7 +78,8 @@ public class ChatController {
     @Operation(summary = "Update member permissions", description = "Updates the permissions of a chat member.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Permissions updated successfully"),
-            @ApiResponse(responseCode = "403", description = "User is not allowed to update permissions")
+            @ApiResponse(responseCode = "403", description = "User is not allowed to update permissions",
+                    content = @Content(schema = @Schema(implementation = MessageErrorResponse.class)))
     })
     @PatchMapping("/{chatId}/members/{targetUserId}/permissions")
     public void updatePermissions(
@@ -101,7 +104,8 @@ public class ChatController {
     @Operation(summary = "Clear chat history", description = "Clears history of the chat for the requester, or for all members if specified (private chats only).")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Chat history cleared successfully"),
-            @ApiResponse(responseCode = "403", description = "Forbidden to clear history for all in non-private chat")
+            @ApiResponse(responseCode = "403", description = "Forbidden to clear history for all in non-private chat",
+                    content = @Content(schema = @Schema(implementation = MessageErrorResponse.class)))
     })
     @DeleteMapping("/{chatId}/history")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -123,7 +127,8 @@ public class ChatController {
     @Operation(summary = "Delete chat", description = "Deletes the chat (soft delete).")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Chat deleted successfully"),
-            @ApiResponse(responseCode = "403", description = "Forbidden to delete chat")
+            @ApiResponse(responseCode = "403", description = "Forbidden to delete chat",
+                    content = @Content(schema = @Schema(implementation = MessageErrorResponse.class)))
     })
     @DeleteMapping("/{chatId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

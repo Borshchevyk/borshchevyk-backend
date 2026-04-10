@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.kubsu.borshchevyk.auth.domain.exception.MessagingSerializationException;
 
 /**
  * Helper component for JSON serialization.
@@ -24,14 +25,14 @@ public class JsonStringSerializer {
      *
      * @param object the object to serialize
      * @return the JSON string
-     * @throws RuntimeException if serialization fails
+     * @throws MessagingSerializationException if serialization fails
      */
     public String serialize(Object object) {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize object of type: {}", object.getClass().getName(), e);
-            throw new RuntimeException("Failed to serialize object to JSON", e);
+            throw new MessagingSerializationException("Failed to serialize object to JSON", e);
         }
     }
 }

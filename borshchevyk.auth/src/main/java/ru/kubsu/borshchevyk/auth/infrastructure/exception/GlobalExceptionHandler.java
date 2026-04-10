@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import ru.kubsu.borshchevyk.auth.domain.exception.AuthErrorResponse;
 import ru.kubsu.borshchevyk.auth.domain.exception.AuthServiceException;
+import ru.kubsu.borshchevyk.auth.domain.exception.IncorrectInputFormatException;
 import ru.kubsu.borshchevyk.auth.domain.exception.InvalidCredentialsException;
+import ru.kubsu.borshchevyk.auth.domain.exception.MessagingSerializationException;
 import ru.kubsu.borshchevyk.auth.domain.exception.UserAlreadyExistsException;
 
 import java.time.LocalDateTime;
@@ -47,6 +49,18 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * Handles {@link IncorrectInputFormatException}.
+     *
+     * @param ex the exception
+     * @return the error response
+     */
+    @ExceptionHandler(IncorrectInputFormatException.class)
+    public ResponseEntity<AuthErrorResponse> handleIncorrectInputFormat(IncorrectInputFormatException ex) {
+        log.warn("Incorrect input format: {}", ex.getMessage());
+        return AuthErrorResponse.buildResponse(HttpStatus.BAD_REQUEST, ex);
+    }
+
+    /**
      * Handles {@link AuthServiceException}.
      *
      * @param ex the exception
@@ -56,6 +70,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<AuthErrorResponse> handleAuthServiceException(AuthServiceException ex) {
         log.error("Auth service exception: {}", ex.getMessage());
         return AuthErrorResponse.buildResponse(HttpStatus.BAD_REQUEST, ex);
+    }
+
+    /**
+     * Handles {@link MessagingSerializationException}.
+     *
+     * @param ex the exception
+     * @return the error response
+     */
+    @ExceptionHandler(MessagingSerializationException.class)
+    public ResponseEntity<AuthErrorResponse> handleMessagingSerializationException(MessagingSerializationException ex) {
+        log.error("Messaging serialization exception", ex);
+        AuthErrorResponse response = new AuthErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                "INTERNAL_SERVER_ERROR",
+                ex.getMessage()
+        );
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**

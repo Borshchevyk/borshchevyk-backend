@@ -1,6 +1,8 @@
 package ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -14,6 +16,7 @@ import ru.kubsu.borshchevyk.user.application.port.in.SearchUsersUseCase;
 import ru.kubsu.borshchevyk.user.application.port.in.UpdatePrivacySettingsUseCase;
 import ru.kubsu.borshchevyk.user.application.port.in.GetPrivacySettingsUseCase;
 import ru.kubsu.borshchevyk.user.application.port.in.UpdateProfileUseCase;
+import ru.kubsu.borshchevyk.user.domain.exception.UserErrorResponse;
 import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.request.UpdatePrivacySettingsRequest;
 import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.request.UpdateProfileRequest;
 import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.response.PrivacySettingsResponse;
@@ -53,7 +56,7 @@ public class UserController {
 
     @Operation(summary = "Get user profile", description = "Gets profile by userId or tag")
     @ApiResponse(responseCode = "200", description = "Profile found")
-    @ApiResponse(responseCode = "404", description = "User not found")
+    @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = UserErrorResponse.class)))
     @GetMapping("/{userIdOrTag}")
     public ResponseEntity<UserProfileResponse> getUserProfile(
             @PathVariable String userIdOrTag,

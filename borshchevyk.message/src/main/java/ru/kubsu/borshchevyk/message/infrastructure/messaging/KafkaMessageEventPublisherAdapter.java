@@ -10,6 +10,7 @@ import ru.kubsu.borshchevyk.message.application.port.out.MessageEventPublisherPo
 import ru.kubsu.borshchevyk.message.domain.event.MessageCreatedEvent;
 import ru.kubsu.borshchevyk.message.domain.event.MessageDeletedEvent;
 import ru.kubsu.borshchevyk.message.domain.model.message.Message;
+import ru.kubsu.borshchevyk.message.domain.exception.MessagingSerializationException;
 
 import java.util.List;
 
@@ -41,7 +42,7 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
             log.info("Published MessageCreatedEvent to topic {}: {}", TOPIC, payload);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize MessageCreatedEvent", e);
-            throw new RuntimeException("Failed to serialize event", e);
+            throw new MessagingSerializationException("Failed to serialize event", e);
         }
     }
 
@@ -59,7 +60,7 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
             log.info("Published MessageDeletedEvent to topic {}: {}", TOPIC_DELETED, payload);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize MessageDeletedEvent", e);
-            throw new RuntimeException("Failed to serialize event", e);
+            throw new MessagingSerializationException("Failed to serialize event", e);
         }
     }
 }

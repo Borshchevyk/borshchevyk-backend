@@ -12,10 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.auth.application.dto.command.*;
 import ru.kubsu.borshchevyk.auth.application.port.in.*;
-import ru.kubsu.borshchevyk.auth.domain.exception.AuthServiceException;
-import ru.kubsu.borshchevyk.auth.domain.exception.IncorrectInputFormatException;
-import ru.kubsu.borshchevyk.auth.domain.exception.InvalidCredentialsException;
-import ru.kubsu.borshchevyk.auth.domain.exception.UserAlreadyExistsException;
+import ru.kubsu.borshchevyk.auth.domain.exception.AuthErrorResponse;
 import ru.kubsu.borshchevyk.auth.domain.model.result.ChallengeResult;
 import ru.kubsu.borshchevyk.auth.domain.model.result.LoginResult;
 import ru.kubsu.borshchevyk.auth.domain.model.result.RegisterResult;
@@ -64,11 +61,11 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "User successfully registered",
                     content = @Content(schema = @Schema(implementation = RegisterResponse.class))),
             @ApiResponse(responseCode = "400", description = "Invalid input format (e.g. invalid email or tag)",
-                    content = @Content(schema = @Schema(implementation = IncorrectInputFormatException.class))),
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class))),
             @ApiResponse(responseCode = "409", description = "User with this email or tag already exists",
-                    content = @Content(schema = @Schema(implementation = UserAlreadyExistsException.class))),
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(schema = @Schema(implementation = AuthServiceException.class)))
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class)))
     })
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(
@@ -93,11 +90,11 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "User successfully logged in",
                     content = @Content(schema = @Schema(implementation = LoginResponse.class))),
             @ApiResponse(responseCode = "401", description = "Invalid credentials",
-                    content = @Content(schema = @Schema(implementation = InvalidCredentialsException.class))),
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class))),
             @ApiResponse(responseCode = "400", description = "Bad request data",
-                    content = @Content(schema = @Schema(implementation = AuthServiceException.class))),
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(schema = @Schema(implementation = AuthServiceException.class)))
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class)))
     })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
@@ -122,9 +119,9 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Challenge successfully generated",
                     content = @Content(schema = @Schema(implementation = ChallengeResponse.class))),
             @ApiResponse(responseCode = "404", description = "Account not found",
-                    content = @Content(schema = @Schema(implementation = InvalidCredentialsException.class))),
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(schema = @Schema(implementation = AuthServiceException.class)))
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class)))
     })
     @PostMapping("/challenge")
     public ResponseEntity<ChallengeResponse> challenge(
@@ -149,11 +146,11 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Challenge successfully verified",
                     content = @Content(schema = @Schema(implementation = VerifyResponse.class))),
             @ApiResponse(responseCode = "401", description = "Invalid signature or challenge expired",
-                    content = @Content(schema = @Schema(implementation = AuthServiceException.class))),
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Account not found",
-                    content = @Content(schema = @Schema(implementation = AuthServiceException.class))),
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(schema = @Schema(implementation = AuthServiceException.class)))
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class)))
     })
     @PostMapping("/verify")
     public ResponseEntity<VerifyResponse> verify(
@@ -178,11 +175,11 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Password successfully changed",
                     content = @Content(schema = @Schema())),
             @ApiResponse(responseCode = "401", description = "Invalid old password",
-                    content = @Content(schema = @Schema(implementation = InvalidCredentialsException.class))),
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class))),
             @ApiResponse(responseCode = "404", description = "Account not found",
-                    content = @Content(schema = @Schema(implementation = InvalidCredentialsException.class))),
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(schema = @Schema(implementation = AuthServiceException.class)))
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class)))
     })
     @PatchMapping("/password")
     public ResponseEntity<Void> changePassword(
@@ -206,9 +203,9 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "Tokens successfully refreshed",
                     content = @Content(schema = @Schema(implementation = VerifyResponse.class))),
             @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token",
-                    content = @Content(schema = @Schema(implementation = AuthServiceException.class))),
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class))),
             @ApiResponse(responseCode = "500", description = "Internal server error",
-                    content = @Content(schema = @Schema(implementation = AuthServiceException.class)))
+                    content = @Content(schema = @Schema(implementation = AuthErrorResponse.class)))
     })
     @PostMapping("/refresh")
     public ResponseEntity<VerifyResponse> refresh(
