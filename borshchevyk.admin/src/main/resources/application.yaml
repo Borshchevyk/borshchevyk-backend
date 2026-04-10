@@ -1,5 +1,6 @@
 server:
   port: 8085
+  forward-headers-strategy: framework
 
 spring:
   application:
@@ -8,6 +9,7 @@ spring:
     admin:
       context-path: /admin
       ui:
+        public-url: "https://borshchevik.su/admin"
         title: "Borshchevyk Monitoring"
         brand: "<img src='assets/img/icon-spring-boot-admin.svg'><span>Borshchevyk</span>"
   security:
