@@ -3,6 +3,8 @@ package ru.kubsu.borshchevyk.message.infrastructure.persistence.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -33,4 +35,8 @@ public class MessageEntity {
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source", nullable = false)
+    private MessageSource source;
 }

@@ -14,6 +14,7 @@ import ru.kubsu.borshchevyk.message.application.dto.command.SendMessageCommand;
 import ru.kubsu.borshchevyk.message.application.port.in.LoadChatHistoryUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.SendMessageUseCase;
 import ru.kubsu.borshchevyk.message.domain.model.message.Message;
+import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request.SendMessageRequest;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.MessageResponse;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.mapper.PresentationMessageMapper;
@@ -50,6 +51,7 @@ public class MessageController {
                 .chatId(chatId)
                 .authorId(userId)
                 .text(request.text())
+                .source(request.source() != null ? request.source() : MessageSource.ONLINE)
                 .build();
         
         Message message = sendMessageUseCase.sendMessage(command);

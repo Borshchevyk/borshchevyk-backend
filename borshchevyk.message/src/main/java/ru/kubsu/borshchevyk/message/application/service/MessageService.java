@@ -65,6 +65,7 @@ public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCas
                 .text(command.getText())
                 .createdAt(LocalDateTime.now())
                 .isDeleted(false)
+                .source(command.getSource())
                 .build();
 
         Message savedMessage = messagePort.save(message);

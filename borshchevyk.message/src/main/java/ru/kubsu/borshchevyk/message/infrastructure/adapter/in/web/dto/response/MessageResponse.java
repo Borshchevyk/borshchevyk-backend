@@ -1,6 +1,7 @@
 package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -18,6 +19,8 @@ public record MessageResponse(
         @Schema(description = "Timestamp when the message was sent")
         LocalDateTime createdAt,
         @Schema(description = "Indicates if the message is deleted")
-        boolean isDeleted
+        boolean isDeleted,
+        @Schema(description = "Source of the message")
+        MessageSource source
 ) {
 }

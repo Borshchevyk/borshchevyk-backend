@@ -21,4 +21,5 @@ public class Message {
     private String text;
     private LocalDateTime createdAt;
     private boolean isDeleted;
+    private MessageSource source;
 }
