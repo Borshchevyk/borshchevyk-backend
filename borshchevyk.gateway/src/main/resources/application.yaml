@@ -75,6 +75,15 @@ springdoc:
         url: /v3/api-docs/user
       - name: message-service
         url: /v3/api-docs/message
+      - name: sync-service
+        url: /v3/api-docs/sync
+
+jwt:
+  secret: ${JWT_SECRET}
+ - name: user-service
+        url: /v3/api-docs/user
+      - name: message-service
+        url: /v3/api-docs/message
 
 jwt:
   secret: ${JWT_SECRET}
