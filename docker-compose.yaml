@@ -108,8 +108,6 @@ services:
     image: ${GATEWAY_SERVICE_IMAGE}
     build:
       context: ./borshchevyk.gateway
-    ports:
-      - "${GATEWAY_PORT}:${GATEWAY_INTERNAL_PORT:-8080}"
     restart: on-failure
     env_file:
       - .env
@@ -118,5 +116,23 @@ services:
       - user-service
       - message-service
 
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    env_file:
+      - .env
+    depends_on:
+      - gateway-service
+
 volumes:
   postgres-data:
+  caddy_data:
+  caddy_config:
