@@ -37,3 +37,14 @@ app:
 
 jwt:
   secret: ${JWT_SECRET}
+
+spring.boot.admin.client.url: "http://admin-service:8085/admin"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,env,metrics,loggers,httpexchanges"
+  endpoint:
+    health:
+      show-details: always

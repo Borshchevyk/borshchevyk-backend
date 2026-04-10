@@ -83,6 +83,13 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_NAME_PREFIX }}/gateway-service:latest
 
+      - name: Build and push Admin Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./borshchevyk.admin
+          push: true
+          tags: ${{ env.IMAGE_NAME_PREFIX }}/admin-service:latest
+
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest

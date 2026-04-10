@@ -152,6 +152,19 @@ services:
       - message-service
       - sync-service
 
+  admin-service:
+    image: ${ADMIN_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/admin-service:latest}
+    build:
+      context: ./borshchevyk.admin
+    restart: on-failure
+    ports:
+      - "${ADMIN_SERVICE_PORT:-8085}:${ADMIN_SERVICE_PORT:-8085}"
+    env_file:
+      - .env
+    environment:
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped

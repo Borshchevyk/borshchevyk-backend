@@ -1,0 +1,16 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: admin-service
+  boot:
+    admin:
+      context-path: /admin
+      ui:
+        title: "Borshchevyk Monitoring"
+        brand: "<img src='assets/img/icon-spring-boot-admin.svg'><span>Borshchevyk</span>"
+  security:
+    user:
+      name: ${ADMIN_USERNAME:admin}
+      password: ${ADMIN_PASSWORD:admin}
