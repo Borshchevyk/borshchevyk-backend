@@ -12,4 +12,5 @@ public interface ChatMemberPort {
     void saveAll(List<ChatMember> members);
     Optional<ChatMember> findByChatIdAndUserId(ChatId chatId, UserId userId);
     List<ChatMember> findByChatId(ChatId chatId);
+    List<ChatMember> findByUserId(UserId userId);
 }

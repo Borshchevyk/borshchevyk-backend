@@ -11,6 +11,7 @@ import ru.kubsu.borshchevyk.message.application.dto.command.UpdatePermissionsCom
 import ru.kubsu.borshchevyk.message.application.port.in.ClearChatHistoryUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.CreateChatUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.DeleteChatUseCase;
+import ru.kubsu.borshchevyk.message.application.port.in.LoadUserChatsUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.UpdateMemberPermissionsUseCase;
 import ru.kubsu.borshchevyk.message.application.port.out.ChatMemberPort;
 import ru.kubsu.borshchevyk.message.application.port.out.ChatPort;
@@ -27,11 +28,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ChatService implements CreateChatUseCase, UpdateMemberPermissionsUseCase, ClearChatHistoryUseCase, DeleteChatUseCase {
+public class ChatService implements CreateChatUseCase, UpdateMemberPermissionsUseCase, ClearChatHistoryUseCase, DeleteChatUseCase, LoadUserChatsUseCase {
 
     private final ChatPort chatPort;
     private final ChatMemberPort chatMemberPort;
@@ -78,6 +80,23 @@ public class ChatService implements CreateChatUseCase, UpdateMemberPermissionsUs
 
         log.info("Chat created successfully with ID: {}", chat.getId().value());
         return chat;
+    }
+
+    @Override
+    @Transactional
+    public List<Chat> loadUserChats(UserId userId) {
+        log.info("Loading chats for user: {}", userId.value());
+        List<ChatMember> members = chatMemberPort.findByUserId(userId);
+        if (members.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<ChatId> chatIds = members.stream()
+                .map(ChatMember::getChatId)
+                .collect(Collectors.toList());
+        List<Chat> chats = chatPort.findByIdIn(chatIds);
+        return chats.stream()
+                .filter(chat -> !chat.isDeleted())
+                .collect(Collectors.toList());
     }
 
     @Override

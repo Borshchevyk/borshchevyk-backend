@@ -15,11 +15,13 @@ import ru.kubsu.borshchevyk.message.application.dto.command.CreateChatCommand;
 import ru.kubsu.borshchevyk.message.application.port.in.ClearChatHistoryUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.CreateChatUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.DeleteChatUseCase;
+import ru.kubsu.borshchevyk.message.application.port.in.LoadUserChatsUseCase;
 import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request.CreateChatRequest;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ChatResponse;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.mapper.PresentationChatMapper;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -33,6 +35,7 @@ public class ChatController {
     private final ru.kubsu.borshchevyk.message.application.port.in.UpdateMemberPermissionsUseCase updateMemberPermissionsUseCase;
     private final ClearChatHistoryUseCase clearChatHistoryUseCase;
     private final DeleteChatUseCase deleteChatUseCase;
+    private final LoadUserChatsUseCase loadUserChatsUseCase;
     private final PresentationChatMapper presentationChatMapper;
 
     @Operation(summary = "Create a new chat", description = "Creates a new chat with the given type, title, description, and initial members.")
@@ -56,6 +59,18 @@ public class ChatController {
         
         Chat chat = createChatUseCase.createChat(command);
         return presentationChatMapper.toResponse(chat);
+    }
+
+    @Operation(summary = "Get user chats", description = "Retrieves a list of chats for the authenticated user.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of chats retrieved successfully")
+    })
+    @GetMapping
+    public List<ChatResponse> getUserChats(
+            @RequestHeader("X-User-Id") @Parameter(description = "ID of the authenticated user") UUID userId) {
+        log.info("Request to get chats for user: {}", userId);
+        List<Chat> chats = loadUserChatsUseCase.loadUserChats(new ru.kubsu.borshchevyk.message.domain.model.value.UserId(userId));
+        return presentationChatMapper.toResponseList(chats);
     }
 
     @Operation(summary = "Update member permissions", description = "Updates the permissions of a chat member.")

@@ -51,4 +51,12 @@ public class ChatMemberAdapter implements ChatMemberPort {
                 .map(chatMemberMapper::toDomain)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<ChatMember> findByUserId(UserId userId) {
+        return chatMemberRepository.findByUserId(userId.value())
+                .stream()
+                .map(chatMemberMapper::toDomain)
+                .collect(Collectors.toList());
+    }
 }

@@ -9,7 +9,9 @@ import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.ChatEntity
 import ru.kubsu.borshchevyk.message.infrastructure.persistence.mapper.ChatMapper;
 import ru.kubsu.borshchevyk.message.infrastructure.persistence.repository.ChatRepository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -29,5 +31,16 @@ public class ChatAdapter implements ChatPort {
     public Optional<Chat> findById(ChatId chatId) {
         return chatRepository.findById(chatId.value())
                 .map(chatMapper::toDomain);
+    }
+
+    @Override
+    public List<Chat> findByIdIn(List<ChatId> chatIds) {
+        List<java.util.UUID> uuids = chatIds.stream()
+                .map(ChatId::value)
+                .collect(Collectors.toList());
+        return chatRepository.findByIdIn(uuids)
+                .stream()
+                .map(chatMapper::toDomain)
+                .collect(Collectors.toList());
     }
 }
