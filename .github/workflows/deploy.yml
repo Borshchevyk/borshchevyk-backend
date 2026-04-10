@@ -35,6 +35,9 @@ jobs:
       - name: Build Message Service
         run: mvn -f borshchevyk.message/pom.xml clean package -DskipTests
 
+      - name: Build Sync Service
+        run: mvn -f borshchevyk.sync/pom.xml clean package -DskipTests
+
       - name: Build Gateway Service
         run: mvn -f borshchevyk.gateway/pom.xml clean package -DskipTests
 
@@ -101,6 +104,10 @@ jobs:
             # Логинимся в GHCR безопасно
             echo "$GH_TOKEN" | sudo docker login ghcr.io -u "$GH_ACTOR" --password-stdin
             
+            sudo docker compose pull
+            sudo docker compose up -d
+            sudo docker image prune -af
+  
             sudo docker compose pull
             sudo docker compose up -d
             sudo docker image prune -af
