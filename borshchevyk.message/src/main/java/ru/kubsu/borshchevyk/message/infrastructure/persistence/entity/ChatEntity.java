@@ -30,6 +30,9 @@ public class ChatEntity {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "invite_code")
+    private String inviteCode;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

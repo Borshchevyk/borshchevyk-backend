@@ -17,6 +17,7 @@ public class Chat {
     private ChatType type;
     private String title;
     private String description;
+    private String inviteCode;
     private LocalDateTime createdAt;
     private boolean isDeleted;
 }

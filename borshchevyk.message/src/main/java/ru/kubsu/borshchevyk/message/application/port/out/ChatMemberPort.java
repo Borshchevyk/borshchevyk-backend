@@ -13,4 +13,5 @@ public interface ChatMemberPort {
     Optional<ChatMember> findByChatIdAndUserId(ChatId chatId, UserId userId);
     List<ChatMember> findByChatId(ChatId chatId);
     List<ChatMember> findByUserId(UserId userId);
+    void delete(ChatMember member);
 }

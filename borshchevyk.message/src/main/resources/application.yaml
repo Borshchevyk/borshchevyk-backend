@@ -43,6 +43,7 @@ app:
   kafka:
     topics:
       user-deleted: user-deleted-events
+      user-registered: user-registered-events
 
 jwt:
   secret: ${JWT_SECRET}

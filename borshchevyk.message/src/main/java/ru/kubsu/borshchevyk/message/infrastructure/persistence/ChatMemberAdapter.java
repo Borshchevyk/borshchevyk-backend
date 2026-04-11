@@ -59,4 +59,9 @@ public class ChatMemberAdapter implements ChatMemberPort {
                 .map(chatMemberMapper::toDomain)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void delete(ChatMember member) {
+        chatMemberRepository.delete(chatMemberMapper.toEntity(member));
+    }
 }

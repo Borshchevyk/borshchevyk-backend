@@ -43,4 +43,16 @@ public class ChatAdapter implements ChatPort {
                 .map(chatMapper::toDomain)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Optional<Chat> findPrivateChatBetweenUsers(ru.kubsu.borshchevyk.message.domain.model.value.UserId userId1, ru.kubsu.borshchevyk.message.domain.model.value.UserId userId2) {
+        return chatRepository.findPrivateChatBetweenUsers(userId1.value(), userId2.value())
+                .map(chatMapper::toDomain);
+    }
+
+    @Override
+    public Optional<Chat> findByInviteCode(String inviteCode) {
+        return chatRepository.findByInviteCode(inviteCode)
+                .map(chatMapper::toDomain);
+    }
 }
