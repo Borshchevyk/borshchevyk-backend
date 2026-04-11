@@ -15,6 +15,7 @@ import ru.kubsu.borshchevyk.message.application.port.out.DeletedMessagePort;
 import ru.kubsu.borshchevyk.message.application.port.out.MessageEventPublisherPort;
 import ru.kubsu.borshchevyk.message.application.port.out.MessagePort;
 import ru.kubsu.borshchevyk.message.domain.exception.ChatNotFoundException;
+import ru.kubsu.borshchevyk.message.domain.exception.MessageNotFoundException;
 import ru.kubsu.borshchevyk.message.domain.exception.ForbiddenActionException;
 import ru.kubsu.borshchevyk.message.domain.exception.UserNotInChatException;
 import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
@@ -116,7 +117,7 @@ public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCas
         UserId requesterId = new UserId(command.getRequesterId());
 
         Message message = messagePort.findById(messageId)
-                .orElseThrow(() -> new RuntimeException("Message not found with id: " + command.getMessageId()));
+                .orElseThrow(() -> new MessageNotFoundException("Message not found with id: " + command.getMessageId()));
 
         ChatId chatId = message.getChatId();
 

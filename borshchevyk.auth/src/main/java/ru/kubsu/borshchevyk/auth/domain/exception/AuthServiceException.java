@@ -44,6 +44,18 @@ public abstract class AuthServiceException extends RuntimeException {
         /**
          * Input format for email or tag is invalid.
          */
-        INCORRECT_FORMAT
+        INCORRECT_FORMAT,
+        /**
+         * Challenge has expired or was not found.
+         */
+        CHALLENGE_EXPIRED,
+        /**
+         * Cryptographic signature is invalid.
+         */
+        INVALID_SIGNATURE,
+        /**
+         * Account not found.
+         */
+        ACCOUNT_NOT_FOUND
     }
 }

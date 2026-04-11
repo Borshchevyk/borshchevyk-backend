@@ -19,6 +19,12 @@ public class GlobalExceptionHandler {
         return MessageErrorResponse.buildResponse(HttpStatus.NOT_FOUND, ex);
     }
 
+    @ExceptionHandler(MessageNotFoundException.class)
+    public ResponseEntity<MessageErrorResponse> handleMessageNotFound(MessageNotFoundException ex) {
+        log.warn("Message not found: {}", ex.getMessage());
+        return MessageErrorResponse.buildResponse(HttpStatus.NOT_FOUND, ex);
+    }
+
     @ExceptionHandler(ForbiddenActionException.class)
     public ResponseEntity<MessageErrorResponse> handleForbidden(ForbiddenActionException ex) {
         log.warn("Forbidden action: {}", ex.getMessage());

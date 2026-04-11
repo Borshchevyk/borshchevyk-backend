@@ -11,6 +11,9 @@ import ru.kubsu.borshchevyk.auth.domain.exception.IncorrectInputFormatException;
 import ru.kubsu.borshchevyk.auth.domain.exception.InvalidCredentialsException;
 import ru.kubsu.borshchevyk.auth.domain.exception.MessagingSerializationException;
 import ru.kubsu.borshchevyk.auth.domain.exception.UserAlreadyExistsException;
+import ru.kubsu.borshchevyk.auth.domain.exception.AccountNotFoundException;
+import ru.kubsu.borshchevyk.auth.domain.exception.ChallengeExpiredException;
+import ru.kubsu.borshchevyk.auth.domain.exception.InvalidSignatureException;
 
 import java.time.LocalDateTime;
 
@@ -45,6 +48,42 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidCredentialsException.class)
     public ResponseEntity<AuthErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
         log.warn("Invalid credentials: {}", ex.getMessage());
+        return AuthErrorResponse.buildResponse(HttpStatus.UNAUTHORIZED, ex);
+    }
+
+    /**
+     * Handles {@link AccountNotFoundException}.
+     *
+     * @param ex the exception
+     * @return the error response
+     */
+    @ExceptionHandler(AccountNotFoundException.class)
+    public ResponseEntity<AuthErrorResponse> handleAccountNotFound(AccountNotFoundException ex) {
+        log.warn("Account not found: {}", ex.getMessage());
+        return AuthErrorResponse.buildResponse(HttpStatus.UNAUTHORIZED, ex);
+    }
+
+    /**
+     * Handles {@link ChallengeExpiredException}.
+     *
+     * @param ex the exception
+     * @return the error response
+     */
+    @ExceptionHandler(ChallengeExpiredException.class)
+    public ResponseEntity<AuthErrorResponse> handleChallengeExpired(ChallengeExpiredException ex) {
+        log.warn("Challenge expired: {}", ex.getMessage());
+        return AuthErrorResponse.buildResponse(HttpStatus.UNAUTHORIZED, ex);
+    }
+
+    /**
+     * Handles {@link InvalidSignatureException}.
+     *
+     * @param ex the exception
+     * @return the error response
+     */
+    @ExceptionHandler(InvalidSignatureException.class)
+    public ResponseEntity<AuthErrorResponse> handleInvalidSignature(InvalidSignatureException ex) {
+        log.warn("Invalid signature: {}", ex.getMessage());
         return AuthErrorResponse.buildResponse(HttpStatus.UNAUTHORIZED, ex);
     }
 
