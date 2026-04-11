@@ -124,11 +124,3 @@ management:
 logging:
   file:
     name: logs/${spring.application.name}.log
-s,loggers,httpexchanges,logfile"
-  endpoint:
-    health:
-      show-details: always
-
-logging:
-  file:
-    name: logs/${spring.application.name}.log
