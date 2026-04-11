@@ -132,6 +132,23 @@ services:
       kafka:
         condition: service_started
 
+  media-service:
+    image: ${MEDIA_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/media-service:latest}
+    build:
+      context: ./borshchevyk.media
+    restart: on-failure
+    ports:
+      - "${MEDIA_SERVICE_PORT:-8086}:${MEDIA_SERVICE_PORT:-8086}"
+    env_file:
+      - .env
+    environment:
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_MEDIA:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_media}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
+    depends_on:
+      borshchevyk-postgres:
+        condition: service_healthy
+
   gateway-service:
     image: ${GATEWAY_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/gateway-service:latest}
     build:

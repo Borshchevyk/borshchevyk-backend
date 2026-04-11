@@ -78,6 +78,13 @@ jobs:
           context: ./borshchevyk.sync
           push: true
           tags: ${{ env.IMAGE_NAME_PREFIX }}/sync-service:latest
+          
+      - name: Build and push Media Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./borshchevyk.media
+          push: true
+          tags: ${{ env.IMAGE_NAME_PREFIX }}/media-service:latest
 
       - name: Build and push Gateway Service
         uses: docker/build-push-action@v5

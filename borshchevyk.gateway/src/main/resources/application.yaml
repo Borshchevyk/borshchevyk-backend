@@ -106,6 +106,8 @@ springdoc:
         url: /v3/api-docs/message
       - name: sync-service
         url: /v3/api-docs/sync
+      - name: media-service
+        url: /v3/api-docs/media
 
 jwt:
   secret: ${JWT_SECRET}
@@ -115,6 +117,14 @@ management:
     web:
       exposure:
         include: "health,info,env,metrics,loggers,httpexchanges,logfile"
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  file:
+    name: logs/${spring.application.name}.log
+s,loggers,httpexchanges,logfile"
   endpoint:
     health:
       show-details: always
