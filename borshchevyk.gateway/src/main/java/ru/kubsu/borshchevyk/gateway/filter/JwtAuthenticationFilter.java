@@ -20,7 +20,7 @@ import javax.crypto.SecretKey;
 
 /**
  * A gateway filter responsible for validating JSON Web Tokens (JWT) present in incoming requests.
- * Extracts the user ID and username from the JWT and propagates them via custom HTTP headers.
+ * Extracts the user ID from the JWT and propagates it via custom HTTP headers.
  * Denies access if the JWT is missing, improperly formatted, or invalid.
  *
  * @author Aleksey Timko
@@ -82,12 +82,10 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
                         .parseSignedClaims(token)
                         .getPayload();
 
-                String userId = claims.get("id", String.class);
-                String username = claims.getSubject();
+                String userId = claims.getSubject();
 
                 ServerHttpRequest modifiedRequest = exchange.getRequest().mutate()
                         .header("X-User-Id", userId)
-                        .header("X-User-Name", username)
                         .build();
 
                 log.debug("Authenticated request for user ID: {}", userId);
