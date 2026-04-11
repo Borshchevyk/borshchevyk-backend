@@ -2,13 +2,16 @@ version: '3.8'
 
 services:
   borshchevyk-postgres:
+    container_name: ${ENV_PREFIX}-postgres
     image: ${POSTGRES_IMAGE:-postgres:16-alpine}
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_MULTIPLE_DATABASES=${POSTGRES_DB_NAMES}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - ${ENV_PREFIX}-postgres-data:/var/lib/postgresql/data
       - ./init-dbs.sh:/docker-entrypoint-initdb.d/init-dbs.sh
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
@@ -17,6 +20,7 @@ services:
       retries: 5
 
   zookeeper:
+    container_name: ${ENV_PREFIX}-zookeeper
     image: ${ZOOKEEPER_IMAGE:-confluentinc/cp-zookeeper:7.3.2}
     hostname: zookeeper
     environment:
@@ -24,6 +28,7 @@ services:
       ZOOKEEPER_TICK_TIME: ${ZOOKEEPER_TICK_TIME}
 
   kafka:
+    container_name: ${ENV_PREFIX}-kafka
     image: ${KAFKA_IMAGE:-confluentinc/cp-kafka:7.3.2}
     hostname: kafka
     depends_on:
@@ -37,6 +42,7 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}
 
   borshchevyk-redis:
+    container_name: ${ENV_PREFIX}-redis
     image: ${REDIS_IMAGE:-redis:7-alpine}
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -45,21 +51,22 @@ services:
       retries: 5
 
   auth-service:
-    image: ${AUTH_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/auth-service:latest}
+    container_name: ${ENV_PREFIX}-auth-service
+    image: ${AUTH_SERVICE_IMAGE}
     build:
       context: ./borshchevyk.auth
     restart: on-failure
     ports:
-      - "${AUTH_SERVICE_PORT:-8081}:${AUTH_SERVICE_PORT:-8081}"
+      - "${AUTH_SERVICE_PORT}:${AUTH_SERVICE_PORT}"
     env_file:
       - .env
     environment:
-      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_AUTH:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_auth}
-      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
-      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}
-      - SPRING_REDIS_HOST=${SPRING_REDIS_HOST:-borshchevyk-redis}
-      - SPRING_REDIS_PORT=${SPRING_REDIS_PORT:-6379}
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_AUTH}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+      - SPRING_REDIS_HOST=borshchevyk-redis
+      - SPRING_REDIS_PORT=6379
     depends_on:
       borshchevyk-postgres:
         condition: service_healthy
@@ -69,19 +76,20 @@ services:
         condition: service_healthy
 
   user-service:
-    image: ${USER_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/user-service:latest}
+    container_name: ${ENV_PREFIX}-user-service
+    image: ${USER_SERVICE_IMAGE}
     build:
       context: ./borshchevyk.user
     restart: on-failure
     ports:
-      - "${USER_SERVICE_PORT:-8082}:${USER_SERVICE_PORT:-8082}"
+      - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
     env_file:
       - .env
     environment:
-      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_USER:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_user}
-      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
-      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_USER}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
     depends_on:
       borshchevyk-postgres:
         condition: service_healthy
@@ -89,21 +97,22 @@ services:
         condition: service_started
 
   message-service:
-    image: ${MESSAGE_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/message-service:latest}
+    container_name: ${ENV_PREFIX}-message-service
+    image: ${MESSAGE_SERVICE_IMAGE}
     build:
       context: ./borshchevyk.message
     restart: on-failure
     ports:
-      - "${MESSAGE_SERVICE_PORT:-8083}:${MESSAGE_SERVICE_PORT:-8083}"
+      - "${MESSAGE_SERVICE_PORT}:${MESSAGE_SERVICE_PORT}"
     env_file:
       - .env
     environment:
-      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_MESSAGE:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_message}
-      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
-      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}
-      - SPRING_REDIS_HOST=${SPRING_REDIS_HOST:-borshchevyk-redis}
-      - SPRING_REDIS_PORT=${SPRING_REDIS_PORT:-6379}
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_MESSAGE}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+      - SPRING_REDIS_HOST=borshchevyk-redis
+      - SPRING_REDIS_PORT=6379
     depends_on:
       borshchevyk-postgres:
         condition: service_healthy
@@ -113,19 +122,20 @@ services:
         condition: service_healthy
 
   sync-service:
-    image: ${SYNC_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/sync-service:latest}
+    container_name: ${ENV_PREFIX}-sync-service
+    image: ${SYNC_SERVICE_IMAGE}
     build:
       context: ./borshchevyk.sync
     restart: on-failure
     ports:
-      - "${SYNC_SERVICE_PORT:-8084}:${SYNC_SERVICE_PORT:-8084}"
+      - "${SYNC_SERVICE_PORT}:${SYNC_SERVICE_PORT}"
     env_file:
       - .env
     environment:
-      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_SYNC:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_sync}
-      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
-      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_SYNC}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS}
     depends_on:
       borshchevyk-postgres:
         condition: service_healthy
@@ -133,19 +143,20 @@ services:
         condition: service_started
 
   gateway-service:
-    image: ${GATEWAY_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/gateway-service:latest}
+    container_name: ${ENV_PREFIX}-gateway-service
+    image: ${GATEWAY_SERVICE_IMAGE}
     build:
       context: ./borshchevyk.gateway
     restart: on-failure
     ports:
-      - "${GATEWAY_INTERNAL_PORT:-8080}:${GATEWAY_INTERNAL_PORT:-8080}"
+      - "${GATEWAY_INTERNAL_PORT}:${GATEWAY_INTERNAL_PORT}"
     env_file:
       - .env
     environment:
-      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://auth-service:8081}
-      - USER_SERVICE_URL=${USER_SERVICE_URL:-http://user-service:8082}
-      - MESSAGE_SERVICE_URL=${MESSAGE_SERVICE_URL:-http://message-service:8083}
-      - SYNC_SERVICE_URL=${SYNC_SERVICE_URL:-http://sync-service:8084}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+      - USER_SERVICE_URL=${USER_SERVICE_URL}
+      - MESSAGE_SERVICE_URL=${MESSAGE_SERVICE_URL}
+      - SYNC_SERVICE_URL=${SYNC_SERVICE_URL}
     depends_on:
       - auth-service
       - user-service
@@ -153,35 +164,40 @@ services:
       - sync-service
 
   admin-service:
-    image: ${ADMIN_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/admin-service:latest}
+    container_name: ${ENV_PREFIX}-admin-service
+    image: ${ADMIN_SERVICE_IMAGE}
     build:
       context: ./borshchevyk.admin
     restart: on-failure
     ports:
-      - "${ADMIN_SERVICE_PORT:-8085}:${ADMIN_SERVICE_PORT:-8085}"
+      - "${ADMIN_SERVICE_PORT}:${ADMIN_SERVICE_PORT}"
     env_file:
       - .env
     environment:
-      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
 
   caddy:
+    container_name: ${ENV_PREFIX}-caddy
     image: caddy:2-alpine
     restart: unless-stopped
     ports:
-      - "${CADDY_HTTP_PORT:-80}:80"
-      - "${CADDY_HTTPS_PORT:-443}:443"
-      - "${CADDY_HTTPS_PORT:-443}:443/udp"
+      - "${CADDY_HTTP_PORT}:80"
+      - "${CADDY_HTTPS_PORT}:443"
+      - "${CADDY_HTTPS_PORT}:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
+      - ${ENV_PREFIX}-caddy_data:/data
+      - ${ENV_PREFIX}-caddy_config:/config
     env_file:
       - .env
     depends_on:
       - gateway-service
 
 volumes:
-  postgres-data:
-  caddy_data:
-  caddy_config:
+  dev-postgres-data:
+  prod-postgres-data:
+  dev-caddy_data:
+  dev-caddy_config:
+  prod-caddy_data:
+  prod-caddy_config:
