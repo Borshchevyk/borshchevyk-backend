@@ -3,7 +3,7 @@ name: Build and Deploy
 on:
   push:
     branches:
-      - dev
+      - prod
 
 env:
   REGISTRY: ghcr.io
@@ -112,7 +112,7 @@ jobs:
           envs: PROD_ENV_FILE,GH_TOKEN,GH_ACTOR
           script: |
             cd ~/borshchevyk-backend
-            git pull origin dev
+            git pull origin prod
             echo "$PROD_ENV_FILE" > .env
             echo "$GH_TOKEN" | sudo docker login ghcr.io -u "$GH_ACTOR" --password-stdin
             sudo docker compose pull
