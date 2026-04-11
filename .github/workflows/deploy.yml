@@ -38,6 +38,9 @@ jobs:
       - name: Build Sync Service
         run: mvn -f borshchevyk.sync/pom.xml clean package -DskipTests
 
+      - name: Build Media Service
+        run: mvn -f borshchevyk.media/pom.xml clean package -DskipTests
+
       - name: Build Gateway Service
         run: mvn -f borshchevyk.gateway/pom.xml clean package -DskipTests
 
