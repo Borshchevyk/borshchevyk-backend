@@ -102,7 +102,7 @@ jobs:
       - name: Deploy to Server via SSH
         uses: appleboy/ssh-action@v1.0.3
         env:
-          dev_ENV_FILE: ${{ secrets.DEV_ENV_FILE }}
+          DEV_ENV_FILE: ${{ secrets.DEV_ENV_FILE }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_ACTOR: ${{ github.actor }}
         with:
