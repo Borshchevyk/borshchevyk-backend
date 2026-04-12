@@ -4,14 +4,17 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+import ru.kubsu.borshchevyk.media.application.dto.command.CompleteUploadCommand;
+import ru.kubsu.borshchevyk.media.application.dto.command.RequestUploadUrlCommand;
+import ru.kubsu.borshchevyk.media.application.dto.response.UploadUrlResult;
+import ru.kubsu.borshchevyk.media.application.port.in.CompleteUploadUseCase;
+import ru.kubsu.borshchevyk.media.application.port.in.RequestUploadUrlUseCase;
+import ru.kubsu.borshchevyk.media.domain.model.Attachment;
+import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.dto.request.RequestUploadUrlRequest;
+import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.dto.response.AttachmentResponse;
+import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.mapper.PresentationMediaMapper;
 
-import java.time.Duration;
 import java.util.UUID;
 
 @Slf4j
@@ -21,40 +24,44 @@ import java.util.UUID;
 @Tag(name = "Media", description = "Endpoints for handling media files")
 public class MediaController {
 
-    private final S3Presigner s3Presigner;
+    private final RequestUploadUrlUseCase requestUploadUrlUseCase;
+    private final CompleteUploadUseCase completeUploadUseCase;
+    private final PresentationMediaMapper presentationMediaMapper;
 
-    @Value("${app.s3.bucket}")
-    private String bucket;
-
-    @Operation(summary = "Get pre-signed URL for upload", description = "Generates a secure temporary link for the client to directly upload a file to S3.")
-    @GetMapping("/upload-url")
-    public UploadUrlResponse getUploadUrl(
-            @RequestHeader(value = "X-User-Id", required = false) UUID userId,
-            @RequestParam String contentType,
-            @RequestParam String extension) {
+    @Operation(summary = "Get pre-signed URL for upload", description = "Generates a secure temporary link for the client to directly upload a file to S3 and returns attachment ID.")
+    @PostMapping("/upload-url")
+    public UploadUrlResult requestUploadUrl(
+            @RequestHeader(value = "X-User-Id") UUID userId,
+            @RequestBody RequestUploadUrlRequest request) {
         
-        log.info("Generating upload URL for user {} with content type {}", userId, contentType);
+        log.info("Requesting upload URL for user {}", userId);
 
-        String objectKey = "attachments/" + userId.toString() + "/" + UUID.randomUUID().toString() + "." + extension;
-
-        PutObjectRequest objectRequest = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(objectKey)
-                .contentType(contentType)
+        RequestUploadUrlCommand command = RequestUploadUrlCommand.builder()
+                .uploaderId(userId)
+                .type(request.type())
+                .contentType(request.contentType())
+                .originalFilename(request.originalFilename())
+                .extension(request.extension())
+                .sizeBytes(request.sizeBytes())
                 .build();
 
-        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(15))
-                .putObjectRequest(objectRequest)
-                .build();
-
-        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
-
-        return new UploadUrlResponse(
-                presignedRequest.url().toString(),
-                objectKey
-        );
+        return requestUploadUrlUseCase.requestUploadUrl(command);
     }
 
-    public record UploadUrlResponse(String uploadUrl, String objectKey) {}
+    @Operation(summary = "Complete upload", description = "Notifies the server that the client has finished uploading the file to S3.")
+    @PutMapping("/{attachmentId}/complete")
+    public AttachmentResponse completeUpload(
+            @PathVariable UUID attachmentId,
+            @RequestHeader(value = "X-User-Id") UUID userId) {
+        
+        log.info("Completing upload for attachment {} by user {}", attachmentId, userId);
+
+        CompleteUploadCommand command = CompleteUploadCommand.builder()
+                .attachmentId(attachmentId)
+                .requesterId(userId)
+                .build();
+
+        Attachment attachment = completeUploadUseCase.completeUpload(command);
+        return presentationMediaMapper.toResponse(attachment);
+    }
 }
