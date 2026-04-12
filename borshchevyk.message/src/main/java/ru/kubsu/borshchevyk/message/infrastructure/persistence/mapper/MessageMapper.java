@@ -21,6 +21,8 @@ public interface MessageMapper {
     @Mapping(target = "authorId", source = "authorId.value")
     @Mapping(target = "isDeleted", source = "deleted")
     @Mapping(target = "pinnedBy", source = "pinnedBy.value")
+    @Mapping(target = "forwardedFromChatId", source = "forwardedFromChatId.value")
+    @Mapping(target = "forwardedFromUserId", source = "forwardedFromUserId.value")
     MessageEntity toEntity(Message domain);
 
     @Mapping(target = "id", source = "id")
@@ -28,6 +30,8 @@ public interface MessageMapper {
     @Mapping(target = "authorId", source = "authorId")
     @Mapping(target = "isDeleted", source = "deleted")
     @Mapping(target = "pinnedBy", source = "pinnedBy")
+    @Mapping(target = "forwardedFromChatId", source = "forwardedFromChatId")
+    @Mapping(target = "forwardedFromUserId", source = "forwardedFromUserId")
     Message toDomain(MessageEntity entity);
 
     MessageReactionEmbeddable toReactionEntity(MessageReaction reaction);

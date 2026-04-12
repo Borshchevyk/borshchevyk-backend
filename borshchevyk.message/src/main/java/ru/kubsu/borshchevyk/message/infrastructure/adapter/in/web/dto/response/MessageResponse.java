@@ -27,6 +27,10 @@ public record MessageResponse(
         @Schema(description = "Identifier of the user who pinned the message")
         UUID pinnedBy,
         @Schema(description = "Reactions on the message")
-        java.util.List<MessageReactionResponse> reactions
+        java.util.List<MessageReactionResponse> reactions,
+        @Schema(description = "ID of the original chat if forwarded")
+        UUID forwardedFromChatId,
+        @Schema(description = "ID of the original user if forwarded")
+        UUID forwardedFromUserId
 ) {
 }

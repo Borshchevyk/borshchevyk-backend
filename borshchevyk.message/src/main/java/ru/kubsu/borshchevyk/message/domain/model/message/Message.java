@@ -26,6 +26,8 @@ public class Message {
     private MessageSource source;
     private LocalDateTime pinnedAt;
     private UserId pinnedBy;
+    private ChatId forwardedFromChatId;
+    private UserId forwardedFromUserId;
     @Builder.Default
     private List<MessageReaction> reactions = new ArrayList<>();
 }

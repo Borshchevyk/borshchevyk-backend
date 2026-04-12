@@ -17,6 +17,8 @@ public interface PresentationMessageMapper {
     @Mapping(target = "authorId", source = "authorId.value")
     @Mapping(target = "isDeleted", source = "deleted")
     @Mapping(target = "pinnedBy", source = "pinnedBy.value")
+    @Mapping(target = "forwardedFromChatId", source = "forwardedFromChatId.value")
+    @Mapping(target = "forwardedFromUserId", source = "forwardedFromUserId.value")
     MessageResponse toResponse(Message message);
 
     List<MessageResponse> toResponseList(List<Message> messages);

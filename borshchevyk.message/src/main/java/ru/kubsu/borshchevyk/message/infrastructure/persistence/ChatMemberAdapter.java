@@ -69,6 +69,14 @@ public class ChatMemberAdapter implements ChatMemberPort {
     }
 
     @Override
+    public List<UserId> findReadersOfMessage(ChatId chatId, java.time.LocalDateTime messageCreatedAt) {
+        return chatMemberRepository.findReadersOfMessage(chatId.value(), messageCreatedAt)
+                .stream()
+                .map(UserId::new)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public void delete(ChatMember member) {
         chatMemberRepository.delete(chatMemberMapper.toEntity(member));
     }

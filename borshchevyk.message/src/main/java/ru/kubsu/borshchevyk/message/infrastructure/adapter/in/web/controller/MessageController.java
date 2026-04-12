@@ -33,6 +33,7 @@ import ru.kubsu.borshchevyk.message.application.port.in.UnpinMessageUseCase;
 import ru.kubsu.borshchevyk.message.application.dto.command.PinMessageCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.UnpinMessageCommand;
 
+import ru.kubsu.borshchevyk.message.application.port.in.LoadMessageReadersUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.AddReactionUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.RemoveReactionUseCase;
 import ru.kubsu.borshchevyk.message.application.dto.command.AddReactionCommand;
@@ -55,8 +56,22 @@ public class MessageController {
     private final LoadPinnedMessagesUseCase loadPinnedMessagesUseCase;
     private final AddReactionUseCase addReactionUseCase;
     private final RemoveReactionUseCase removeReactionUseCase;
+    private final LoadMessageReadersUseCase loadMessageReadersUseCase;
     private final PresentationMessageMapper presentationMessageMapper;
     private final SimpMessagingTemplate messagingTemplate;
+
+    @Operation(summary = "Get message readers", description = "Retrieves a list of user IDs who have read the message.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of readers retrieved successfully")
+    })
+    @GetMapping("/{messageId}/readers")
+    public List<UUID> getMessageReaders(
+            @PathVariable UUID chatId,
+            @PathVariable UUID messageId,
+            @RequestHeader("X-User-Id") UUID userId) {
+        log.info("Request to get readers of message {} in chat {} by user {}", messageId, chatId, userId);
+        return loadMessageReadersUseCase.loadMessageReaders(chatId, messageId, userId);
+    }
 
     @Operation(summary = "Add reaction", description = "Adds a reaction to a message.")
     @ApiResponses(value = {
@@ -199,6 +214,8 @@ public class MessageController {
                 .authorId(userId)
                 .text(request.text())
                 .source(request.source() != null ? request.source() : MessageSource.ONLINE)
+                .forwardedFromChatId(request.forwardedFromChatId())
+                .forwardedFromUserId(request.forwardedFromUserId())
                 .build();
         
         Message message = sendMessageUseCase.sendMessage(command);

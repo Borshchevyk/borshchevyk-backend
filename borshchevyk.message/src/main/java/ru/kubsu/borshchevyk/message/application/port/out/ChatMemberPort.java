@@ -16,5 +16,6 @@ public interface ChatMemberPort {
     List<ChatMember> findByChatId(ChatId chatId);
     Page<ChatMember> findByChatId(ChatId chatId, Pageable pageable);
     List<ChatMember> findByUserId(UserId userId);
+    List<UserId> findReadersOfMessage(ChatId chatId, java.time.LocalDateTime messageCreatedAt);
     void delete(ChatMember member);
 }

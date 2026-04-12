@@ -42,12 +42,13 @@ import ru.kubsu.borshchevyk.message.application.dto.command.AddReactionCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.RemoveReactionCommand;
 import ru.kubsu.borshchevyk.message.application.port.in.AddReactionUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.RemoveReactionUseCase;
+import ru.kubsu.borshchevyk.message.application.port.in.LoadMessageReadersUseCase;
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageReaction;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCase, DeleteMessageUseCase, ReadMessageUseCase, PinMessageUseCase, UnpinMessageUseCase, LoadPinnedMessagesUseCase, AddReactionUseCase, RemoveReactionUseCase {
+public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCase, DeleteMessageUseCase, ReadMessageUseCase, PinMessageUseCase, UnpinMessageUseCase, LoadPinnedMessagesUseCase, AddReactionUseCase, RemoveReactionUseCase, LoadMessageReadersUseCase {
 
     private final MessagePort messagePort;
     private final ChatPort chatPort;
@@ -115,6 +116,8 @@ public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCas
                 .createdAt(LocalDateTime.now())
                 .isDeleted(false)
                 .source(command.getSource())
+                .forwardedFromChatId(command.getForwardedFromChatId() != null ? new ChatId(command.getForwardedFromChatId()) : null)
+                .forwardedFromUserId(command.getForwardedFromUserId() != null ? new UserId(command.getForwardedFromUserId()) : null)
                 .build();
 
         Message savedMessage = messagePort.save(message);
@@ -316,5 +319,29 @@ public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCas
             message.getReactions().remove(targetReaction);
             messagePort.save(message);
         }
+    }
+
+    @Override
+    public List<UUID> loadMessageReaders(UUID chatIdRaw, UUID messageIdRaw, UUID requesterIdRaw) {
+        log.info("Loading readers for message {} in chat {} by user {}", messageIdRaw, chatIdRaw, requesterIdRaw);
+        ChatId chatId = new ChatId(chatIdRaw);
+        MessageId messageId = new MessageId(messageIdRaw);
+        UserId requesterId = new UserId(requesterIdRaw);
+
+        chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
+                .orElseThrow(() -> new UserNotInChatException("User is not a member of the chat"));
+
+        Message message = messagePort.findById(messageId)
+                .orElseThrow(() -> new MessageNotFoundException("Message not found"));
+
+        if (!message.getChatId().equals(chatId)) {
+            throw new IllegalArgumentException("Message does not belong to this chat");
+        }
+
+        return chatMemberPort.findReadersOfMessage(chatId, message.getCreatedAt())
+                .stream()
+                .map(UserId::value)
+                .filter(id -> !id.equals(message.getAuthorId().value())) // optionally exclude the author
+                .collect(Collectors.toList());
     }
 }

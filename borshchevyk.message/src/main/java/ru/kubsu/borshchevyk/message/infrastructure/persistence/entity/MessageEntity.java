@@ -48,6 +48,12 @@ public class MessageEntity {
     @Column(name = "pinned_by")
     private UUID pinnedBy;
 
+    @Column(name = "forwarded_from_chat_id")
+    private UUID forwardedFromChatId;
+
+    @Column(name = "forwarded_from_user_id")
+    private UUID forwardedFromUserId;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "message_reactions", joinColumns = @JoinColumn(name = "message_id"))
     @AttributeOverrides({
