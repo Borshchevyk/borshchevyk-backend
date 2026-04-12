@@ -22,12 +22,6 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public abstract class PresentationChatMapper {
 
-    @Autowired
-    private ChatMemberRepository chatMemberRepository;
-
-    @Autowired
-    private RestTemplate restTemplate;
-
     public ChatResponse toResponse(Chat chat, @Context UUID requesterId) {
         if (chat == null) {
             return null;
@@ -39,36 +33,6 @@ public abstract class PresentationChatMapper {
                     .type(ChatType.PRIVATE)
                     .createdAt(p.getCreatedAt())
                     .build();
-
-            // Find partner
-            if (requesterId != null) {
-                List<ChatMemberEntity> members = chatMemberRepository.findByChatId(p.getId().value());
-                UUID partnerId = members.stream()
-                        .map(ChatMemberEntity::getUserId)
-                        .filter(id -> !id.equals(requesterId))
-                        .findFirst()
-                        .orElse(null);
-
-                if (partnerId != null) {
-                    response.setPartnerId(partnerId);
-                    try {
-                        ResponseEntity<JsonNode> userResponse = restTemplate.getForEntity(
-                                "http://borshchevyk-user:8080/users/" + partnerId,
-                                JsonNode.class
-                        );
-                        if (userResponse.getStatusCode().is2xxSuccessful() && userResponse.getBody() != null) {
-                            JsonNode body = userResponse.getBody();
-                            if (body.has("username")) response.setPartnerName(body.get("username").asText());
-                            if (body.has("avatarUrl") && !body.get("avatarUrl").isNull()) response.setPartnerAvatarUrl(body.get("avatarUrl").asText());
-                            // Parse lastOnline if exists
-                        } else {
-                            response.setPartnerName("Unknown User");
-                        }
-                    } catch (Exception e) {
-                        response.setPartnerName("Unknown User");
-                    }
-                }
-            }
             return response;
         } else if (chat instanceof GroupChat g) {
             return GroupChatResponse.builder()

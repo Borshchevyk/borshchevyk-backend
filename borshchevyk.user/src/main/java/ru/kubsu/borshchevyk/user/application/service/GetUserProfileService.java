@@ -4,15 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.kubsu.borshchevyk.user.application.dto.command.GetUserProfileCommand;
-import ru.kubsu.borshchevyk.user.application.dto.command.SearchUsersCommand;
-import ru.kubsu.borshchevyk.user.application.dto.command.UpdateProfileCommand;
 import ru.kubsu.borshchevyk.user.application.port.in.GetUserProfileUseCase;
-import ru.kubsu.borshchevyk.user.application.port.in.SearchUsersUseCase;
-import ru.kubsu.borshchevyk.user.application.port.in.UpdateProfileUseCase;
 import ru.kubsu.borshchevyk.user.application.port.out.ContactPort;
 import ru.kubsu.borshchevyk.user.application.port.out.LoadUserPort;
 import ru.kubsu.borshchevyk.user.application.port.out.PrivacySettingsPort;
-import ru.kubsu.borshchevyk.user.application.port.out.SaveUserPort;
 import ru.kubsu.borshchevyk.user.domain.exception.UserNotFoundException;
 import ru.kubsu.borshchevyk.user.domain.model.privacy.PrivacySettings;
 import ru.kubsu.borshchevyk.user.domain.model.privacy.Visibility;
@@ -20,54 +15,15 @@ import ru.kubsu.borshchevyk.user.domain.model.user.User;
 import ru.kubsu.borshchevyk.user.domain.model.value.Tag;
 import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserService implements UpdateProfileUseCase, SearchUsersUseCase, GetUserProfileUseCase {
+public class GetUserProfileService implements GetUserProfileUseCase {
     private final LoadUserPort loadUserPort;
-    private final SaveUserPort saveUserPort;
     private final PrivacySettingsPort privacySettingsPort;
     private final ContactPort contactPort;
-
-    @Override
-    public User updateProfile(UpdateProfileCommand command) {
-        UserId userId = new UserId(UUID.fromString(command.userId()));
-        User user = loadUserPort.loadUserById(userId)
-                .orElseThrow(UserNotFoundException::new);
-
-        if (command.firstName() != null) user.setFirstName(command.firstName());
-        if (command.lastName() != null) user.setLastName(command.lastName());
-        if (command.bio() != null) user.setBio(command.bio());
-        if (command.avatarUrl() != null) user.setAvatarUrl(command.avatarUrl());
-
-        saveUserPort.saveUser(user);
-        return user;
-    }
-
-    @Override
-    public List<User> searchUsers(SearchUsersCommand command) {
-        List<User> users = loadUserPort.searchUsers(command.query());
-        UserId requesterId = command.requesterId() != null && !command.requesterId().isBlank() ? new UserId(UUID.fromString(command.requesterId())) : null;
-
-        boolean isEmailSearch = command.query() != null && command.query().contains("@");
-
-        return users.stream()
-                .filter(user -> {
-                    if (isEmailSearch) {
-                        PrivacySettings settings = getPrivacySettings(user.getUserId());
-                        if (settings.getSearchByEmailVisibility() != Visibility.EVERYONE) {
-                            return false;
-                        }
-                    }
-                    return true;
-                })
-                .map(user -> applyPrivacy(user, requesterId))
-                .collect(Collectors.toList());
-    }
 
     @Override
     public User getUserProfile(GetUserProfileCommand command) {

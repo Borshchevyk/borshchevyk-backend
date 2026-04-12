@@ -18,6 +18,7 @@ public interface ChatMemberRepository extends JpaRepository<ChatMemberEntity, Ch
     List<ChatMemberEntity> findByChatId(UUID chatId);
     Page<ChatMemberEntity> findByChatId(UUID chatId, Pageable pageable);
     List<ChatMemberEntity> findByUserId(UUID userId);
+    List<ChatMemberEntity> findByChatIdIn(List<UUID> chatIds);
 
     @Query("SELECT cm.userId FROM ChatMemberEntity cm JOIN MessageEntity m ON cm.lastReadMessageId = m.id WHERE cm.chatId = :chatId AND m.createdAt >= :messageCreatedAt")
     List<UUID> findReadersOfMessage(@Param("chatId") UUID chatId, @Param("messageCreatedAt") LocalDateTime messageCreatedAt);

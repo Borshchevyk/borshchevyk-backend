@@ -61,7 +61,7 @@ public class MessageEntity {
     @Builder.Default
     private int commentsCount = 0;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "message_reactions", joinColumns = @JoinColumn(name = "message_id"))
     @AttributeOverrides({
             @AttributeOverride(name = "userId", column = @Column(name = "user_id", nullable = false)),

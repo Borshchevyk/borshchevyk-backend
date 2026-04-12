@@ -62,6 +62,7 @@ public class ChatController {
     private final UpdateChatInfoUseCase updateChatInfoUseCase;
     private final LoadChatMembersUseCase loadChatMembersUseCase;
     private final PresentationChatMapper presentationChatMapper;
+    private final ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatFacade chatFacade;
 
     @Operation(summary = "Create a new chat", description = "Creates a new chat with the given type, title, description, and initial members.")
     @ApiResponses(value = {
@@ -84,7 +85,7 @@ public class ChatController {
                 .build();
         
         Chat chat = createChatUseCase.createChat(command);
-        return presentationChatMapper.toResponse(chat, userId);
+        return chatFacade.enrichChatResponse(chat, userId);
     }
 
     @Operation(summary = "Create a new private chat", description = "Creates or returns an existing private chat with the target user.")
@@ -101,7 +102,7 @@ public class ChatController {
         log.info("Request to create private chat from user {} to user {}", userId, request.targetUserId());
         
         Chat chat = ((ru.kubsu.borshchevyk.message.application.port.in.CreatePrivateChatUseCase) createChatUseCase).createPrivateChat(userId, request.targetUserId());
-        return presentationChatMapper.toResponse(chat, userId);
+        return chatFacade.enrichChatResponse(chat, userId);
     }
 
     @Operation(summary = "Get user chats", description = "Retrieves a list of chats for the authenticated user.")
@@ -267,7 +268,7 @@ public class ChatController {
             @RequestHeader("X-User-Id") UUID userId) {
         log.info("Request to join chat by link from user {}", userId);
         Chat chat = joinChatByLinkUseCase.joinChatByLink(inviteCode, userId);
-        return presentationChatMapper.toResponse(chat, userId);
+        return chatFacade.enrichChatResponse(chat, userId);
     }
 
     @Operation(summary = "Update chat info", description = "Updates the title and/or description of a chat.")

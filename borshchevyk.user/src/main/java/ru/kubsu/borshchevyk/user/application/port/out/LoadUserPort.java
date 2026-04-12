@@ -23,4 +23,6 @@ public interface LoadUserPort {
     Optional<User> loadUserByTag(ru.kubsu.borshchevyk.user.domain.model.value.Tag tag);
     
     java.util.List<User> searchUsers(String query);
+    
+    java.util.List<User> loadUsersByIds(java.util.List<UserId> userIds);
 }

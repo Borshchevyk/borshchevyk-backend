@@ -50,4 +50,14 @@ public class LoadUserAdapter implements LoadUserPort {
                 .map(userMapper::toDomain)
                 .collect(java.util.stream.Collectors.toList());
     }
+
+    @Override
+    public java.util.List<User> loadUsersByIds(java.util.List<UserId> userIds) {
+        java.util.List<java.util.UUID> ids = userIds.stream()
+                .map(UserId::getValue)
+                .collect(java.util.stream.Collectors.toList());
+        return userRepository.findAllById(ids).stream()
+                .map(userMapper::toDomain)
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

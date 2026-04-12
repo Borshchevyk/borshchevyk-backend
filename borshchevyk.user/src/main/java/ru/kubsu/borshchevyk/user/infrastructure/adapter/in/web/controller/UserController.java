@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.user.application.dto.command.GetUserProfileCommand;
 import ru.kubsu.borshchevyk.user.application.dto.command.SearchUsersCommand;
+import ru.kubsu.borshchevyk.user.application.dto.command.GetUsersBatchCommand;
+import ru.kubsu.borshchevyk.user.application.port.in.GetUsersBatchUseCase;
 import ru.kubsu.borshchevyk.user.application.port.in.GetUserProfileUseCase;
 import ru.kubsu.borshchevyk.user.application.port.in.SearchUsersUseCase;
 import ru.kubsu.borshchevyk.user.application.port.in.UpdatePrivacySettingsUseCase;
@@ -24,6 +26,7 @@ import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.response.User
 import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.mapper.PresentationUserMapper;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -36,7 +39,24 @@ public class UserController {
     private final UpdateProfileUseCase updateProfileUseCase;
     private final UpdatePrivacySettingsUseCase updatePrivacySettingsUseCase;
     private final GetPrivacySettingsUseCase getPrivacySettingsUseCase;
+    private final GetUsersBatchUseCase getUsersBatchUseCase;
     private final PresentationUserMapper mapper;
+
+    @Operation(summary = "Get users in batch", description = "Gets multiple profiles by userIds")
+    @ApiResponse(responseCode = "200", description = "Users found")
+    @PostMapping("/batch")
+    public ResponseEntity<List<UserProfileResponse>> getUsersBatch(
+            @RequestBody List<UUID> userIds,
+            @RequestHeader(value = "X-User-Id", required = false) String requesterId) {
+        var command = GetUsersBatchCommand.builder()
+                .userIds(userIds)
+                .requesterId(requesterId)
+                .build();
+        var users = getUsersBatchUseCase.getUsersBatch(command);
+        return ResponseEntity.ok(users.stream()
+                .map(mapper::toUserProfileResponse)
+                .toList());
+    }
 
     @Operation(summary = "Search users by tag or name", description = "Searches users considering their privacy settings")
     @ApiResponse(responseCode = "200", description = "Successful search")
