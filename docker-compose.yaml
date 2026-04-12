@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   borshchevyk-postgres:
     image: ${POSTGRES_IMAGE:-postgres:16-alpine}
