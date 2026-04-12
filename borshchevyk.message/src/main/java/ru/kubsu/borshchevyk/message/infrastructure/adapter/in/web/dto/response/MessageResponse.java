@@ -21,6 +21,20 @@ public record MessageResponse(
         @Schema(description = "Indicates if the message is deleted")
         boolean isDeleted,
         @Schema(description = "Source of the message")
-        MessageSource source
+        MessageSource source,
+        @Schema(description = "Timestamp when the message was pinned")
+        LocalDateTime pinnedAt,
+        @Schema(description = "Identifier of the user who pinned the message")
+        UUID pinnedBy,
+        @Schema(description = "Reactions on the message")
+        java.util.List<MessageReactionResponse> reactions,
+        @Schema(description = "ID of the original chat if forwarded")
+        UUID forwardedFromChatId,
+        @Schema(description = "ID of the original user if forwarded")
+        UUID forwardedFromUserId,
+        @Schema(description = "ID of the parent message if this is a comment")
+        UUID parentMessageId,
+        @Schema(description = "Number of comments on this message")
+        int commentsCount
 ) {
 }

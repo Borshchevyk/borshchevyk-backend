@@ -6,6 +6,8 @@ import lombok.*;
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -39,4 +41,32 @@ public class MessageEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "source", nullable = false)
     private MessageSource source;
+
+    @Column(name = "pinned_at")
+    private LocalDateTime pinnedAt;
+
+    @Column(name = "pinned_by")
+    private UUID pinnedBy;
+
+    @Column(name = "forwarded_from_chat_id")
+    private UUID forwardedFromChatId;
+
+    @Column(name = "forwarded_from_user_id")
+    private UUID forwardedFromUserId;
+
+    @Column(name = "parent_message_id")
+    private UUID parentMessageId;
+
+    @Column(name = "comments_count", nullable = false)
+    @Builder.Default
+    private int commentsCount = 0;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "message_reactions", joinColumns = @JoinColumn(name = "message_id"))
+    @AttributeOverrides({
+            @AttributeOverride(name = "userId", column = @Column(name = "user_id", nullable = false)),
+            @AttributeOverride(name = "reaction", column = @Column(name = "reaction", nullable = false))
+    })
+    @Builder.Default
+    private List<MessageReactionEmbeddable> reactions = new ArrayList<>();
 }

@@ -1,6 +1,6 @@
 {$DOMAIN_NAME} {
     handle /admin* {
-        reverse_proxy admin-service:8085
+        reverse_proxy admin-service:{$ADMIN_SERVICE_PORT:8085}
     }
     handle {
         reverse_proxy gateway-service:{$GATEWAY_INTERNAL_PORT:8080}

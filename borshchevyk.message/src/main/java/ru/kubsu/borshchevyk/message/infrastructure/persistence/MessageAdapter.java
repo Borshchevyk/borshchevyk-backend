@@ -40,6 +40,28 @@ public class MessageAdapter implements MessagePort {
     }
 
     @Override
+    public List<Message> findCommentsByMessageId(ChatId chatId, MessageId parentMessageId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return messageRepository.findByChatIdAndParentMessageIdOrderByCreatedAtAsc(chatId.value(), parentMessageId.value(), pageable)
+                .stream()
+                .map(messageMapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public int countPinnedMessagesByChatId(ChatId chatId) {
+        return messageRepository.countByChatIdAndPinnedAtIsNotNull(chatId.value());
+    }
+
+    @Override
+    public List<Message> findPinnedMessagesByChatId(ChatId chatId) {
+        return messageRepository.findByChatIdAndPinnedAtIsNotNullOrderByPinnedAtDesc(chatId.value())
+                .stream()
+                .map(messageMapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<Message> findById(MessageId messageId) {
         return messageRepository.findById(messageId.value())
                 .map(messageMapper::toDomain);

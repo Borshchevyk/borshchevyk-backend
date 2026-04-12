@@ -5,6 +5,7 @@ import org.mapstruct.Mapping;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
+import ru.kubsu.borshchevyk.message.domain.model.value.MessageId;
 import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.ChatMemberEntity;
 
 import java.util.UUID;
@@ -14,10 +15,12 @@ public interface ChatMemberMapper {
 
     @Mapping(target = "chatId", source = "chatId")
     @Mapping(target = "userId", source = "userId")
+    @Mapping(target = "lastReadMessageId", source = "lastReadMessageId.value")
     ChatMemberEntity toEntity(ChatMember domain);
 
     @Mapping(target = "chatId", source = "chatId")
     @Mapping(target = "userId", source = "userId")
+    @Mapping(target = "lastReadMessageId", source = "lastReadMessageId")
     ChatMember toDomain(ChatMemberEntity entity);
 
     default UUID map(ChatId value) {
@@ -34,5 +37,13 @@ public interface ChatMemberMapper {
 
     default UserId mapUserId(UUID value) {
         return value != null ? new UserId(value) : null;
+    }
+
+    default UUID map(MessageId value) {
+        return value != null ? value.value() : null;
+    }
+
+    default MessageId mapMessageId(UUID value) {
+        return value != null ? new MessageId(value) : null;
     }
 }

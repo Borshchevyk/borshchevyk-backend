@@ -3,5 +3,6 @@ package ru.kubsu.borshchevyk.message.domain.model.chat;
 public enum ChatType {
     PRIVATE,
     GROUP,
-    CHANNEL
+    CHANNEL,
+    SAVED_MESSAGES
 }

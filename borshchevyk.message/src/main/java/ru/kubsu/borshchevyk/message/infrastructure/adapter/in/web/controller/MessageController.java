@@ -23,6 +23,25 @@ import ru.kubsu.borshchevyk.message.infrastructure.exception.MessageErrorRespons
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import ru.kubsu.borshchevyk.message.application.port.in.ReadMessageUseCase;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ReadReceiptEvent;
+
+import ru.kubsu.borshchevyk.message.application.port.in.LoadPinnedMessagesUseCase;
+import ru.kubsu.borshchevyk.message.application.port.in.PinMessageUseCase;
+import ru.kubsu.borshchevyk.message.application.port.in.UnpinMessageUseCase;
+import ru.kubsu.borshchevyk.message.application.dto.command.PinMessageCommand;
+import ru.kubsu.borshchevyk.message.application.dto.command.UnpinMessageCommand;
+
+import ru.kubsu.borshchevyk.message.application.port.in.LoadMessageReadersUseCase;
+import ru.kubsu.borshchevyk.message.application.port.in.AddReactionUseCase;
+import ru.kubsu.borshchevyk.message.application.port.in.RemoveReactionUseCase;
+import ru.kubsu.borshchevyk.message.application.dto.command.AddReactionCommand;
+import ru.kubsu.borshchevyk.message.application.dto.command.RemoveReactionCommand;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ReactionEvent;
+
+import ru.kubsu.borshchevyk.message.application.port.in.LoadMessageCommentsUseCase;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/chats/{chatId}/messages")
@@ -33,7 +52,166 @@ public class MessageController {
     private final SendMessageUseCase sendMessageUseCase;
     private final LoadChatHistoryUseCase loadChatHistoryUseCase;
     private final ru.kubsu.borshchevyk.message.application.port.in.DeleteMessageUseCase deleteMessageUseCase;
+    private final ReadMessageUseCase readMessageUseCase;
+    private final PinMessageUseCase pinMessageUseCase;
+    private final UnpinMessageUseCase unpinMessageUseCase;
+    private final LoadPinnedMessagesUseCase loadPinnedMessagesUseCase;
+    private final AddReactionUseCase addReactionUseCase;
+    private final RemoveReactionUseCase removeReactionUseCase;
+    private final LoadMessageReadersUseCase loadMessageReadersUseCase;
+    private final LoadMessageCommentsUseCase loadMessageCommentsUseCase;
     private final PresentationMessageMapper presentationMessageMapper;
+    private final SimpMessagingTemplate messagingTemplate;
+
+    @Operation(summary = "Get message comments", description = "Retrieves paginated comments for a specific message.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Comments retrieved successfully")
+    })
+    @GetMapping("/{messageId}/comments")
+    public List<MessageResponse> getMessageComments(
+            @PathVariable UUID chatId,
+            @PathVariable UUID messageId,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+        log.info("Request to get comments for message {} in chat {} by user {} (page: {}, size: {})", messageId, chatId, userId, page, size);
+        List<Message> comments = loadMessageCommentsUseCase.loadMessageComments(chatId, messageId, userId, page, size);
+        return presentationMessageMapper.toResponseList(comments);
+    }
+
+    @Operation(summary = "Get message readers", description = "Retrieves a list of user IDs who have read the message.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of readers retrieved successfully")
+    })
+    @GetMapping("/{messageId}/readers")
+    public List<UUID> getMessageReaders(
+            @PathVariable UUID chatId,
+            @PathVariable UUID messageId,
+            @RequestHeader("X-User-Id") UUID userId) {
+        log.info("Request to get readers of message {} in chat {} by user {}", messageId, chatId, userId);
+        return loadMessageReadersUseCase.loadMessageReaders(chatId, messageId, userId);
+    }
+
+    @Operation(summary = "Add reaction", description = "Adds a reaction to a message.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Reaction added successfully")
+    })
+    @PostMapping("/{messageId}/reactions/{reaction}")
+    @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    public void addReaction(
+            @PathVariable UUID chatId,
+            @PathVariable UUID messageId,
+            @PathVariable String reaction,
+            @RequestHeader("X-User-Id") UUID userId) {
+        log.info("Request to add reaction {} to message {} in chat {} by user {}", reaction, messageId, chatId, userId);
+        AddReactionCommand command = AddReactionCommand.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .requesterId(userId)
+                .reaction(reaction)
+                .build();
+        addReactionUseCase.addReaction(command);
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/reactions", new ReactionEvent(messageId, userId, reaction, true));
+    }
+
+    @Operation(summary = "Remove reaction", description = "Removes a reaction from a message.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Reaction removed successfully")
+    })
+    @DeleteMapping("/{messageId}/reactions/{reaction}")
+    @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    public void removeReaction(
+            @PathVariable UUID chatId,
+            @PathVariable UUID messageId,
+            @PathVariable String reaction,
+            @RequestHeader("X-User-Id") UUID userId) {
+        log.info("Request to remove reaction {} from message {} in chat {} by user {}", reaction, messageId, chatId, userId);
+        RemoveReactionCommand command = RemoveReactionCommand.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .requesterId(userId)
+                .reaction(reaction)
+                .build();
+        removeReactionUseCase.removeReaction(command);
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/reactions", new ReactionEvent(messageId, userId, reaction, false));
+    }
+
+    @Operation(summary = "Pin message", description = "Pins a message in the chat (max 5).")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Message pinned successfully")
+    })
+    @PostMapping("/{messageId}/pin")
+    @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    public void pinMessage(
+            @PathVariable UUID chatId,
+            @PathVariable UUID messageId,
+            @RequestHeader("X-User-Id") UUID userId) {
+        log.info("Request to pin message {} in chat {} by user {}", messageId, chatId, userId);
+        PinMessageCommand command = PinMessageCommand.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .requesterId(userId)
+                .build();
+        pinMessageUseCase.pinMessage(command);
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/pin", messageId);
+    }
+
+    @Operation(summary = "Unpin message", description = "Unpins a message in the chat.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Message unpinned successfully")
+    })
+    @PostMapping("/{messageId}/unpin")
+    @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    public void unpinMessage(
+            @PathVariable UUID chatId,
+            @PathVariable UUID messageId,
+            @RequestHeader("X-User-Id") UUID userId) {
+        log.info("Request to unpin message {} in chat {} by user {}", messageId, chatId, userId);
+        UnpinMessageCommand command = UnpinMessageCommand.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .requesterId(userId)
+                .build();
+        unpinMessageUseCase.unpinMessage(command);
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/unpin", messageId);
+    }
+
+    @Operation(summary = "Get pinned messages", description = "Gets all pinned messages for a chat.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pinned messages retrieved successfully")
+    })
+    @GetMapping("/pinned")
+    public List<MessageResponse> getPinnedMessages(
+            @PathVariable UUID chatId,
+            @RequestHeader("X-User-Id") UUID userId) {
+        log.info("Request to get pinned messages in chat {} by user {}", chatId, userId);
+        List<Message> messages = loadPinnedMessagesUseCase.loadPinnedMessages(chatId, userId);
+        return presentationMessageMapper.toResponseList(messages);
+    }
+
+    @Operation(summary = "Mark message as read", description = "Marks a specific message as read by the user.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Message marked as read successfully")
+    })
+    @PostMapping("/{messageId}/read")
+    @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    public void readMessage(
+            @PathVariable UUID chatId,
+            @PathVariable UUID messageId,
+            @RequestHeader("X-User-Id") UUID userId) {
+        log.info("Request to mark message {} as read in chat {} by user {}", messageId, chatId, userId);
+        ru.kubsu.borshchevyk.message.application.dto.command.ReadMessageCommand command = ru.kubsu.borshchevyk.message.application.dto.command.ReadMessageCommand.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .requesterId(userId)
+                .build();
+                
+        readMessageUseCase.readMessage(command);
+
+        // Broadcast to WS
+        ReadReceiptEvent event = new ReadReceiptEvent(userId, messageId);
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/read", event);
+    }
 
     @Operation(summary = "Send a message", description = "Sends a new message to a specific chat.")
     @ApiResponses(value = {
@@ -55,6 +233,9 @@ public class MessageController {
                 .authorId(userId)
                 .text(request.text())
                 .source(request.source() != null ? request.source() : MessageSource.ONLINE)
+                .forwardedFromChatId(request.forwardedFromChatId())
+                .forwardedFromUserId(request.forwardedFromUserId())
+                .parentMessageId(request.parentMessageId())
                 .build();
         
         Message message = sendMessageUseCase.sendMessage(command);

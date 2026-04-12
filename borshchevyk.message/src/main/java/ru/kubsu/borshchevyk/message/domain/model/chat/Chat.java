@@ -17,6 +17,9 @@ public class Chat {
     private ChatType type;
     private String title;
     private String description;
+    private String inviteCode;
+    @Builder.Default
+    private boolean commentsEnabled = true;
     private LocalDateTime createdAt;
     private boolean isDeleted;
 }

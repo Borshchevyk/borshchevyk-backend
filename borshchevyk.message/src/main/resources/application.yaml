@@ -33,7 +33,7 @@ spring:
   boot:
     admin:
       client:
-        url: "http://admin-service:8085/admin"
+        url: "http://admin-service:${ADMIN_SERVICE_PORT:8085}/admin"
         username: ${ADMIN_USERNAME:admin}
         password: ${ADMIN_PASSWORD:admin}
         instance:
@@ -43,6 +43,7 @@ app:
   kafka:
     topics:
       user-deleted: user-deleted-events
+      user-registered: user-registered-events
 
 jwt:
   secret: ${JWT_SECRET}

@@ -50,4 +50,7 @@ public class ChatMemberEntity {
 
     @Column(name = "history_cleared_at")
     private LocalDateTime historyClearedAt;
+
+    @Column(name = "last_read_message_id")
+    private java.util.UUID lastReadMessageId;
 }

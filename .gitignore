@@ -43,3 +43,4 @@ build/
 /borshchevyk-kafka-adapter.skill
 /borshchevyk-redis-adapter.skill
 /skills/
+/.env2
