@@ -21,21 +21,22 @@ public class S3Config {
     @Value("${app.s3.region}")
     private String region;
 
-    @Value("${app.s3.access-key}")
+    @Value("${app.s3.access-key:}")
     private String accessKey;
 
-    @Value("${app.s3.secret-key}")
+    @Value("${app.s3.secret-key:}")
     private String secretKey;
 
     @Bean
     public S3Presigner s3Presigner() {
+        String ak = (accessKey == null || accessKey.isBlank()) ? "dummy-access-key" : accessKey;
+        String sk = (secretKey == null || secretKey.isBlank()) ? "dummy-secret-key" : secretKey;
         return S3Presigner.builder()
                 .endpointOverride(URI.create(endpoint))
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey)
+                        AwsBasicCredentials.create(ak, sk)
                 ))
-                // Ensure path-style access if needed, or leave default. Often required for custom S3.
                 .serviceConfiguration(S3Configuration.builder()
                         .pathStyleAccessEnabled(true)
                         .build())
@@ -44,11 +45,13 @@ public class S3Config {
 
     @Bean
     public S3Client s3Client() {
+        String ak = (accessKey == null || accessKey.isBlank()) ? "dummy-access-key" : accessKey;
+        String sk = (secretKey == null || secretKey.isBlank()) ? "dummy-secret-key" : secretKey;
         return S3Client.builder()
                 .endpointOverride(URI.create(endpoint))
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(accessKey, secretKey)
+                        AwsBasicCredentials.create(ak, sk)
                 ))
                 .serviceConfiguration(S3Configuration.builder()
                         .pathStyleAccessEnabled(true)
