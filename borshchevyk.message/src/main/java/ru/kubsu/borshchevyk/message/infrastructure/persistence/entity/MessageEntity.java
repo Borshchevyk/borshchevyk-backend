@@ -11,7 +11,11 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "messages")
+@Table(name = "messages", indexes = {
+        @Index(name = "idx_message_chat_created", columnList = "chat_id, created_at DESC"),
+        @Index(name = "idx_message_chat_parent", columnList = "chat_id, parent_message_id, created_at ASC"),
+        @Index(name = "idx_message_chat_pinned", columnList = "chat_id, pinned_at DESC")
+})
 @Getter
 @Setter
 @NoArgsConstructor
