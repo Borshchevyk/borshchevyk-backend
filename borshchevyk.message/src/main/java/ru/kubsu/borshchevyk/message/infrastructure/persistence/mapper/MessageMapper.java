@@ -23,6 +23,7 @@ public interface MessageMapper {
     @Mapping(target = "pinnedBy", source = "pinnedBy.value")
     @Mapping(target = "forwardedFromChatId", source = "forwardedFromChatId.value")
     @Mapping(target = "forwardedFromUserId", source = "forwardedFromUserId.value")
+    @Mapping(target = "parentMessageId", source = "parentMessageId.value")
     MessageEntity toEntity(Message domain);
 
     @Mapping(target = "id", source = "id")
@@ -32,6 +33,7 @@ public interface MessageMapper {
     @Mapping(target = "pinnedBy", source = "pinnedBy")
     @Mapping(target = "forwardedFromChatId", source = "forwardedFromChatId")
     @Mapping(target = "forwardedFromUserId", source = "forwardedFromUserId")
+    @Mapping(target = "parentMessageId", source = "parentMessageId")
     Message toDomain(MessageEntity entity);
 
     MessageReactionEmbeddable toReactionEntity(MessageReaction reaction);

@@ -40,6 +40,8 @@ import ru.kubsu.borshchevyk.message.application.dto.command.AddReactionCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.RemoveReactionCommand;
 import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ReactionEvent;
 
+import ru.kubsu.borshchevyk.message.application.port.in.LoadMessageCommentsUseCase;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/chats/{chatId}/messages")
@@ -57,8 +59,25 @@ public class MessageController {
     private final AddReactionUseCase addReactionUseCase;
     private final RemoveReactionUseCase removeReactionUseCase;
     private final LoadMessageReadersUseCase loadMessageReadersUseCase;
+    private final LoadMessageCommentsUseCase loadMessageCommentsUseCase;
     private final PresentationMessageMapper presentationMessageMapper;
     private final SimpMessagingTemplate messagingTemplate;
+
+    @Operation(summary = "Get message comments", description = "Retrieves paginated comments for a specific message.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Comments retrieved successfully")
+    })
+    @GetMapping("/{messageId}/comments")
+    public List<MessageResponse> getMessageComments(
+            @PathVariable UUID chatId,
+            @PathVariable UUID messageId,
+            @RequestHeader("X-User-Id") UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+        log.info("Request to get comments for message {} in chat {} by user {} (page: {}, size: {})", messageId, chatId, userId, page, size);
+        List<Message> comments = loadMessageCommentsUseCase.loadMessageComments(chatId, messageId, userId, page, size);
+        return presentationMessageMapper.toResponseList(comments);
+    }
 
     @Operation(summary = "Get message readers", description = "Retrieves a list of user IDs who have read the message.")
     @ApiResponses(value = {
@@ -216,6 +235,7 @@ public class MessageController {
                 .source(request.source() != null ? request.source() : MessageSource.ONLINE)
                 .forwardedFromChatId(request.forwardedFromChatId())
                 .forwardedFromUserId(request.forwardedFromUserId())
+                .parentMessageId(request.parentMessageId())
                 .build();
         
         Message message = sendMessageUseCase.sendMessage(command);

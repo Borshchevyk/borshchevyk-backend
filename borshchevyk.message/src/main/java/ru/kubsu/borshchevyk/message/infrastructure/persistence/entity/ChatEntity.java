@@ -33,6 +33,10 @@ public class ChatEntity {
     @Column(name = "invite_code")
     private String inviteCode;
 
+    @Column(name = "comments_enabled", nullable = false)
+    @Builder.Default
+    private boolean commentsEnabled = true;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

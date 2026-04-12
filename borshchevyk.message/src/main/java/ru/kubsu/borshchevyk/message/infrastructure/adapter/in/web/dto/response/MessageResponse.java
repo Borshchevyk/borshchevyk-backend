@@ -31,6 +31,10 @@ public record MessageResponse(
         @Schema(description = "ID of the original chat if forwarded")
         UUID forwardedFromChatId,
         @Schema(description = "ID of the original user if forwarded")
-        UUID forwardedFromUserId
+        UUID forwardedFromUserId,
+        @Schema(description = "ID of the parent message if this is a comment")
+        UUID parentMessageId,
+        @Schema(description = "Number of comments on this message")
+        int commentsCount
 ) {
 }

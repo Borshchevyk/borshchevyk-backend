@@ -19,6 +19,8 @@ public interface PresentationMessageMapper {
     @Mapping(target = "pinnedBy", source = "pinnedBy.value")
     @Mapping(target = "forwardedFromChatId", source = "forwardedFromChatId.value")
     @Mapping(target = "forwardedFromUserId", source = "forwardedFromUserId.value")
+    @Mapping(target = "parentMessageId", source = "parentMessageId.value")
+    @Mapping(target = "commentsCount", source = "commentsCount")
     MessageResponse toResponse(Message message);
 
     List<MessageResponse> toResponseList(List<Message> messages);

@@ -54,6 +54,13 @@ public class MessageEntity {
     @Column(name = "forwarded_from_user_id")
     private UUID forwardedFromUserId;
 
+    @Column(name = "parent_message_id")
+    private UUID parentMessageId;
+
+    @Column(name = "comments_count", nullable = false)
+    @Builder.Default
+    private int commentsCount = 0;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "message_reactions", joinColumns = @JoinColumn(name = "message_id"))
     @AttributeOverrides({

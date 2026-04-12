@@ -28,6 +28,9 @@ public class Message {
     private UserId pinnedBy;
     private ChatId forwardedFromChatId;
     private UserId forwardedFromUserId;
+    private MessageId parentMessageId;
+    @Builder.Default
+    private int commentsCount = 0;
     @Builder.Default
     private List<MessageReaction> reactions = new ArrayList<>();
 }

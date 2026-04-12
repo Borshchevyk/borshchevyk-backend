@@ -19,4 +19,5 @@ public class SendMessageCommand {
     private MessageSource source;
     private UUID forwardedFromChatId;
     private UUID forwardedFromUserId;
+    private UUID parentMessageId;
 }

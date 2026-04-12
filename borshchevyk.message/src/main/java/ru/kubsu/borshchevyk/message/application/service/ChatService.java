@@ -440,6 +440,9 @@ public class ChatService implements CreateChatUseCase, CreatePrivateChatUseCase,
         if (command.getDescription() != null) {
             chat.setDescription(command.getDescription());
         }
+        if (command.getCommentsEnabled() != null) {
+            chat.setCommentsEnabled(command.getCommentsEnabled());
+        }
 
         chatPort.save(chat);
     }

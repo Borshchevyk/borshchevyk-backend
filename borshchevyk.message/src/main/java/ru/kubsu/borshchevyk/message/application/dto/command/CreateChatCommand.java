@@ -18,5 +18,7 @@ public class CreateChatCommand {
     private ChatType type;
     private String title;
     private String description;
+    @Builder.Default
+    private boolean commentsEnabled = true;
     private List<UUID> initialMemberIds;
 }

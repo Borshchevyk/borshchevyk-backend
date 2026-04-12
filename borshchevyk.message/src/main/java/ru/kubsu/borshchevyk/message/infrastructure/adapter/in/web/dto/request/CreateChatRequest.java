@@ -15,6 +15,8 @@ public record CreateChatRequest(
         @Schema(description = "Description of the chat", example = "Group for friends")
         String description,
         @Schema(description = "Initial members of the chat", example = "[\"123e4567-e89b-12d3-a456-426614174000\"]")
-        List<UUID> initialMemberIds
+        List<UUID> initialMemberIds,
+        @Schema(description = "Whether comments are enabled (for CHANNEL type)", example = "true")
+        Boolean commentsEnabled
 ) {
 }

@@ -12,4 +12,5 @@ public class UpdateChatInfoCommand {
     private UUID requesterId;
     private String title;
     private String description;
+    private Boolean commentsEnabled;
 }

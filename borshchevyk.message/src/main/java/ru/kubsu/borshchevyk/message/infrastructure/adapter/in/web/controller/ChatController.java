@@ -288,6 +288,7 @@ public class ChatController {
                 .requesterId(requesterId)
                 .title(request.title())
                 .description(request.description())
+                .commentsEnabled(request.commentsEnabled())
                 .build();
         updateChatInfoUseCase.updateChatInfo(command);
     }

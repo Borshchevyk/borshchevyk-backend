@@ -17,6 +17,8 @@ public record ChatResponse(
         @Schema(description = "Description of the chat")
         String description,
         @Schema(description = "Timestamp when the chat was created")
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        @Schema(description = "Whether comments are enabled")
+        boolean commentsEnabled
 ) {
 }

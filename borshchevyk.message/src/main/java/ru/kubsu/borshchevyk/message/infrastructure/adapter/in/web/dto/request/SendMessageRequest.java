@@ -17,6 +17,9 @@ public record SendMessageRequest(
         UUID forwardedFromChatId,
         
         @Schema(description = "ID of the original user if forwarded", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-        UUID forwardedFromUserId
+        UUID forwardedFromUserId,
+
+        @Schema(description = "ID of the parent message if this is a comment or reply", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        UUID parentMessageId
 ) {
 }

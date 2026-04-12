@@ -43,12 +43,13 @@ import ru.kubsu.borshchevyk.message.application.dto.command.RemoveReactionComman
 import ru.kubsu.borshchevyk.message.application.port.in.AddReactionUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.RemoveReactionUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.LoadMessageReadersUseCase;
+import ru.kubsu.borshchevyk.message.application.port.in.LoadMessageCommentsUseCase;
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageReaction;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCase, DeleteMessageUseCase, ReadMessageUseCase, PinMessageUseCase, UnpinMessageUseCase, LoadPinnedMessagesUseCase, AddReactionUseCase, RemoveReactionUseCase, LoadMessageReadersUseCase {
+public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCase, DeleteMessageUseCase, ReadMessageUseCase, PinMessageUseCase, UnpinMessageUseCase, LoadPinnedMessagesUseCase, AddReactionUseCase, RemoveReactionUseCase, LoadMessageReadersUseCase, LoadMessageCommentsUseCase {
 
     private final MessagePort messagePort;
     private final ChatPort chatPort;
@@ -98,7 +99,7 @@ public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCas
         ChatId chatId = new ChatId(command.getChatId());
         UserId authorId = new UserId(command.getAuthorId());
 
-        chatPort.findById(chatId)
+        Chat chat = chatPort.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException("Chat not found with id: " + command.getChatId()));
 
         ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember chatMember = chatMemberPort.findByChatIdAndUserId(chatId, authorId)
@@ -106,6 +107,30 @@ public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCas
 
         if (!chatMember.isCanSendMessages()) {
             throw new ForbiddenActionException("User is not allowed to send messages in this chat");
+        }
+
+        if (chat.getType() == ru.kubsu.borshchevyk.message.domain.model.chat.ChatType.CHANNEL) {
+            if (command.getParentMessageId() == null) {
+                // Main channel post
+                if (chatMember.getRole() == ChatRole.MEMBER) {
+                    throw new ForbiddenActionException("Only ADMIN or OWNER can post in a channel");
+                }
+            } else {
+                // Comment on a channel post
+                if (!chat.isCommentsEnabled()) {
+                    throw new ForbiddenActionException("Comments are disabled for this channel");
+                }
+            }
+        }
+
+        if (command.getParentMessageId() != null) {
+            Message parentMessage = messagePort.findById(new MessageId(command.getParentMessageId()))
+                    .orElseThrow(() -> new MessageNotFoundException("Parent message not found"));
+            if (!parentMessage.getChatId().equals(chatId)) {
+                throw new IllegalArgumentException("Parent message belongs to a different chat");
+            }
+            parentMessage.setCommentsCount(parentMessage.getCommentsCount() + 1);
+            messagePort.save(parentMessage);
         }
 
         Message message = Message.builder()
@@ -118,6 +143,7 @@ public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCas
                 .source(command.getSource())
                 .forwardedFromChatId(command.getForwardedFromChatId() != null ? new ChatId(command.getForwardedFromChatId()) : null)
                 .forwardedFromUserId(command.getForwardedFromUserId() != null ? new UserId(command.getForwardedFromUserId()) : null)
+                .parentMessageId(command.getParentMessageId() != null ? new MessageId(command.getParentMessageId()) : null)
                 .build();
 
         Message savedMessage = messagePort.save(message);
@@ -342,6 +368,29 @@ public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCas
                 .stream()
                 .map(UserId::value)
                 .filter(id -> !id.equals(message.getAuthorId().value())) // optionally exclude the author
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Message> loadMessageComments(UUID chatIdRaw, UUID parentMessageIdRaw, UUID requesterIdRaw, int page, int size) {
+        log.info("Loading comments for message {} in chat {} by user {}", parentMessageIdRaw, chatIdRaw, requesterIdRaw);
+        ChatId chatId = new ChatId(chatIdRaw);
+        MessageId parentMessageId = new MessageId(parentMessageIdRaw);
+        UserId requesterId = new UserId(requesterIdRaw);
+
+        chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
+                .orElseThrow(() -> new UserNotInChatException("User is not a member of the chat"));
+
+        Message message = messagePort.findById(parentMessageId)
+                .orElseThrow(() -> new MessageNotFoundException("Parent message not found"));
+
+        if (!message.getChatId().equals(chatId)) {
+            throw new IllegalArgumentException("Message does not belong to this chat");
+        }
+
+        return messagePort.findCommentsByMessageId(chatId, parentMessageId, page, size).stream()
+                .filter(m -> !m.isDeleted())
+                .filter(m -> !deletedMessagePort.isDeletedForUser(m.getId(), requesterId))
                 .collect(Collectors.toList());
     }
 }

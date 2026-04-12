@@ -13,6 +13,8 @@ import java.util.UUID;
 public interface MessageRepository extends JpaRepository<MessageEntity, UUID> {
     Page<MessageEntity> findByChatIdOrderByCreatedAtDesc(UUID chatId, Pageable pageable);
 
+    Page<MessageEntity> findByChatIdAndParentMessageIdOrderByCreatedAtAsc(UUID chatId, UUID parentMessageId, Pageable pageable);
+
     int countByChatIdAndPinnedAtIsNotNull(UUID chatId);
     
     List<MessageEntity> findByChatIdAndPinnedAtIsNotNullOrderByPinnedAtDesc(UUID chatId);
