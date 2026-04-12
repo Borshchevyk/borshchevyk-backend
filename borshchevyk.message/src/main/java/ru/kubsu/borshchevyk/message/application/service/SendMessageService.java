@@ -11,7 +11,6 @@ import ru.kubsu.borshchevyk.message.application.port.out.ChatMemberPort;
 import ru.kubsu.borshchevyk.message.application.port.out.ChatPort;
 import ru.kubsu.borshchevyk.message.application.port.out.MessageEventPublisherPort;
 import ru.kubsu.borshchevyk.message.application.port.out.MessagePort;
-import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
 import ru.kubsu.borshchevyk.message.domain.exception.ChatNotFoundException;
 import ru.kubsu.borshchevyk.message.domain.exception.ForbiddenActionException;
 import ru.kubsu.borshchevyk.message.domain.exception.MessageNotFoundException;
@@ -37,7 +36,6 @@ public class SendMessageService implements SendMessageUseCase {
     private final ChatPort chatPort;
     private final ChatMemberPort chatMemberPort;
     private final MessageEventPublisherPort messageEventPublisherPort;
-    private final RealtimeNotificationPort realtimeNotificationPort;
 
     @Override
     @Transactional
@@ -100,9 +98,6 @@ public class SendMessageService implements SendMessageUseCase {
         List<String> memberIds = members.stream().map(m -> m.getUserId().value().toString()).collect(Collectors.toList());
 
         messageEventPublisherPort.publishMessageCreatedEvent(savedMessage, memberIds);
-        for (ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember member : members) {
-            realtimeNotificationPort.notifyUser(member.getUserId(), savedMessage);
-        }
 
         log.info("Message sent successfully with ID: {}", savedMessage.getId().value());
         return savedMessage;
