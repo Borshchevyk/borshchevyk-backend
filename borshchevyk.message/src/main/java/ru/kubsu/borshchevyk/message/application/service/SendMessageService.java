@@ -1,0 +1,110 @@
+package ru.kubsu.borshchevyk.message.application.service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import ru.kubsu.borshchevyk.message.application.dto.command.SendMessageCommand;
+import ru.kubsu.borshchevyk.message.application.port.in.SendMessageUseCase;
+import ru.kubsu.borshchevyk.message.application.port.out.ChatMemberPort;
+import ru.kubsu.borshchevyk.message.application.port.out.ChatPort;
+import ru.kubsu.borshchevyk.message.application.port.out.MessageEventPublisherPort;
+import ru.kubsu.borshchevyk.message.application.port.out.MessagePort;
+import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
+import ru.kubsu.borshchevyk.message.domain.exception.ChatNotFoundException;
+import ru.kubsu.borshchevyk.message.domain.exception.ForbiddenActionException;
+import ru.kubsu.borshchevyk.message.domain.exception.MessageNotFoundException;
+import ru.kubsu.borshchevyk.message.domain.exception.UserNotInChatException;
+import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
+import ru.kubsu.borshchevyk.message.domain.model.chat.ChatRole;
+import ru.kubsu.borshchevyk.message.domain.model.message.Message;
+import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
+import ru.kubsu.borshchevyk.message.domain.model.value.MessageId;
+import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class SendMessageService implements SendMessageUseCase {
+
+    private final MessagePort messagePort;
+    private final ChatPort chatPort;
+    private final ChatMemberPort chatMemberPort;
+    private final MessageEventPublisherPort messageEventPublisherPort;
+    private final RealtimeNotificationPort realtimeNotificationPort;
+
+    @Override
+    @Transactional
+    public Message sendMessage(SendMessageCommand command) {
+        log.info("Sending message to chat: {}", command.getChatId());
+
+        ChatId chatId = new ChatId(command.getChatId());
+        UserId authorId = new UserId(command.getAuthorId());
+
+        Chat chat = chatPort.findById(chatId)
+                .orElseThrow(() -> new ChatNotFoundException("Chat not found with id: " + command.getChatId()));
+
+        ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember chatMember = chatMemberPort.findByChatIdAndUserId(chatId, authorId)
+                .orElseThrow(() -> new UserNotInChatException("User " + authorId.value() + " is not a member of chat " + chatId.value()));
+
+        if (!chatMember.isCanSendMessages()) {
+            throw new ForbiddenActionException("User is not allowed to send messages in this chat");
+        }
+
+        if (chat instanceof ru.kubsu.borshchevyk.message.domain.model.chat.Channel channelChat) {
+            if (command.getParentMessageId() == null) {
+                // Main channel post
+                if (chatMember.getRole() == ChatRole.MEMBER) {
+                    throw new ForbiddenActionException("Only ADMIN or OWNER can post in a channel");
+                }
+            } else {
+                // Comment on a channel post
+                if (!channelChat.isCommentsEnabled()) {
+                    throw new ForbiddenActionException("Comments are disabled for this channel");
+                }
+            }
+        }
+
+        if (command.getParentMessageId() != null) {
+            Message parentMessage = messagePort.findById(new MessageId(command.getParentMessageId()))
+                    .orElseThrow(() -> new MessageNotFoundException("Parent message not found"));
+            if (!parentMessage.getChatId().equals(chatId)) {
+                throw new IllegalArgumentException("Parent message belongs to a different chat");
+            }
+            parentMessage.setCommentsCount(parentMessage.getCommentsCount() + 1);
+            messagePort.save(parentMessage);
+        }
+
+        Message message = Message.builder()
+                .id(new MessageId(UUID.randomUUID()))
+                .chatId(chatId)
+                .authorId(authorId)
+                .text(command.getText())
+                .createdAt(LocalDateTime.now())
+                .isDeleted(false)
+                .source(command.getSource())
+                .forwardedFromChatId(command.getForwardedFromChatId() != null ? new ChatId(command.getForwardedFromChatId()) : null)
+                .forwardedFromUserId(command.getForwardedFromUserId() != null ? new UserId(command.getForwardedFromUserId()) : null)
+                .parentMessageId(command.getParentMessageId() != null ? new MessageId(command.getParentMessageId()) : null)
+                .build();
+
+        Message savedMessage = messagePort.save(message);
+
+        List<ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember> members = chatMemberPort.findByChatId(chatId);
+        List<String> memberIds = members.stream().map(m -> m.getUserId().value().toString()).collect(Collectors.toList());
+
+        messageEventPublisherPort.publishMessageCreatedEvent(savedMessage, memberIds);
+        for (ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember member : members) {
+            realtimeNotificationPort.notifyUser(member.getUserId(), savedMessage);
+        }
+
+        log.info("Message sent successfully with ID: {}", savedMessage.getId().value());
+        return savedMessage;
+    }
+}
