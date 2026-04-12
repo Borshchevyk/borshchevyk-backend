@@ -12,6 +12,11 @@ spring:
     virtual:
       enabled: true
 
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
+
   cloud:
     gateway:
       globalcors:
@@ -53,6 +58,11 @@ spring:
             - Path=/api/v1/sync/**
           filters:
             - JwtAuthenticationFilter
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20
+                key-resolver: "#{@userKeyResolver}"
 
         - id: media-service
           uri: ${MEDIA_SERVICE_URL}
