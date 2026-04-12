@@ -150,8 +150,6 @@ services:
     build:
       context: ./borshchevyk.gateway
     restart: on-failure
-    ports:
-      - "${GATEWAY_INTERNAL_PORT:-8080}:${GATEWAY_INTERNAL_PORT:-8080}"
     env_file:
       - .env
     environment:
@@ -170,8 +168,6 @@ services:
     build:
       context: ./borshchevyk.admin
     restart: on-failure
-    ports:
-      - "${ADMIN_SERVICE_PORT:-8085}:${ADMIN_SERVICE_PORT:-8085}"
     env_file:
       - .env
     environment:
@@ -198,3 +194,4 @@ volumes:
   postgres-data:
   caddy_data:
   caddy_config:
+
