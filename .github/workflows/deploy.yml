@@ -122,7 +122,8 @@ jobs:
           envs: DEV_ENV_FILE,GH_TOKEN,GH_ACTOR
           script: |
             cd ~/borshchevyk-backend
-            git pull origin dev
+            git checkout dev
+            git pull
             echo "$DEV_ENV_FILE" > .env
             echo "$GH_TOKEN" | sudo docker login ghcr.io -u "$GH_ACTOR" --password-stdin
             sudo docker compose pull
