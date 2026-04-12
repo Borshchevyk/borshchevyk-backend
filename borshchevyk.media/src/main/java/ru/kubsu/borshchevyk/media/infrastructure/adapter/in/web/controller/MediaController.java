@@ -29,7 +29,7 @@ public class MediaController {
     @Operation(summary = "Get pre-signed URL for upload", description = "Generates a secure temporary link for the client to directly upload a file to S3.")
     @GetMapping("/upload-url")
     public UploadUrlResponse getUploadUrl(
-            @RequestHeader("X-User-Id") UUID userId,
+            @RequestHeader(value = "X-User-Id", required = false) UUID userId,
             @RequestParam String contentType,
             @RequestParam String extension) {
         
