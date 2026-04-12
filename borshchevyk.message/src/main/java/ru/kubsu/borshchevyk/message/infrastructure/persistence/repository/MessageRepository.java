@@ -3,6 +3,8 @@ package ru.kubsu.borshchevyk.message.infrastructure.persistence.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageEntity;
 
@@ -14,6 +16,31 @@ public interface MessageRepository extends JpaRepository<MessageEntity, UUID> {
     Page<MessageEntity> findByChatIdOrderByCreatedAtDesc(UUID chatId, Pageable pageable);
 
     Page<MessageEntity> findByChatIdAndParentMessageIdOrderByCreatedAtAsc(UUID chatId, UUID parentMessageId, Pageable pageable);
+
+    @Query("SELECT m FROM MessageEntity m " +
+           "WHERE m.chatId = :chatId " +
+           "AND m.parentMessageId IS NULL " +
+           "AND m.isDeleted = false " +
+           "AND m.id NOT IN (SELECT dm.messageId FROM DeletedMessageEntity dm WHERE dm.userId = :userId) " +
+           "AND (cast(:historyClearedAt as timestamp) IS NULL OR m.createdAt > :historyClearedAt) " +
+           "ORDER BY m.createdAt DESC")
+    Page<MessageEntity> loadChatHistory(
+            @Param("chatId") UUID chatId, 
+            @Param("userId") UUID userId, 
+            @Param("historyClearedAt") java.time.LocalDateTime historyClearedAt, 
+            Pageable pageable);
+
+    @Query("SELECT m FROM MessageEntity m " +
+           "WHERE m.chatId = :chatId " +
+           "AND m.parentMessageId = :parentMessageId " +
+           "AND m.isDeleted = false " +
+           "AND m.id NOT IN (SELECT dm.messageId FROM DeletedMessageEntity dm WHERE dm.userId = :userId) " +
+           "ORDER BY m.createdAt ASC")
+    Page<MessageEntity> loadMessageComments(
+            @Param("chatId") UUID chatId, 
+            @Param("parentMessageId") UUID parentMessageId,
+            @Param("userId") UUID userId, 
+            Pageable pageable);
 
     int countByChatIdAndPinnedAtIsNotNull(UUID chatId);
     

@@ -36,6 +36,7 @@ public class MessageHistoryService implements LoadChatHistoryUseCase, LoadMessag
     private final DeletedMessagePort deletedMessagePort;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Message> loadChatHistory(UUID chatIdRaw, UUID userIdRaw, int page, int size) {
         log.info("Loading chat history for chat: {}", chatIdRaw);
 
@@ -52,17 +53,11 @@ public class MessageHistoryService implements LoadChatHistoryUseCase, LoadMessag
         ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember chatMember = chatMemberPort.findByChatIdAndUserId(chatId, userId)
                 .orElseThrow(() -> new UserNotInChatException("User " + userIdRaw + " is not a member of chat " + chatIdRaw));
 
-        List<Message> messages = messagePort.findByChatId(chatId, page, size);
-
-        return messages.stream()
-                .filter(m -> !m.isDeleted())
-                .filter(m -> !deletedMessagePort.isDeletedForUser(m.getId(), userId))
-                .filter(m -> chatMember.getHistoryClearedAt() == null || !m.getCreatedAt().isBefore(chatMember.getHistoryClearedAt()))
-                .collect(Collectors.toList());
+        return messagePort.loadChatHistory(chatId, userId, chatMember.getHistoryClearedAt(), page, size);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Message> loadPinnedMessages(UUID chatIdRaw, UUID requesterIdRaw) {
         log.info("Loading pinned messages for chat {} by user {}", chatIdRaw, requesterIdRaw);
         ChatId chatId = new ChatId(chatIdRaw);
@@ -75,6 +70,7 @@ public class MessageHistoryService implements LoadChatHistoryUseCase, LoadMessag
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Message> loadMessageComments(UUID chatIdRaw, UUID parentMessageIdRaw, UUID requesterIdRaw, int page, int size) {
         log.info("Loading comments for message {} in chat {} by user {}", parentMessageIdRaw, chatIdRaw, requesterIdRaw);
         ChatId chatId = new ChatId(chatIdRaw);
@@ -91,9 +87,6 @@ public class MessageHistoryService implements LoadChatHistoryUseCase, LoadMessag
             throw new IllegalArgumentException("Message does not belong to this chat");
         }
 
-        return messagePort.findCommentsByMessageId(chatId, parentMessageId, page, size).stream()
-                .filter(m -> !m.isDeleted())
-                .filter(m -> !deletedMessagePort.isDeletedForUser(m.getId(), requesterId))
-                .collect(Collectors.toList());
+        return messagePort.loadMessageComments(chatId, parentMessageId, requesterId, page, size);
     }
 }
