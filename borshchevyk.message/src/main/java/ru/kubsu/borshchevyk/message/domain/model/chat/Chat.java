@@ -1,9 +1,9 @@
 package ru.kubsu.borshchevyk.message.domain.model.chat;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 
 import java.time.LocalDateTime;
@@ -11,15 +11,10 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Chat {
+@SuperBuilder
+public abstract class Chat {
     private ChatId id;
     private ChatType type;
-    private String title;
-    private String description;
-    private String inviteCode;
-    @Builder.Default
-    private boolean commentsEnabled = true;
     private LocalDateTime createdAt;
     private boolean isDeleted;
 }

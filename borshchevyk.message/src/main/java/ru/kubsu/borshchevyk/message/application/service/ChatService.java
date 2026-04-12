@@ -36,6 +36,10 @@ import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatRole;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatType;
+import ru.kubsu.borshchevyk.message.domain.model.chat.PrivateChat;
+import ru.kubsu.borshchevyk.message.domain.model.chat.GroupChat;
+import ru.kubsu.borshchevyk.message.domain.model.chat.Channel;
+import ru.kubsu.borshchevyk.message.domain.model.chat.SavedMessages;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 
@@ -70,7 +74,7 @@ public class ChatService implements CreateChatUseCase, CreatePrivateChatUseCase,
             return existingChat.get();
         }
 
-        Chat chat = Chat.builder()
+        Chat chat = PrivateChat.builder()
                 .id(new ChatId(UUID.randomUUID()))
                 .type(ChatType.PRIVATE)
                 .createdAt(LocalDateTime.now())
@@ -101,13 +105,27 @@ public class ChatService implements CreateChatUseCase, CreatePrivateChatUseCase,
     public Chat createChat(CreateChatCommand command) {
         log.info("Creating chat with title: {}", command.getTitle());
 
-        Chat chat = Chat.builder()
-                .id(new ChatId(UUID.randomUUID()))
-                .type(command.getType())
-                .title(command.getTitle())
-                .description(command.getDescription())
-                .createdAt(LocalDateTime.now())
-                .build();
+        Chat chat;
+        ChatId newChatId = new ChatId(UUID.randomUUID());
+        if (command.getType() == ChatType.GROUP) {
+            chat = GroupChat.builder()
+                    .id(newChatId)
+                    .type(command.getType())
+                    .title(command.getTitle())
+                    .description(command.getDescription())
+                    .createdAt(LocalDateTime.now())
+                    .build();
+        } else if (command.getType() == ChatType.CHANNEL) {
+            chat = Channel.builder()
+                    .id(newChatId)
+                    .type(command.getType())
+                    .title(command.getTitle())
+                    .description(command.getDescription())
+                    .createdAt(LocalDateTime.now())
+                    .build();
+        } else {
+             throw new IllegalArgumentException("Unsupported chat type for general creation: " + command.getType());
+        }
 
         chat = chatPort.save(chat);
 
@@ -378,7 +396,11 @@ public class ChatService implements CreateChatUseCase, CreatePrivateChatUseCase,
         }
 
         String inviteCode = UUID.randomUUID().toString();
-        chat.setInviteCode(inviteCode);
+        if (chat instanceof GroupChat groupChat) {
+            groupChat.setInviteCode(inviteCode);
+        } else if (chat instanceof Channel channel) {
+            channel.setInviteCode(inviteCode);
+        }
         chatPort.save(chat);
 
         return inviteCode;
@@ -434,14 +456,26 @@ public class ChatService implements CreateChatUseCase, CreatePrivateChatUseCase,
             throw new ForbiddenActionException("User does not have permission to change chat info");
         }
 
-        if (command.getTitle() != null && !command.getTitle().isBlank()) {
-            chat.setTitle(command.getTitle());
-        }
-        if (command.getDescription() != null) {
-            chat.setDescription(command.getDescription());
-        }
-        if (command.getCommentsEnabled() != null) {
-            chat.setCommentsEnabled(command.getCommentsEnabled());
+        if (chat instanceof GroupChat groupChat) {
+            if (command.getTitle() != null && !command.getTitle().isBlank()) {
+                groupChat.setTitle(command.getTitle());
+            }
+            if (command.getDescription() != null) {
+                groupChat.setDescription(command.getDescription());
+            }
+            if (command.getCommentsEnabled() != null) {
+                groupChat.setCommentsEnabled(command.getCommentsEnabled());
+            }
+        } else if (chat instanceof Channel channel) {
+            if (command.getTitle() != null && !command.getTitle().isBlank()) {
+                channel.setTitle(command.getTitle());
+            }
+            if (command.getDescription() != null) {
+                channel.setDescription(command.getDescription());
+            }
+            if (command.getCommentsEnabled() != null) {
+                channel.setCommentsEnabled(command.getCommentsEnabled());
+            }
         }
 
         chatPort.save(chat);

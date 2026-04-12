@@ -2,6 +2,7 @@ package ru.kubsu.borshchevyk.message.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatType;
 
 import java.time.LocalDateTime;
@@ -9,33 +10,22 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "chats")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.STRING)
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class ChatEntity {
+@SuperBuilder
+public abstract class ChatEntity {
 
     @Id
     @Column(name = "id")
     private UUID id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false)
+    @Column(name = "type", nullable = false, insertable = false, updatable = false)
     private ChatType type;
-
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "description")
-    private String description;
-
-    @Column(name = "invite_code")
-    private String inviteCode;
-
-    @Column(name = "comments_enabled", nullable = false)
-    @Builder.Default
-    private boolean commentsEnabled = true;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

@@ -84,7 +84,7 @@ public class ChatController {
                 .build();
         
         Chat chat = createChatUseCase.createChat(command);
-        return presentationChatMapper.toResponse(chat);
+        return presentationChatMapper.toResponse(chat, userId);
     }
 
     @Operation(summary = "Create a new private chat", description = "Creates or returns an existing private chat with the target user.")
@@ -101,7 +101,7 @@ public class ChatController {
         log.info("Request to create private chat from user {} to user {}", userId, request.targetUserId());
         
         Chat chat = ((ru.kubsu.borshchevyk.message.application.port.in.CreatePrivateChatUseCase) createChatUseCase).createPrivateChat(userId, request.targetUserId());
-        return presentationChatMapper.toResponse(chat);
+        return presentationChatMapper.toResponse(chat, userId);
     }
 
     @Operation(summary = "Get user chats", description = "Retrieves a list of chats for the authenticated user.")
@@ -113,7 +113,7 @@ public class ChatController {
             @RequestHeader("X-User-Id") @Parameter(description = "ID of the authenticated user") UUID userId) {
         log.info("Request to get chats for user: {}", userId);
         List<Chat> chats = loadUserChatsUseCase.loadUserChats(new ru.kubsu.borshchevyk.message.domain.model.value.UserId(userId));
-        return presentationChatMapper.toResponseList(chats);
+        return presentationChatMapper.toResponseList(chats, userId);
     }
 
     @Operation(summary = "Update member permissions", description = "Updates the permissions of a chat member.")
@@ -267,7 +267,7 @@ public class ChatController {
             @RequestHeader("X-User-Id") UUID userId) {
         log.info("Request to join chat by link from user {}", userId);
         Chat chat = joinChatByLinkUseCase.joinChatByLink(inviteCode, userId);
-        return presentationChatMapper.toResponse(chat);
+        return presentationChatMapper.toResponse(chat, userId);
     }
 
     @Operation(summary = "Update chat info", description = "Updates the title and/or description of a chat.")

@@ -109,7 +109,7 @@ public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCas
             throw new ForbiddenActionException("User is not allowed to send messages in this chat");
         }
 
-        if (chat.getType() == ru.kubsu.borshchevyk.message.domain.model.chat.ChatType.CHANNEL) {
+        if (chat instanceof ru.kubsu.borshchevyk.message.domain.model.chat.Channel channelChat) {
             if (command.getParentMessageId() == null) {
                 // Main channel post
                 if (chatMember.getRole() == ChatRole.MEMBER) {
@@ -117,7 +117,7 @@ public class MessageService implements SendMessageUseCase, LoadChatHistoryUseCas
                 }
             } else {
                 // Comment on a channel post
-                if (!chat.isCommentsEnabled()) {
+                if (!channelChat.isCommentsEnabled()) {
                     throw new ForbiddenActionException("Comments are disabled for this channel");
                 }
             }
