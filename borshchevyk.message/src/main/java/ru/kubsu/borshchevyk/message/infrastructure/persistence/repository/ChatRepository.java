@@ -21,5 +21,6 @@ public interface ChatRepository extends JpaRepository<ChatEntity, UUID> {
            "AND c.id IN (SELECT cm.chatId FROM ChatMemberEntity cm WHERE cm.userId = :userId2)")
     Optional<ChatEntity> findPrivateChatBetweenUsers(@Param("userId1") UUID userId1, @Param("userId2") UUID userId2);
 
-    Optional<ChatEntity> findByInviteCode(String inviteCode);
+    @Query(value = "SELECT * FROM chats WHERE invite_code = :inviteCode", nativeQuery = true)
+    Optional<ChatEntity> findByInviteCode(@Param("inviteCode") String inviteCode);
 }
