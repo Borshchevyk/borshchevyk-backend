@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.message.application.dto.command.CreateChatCommand;
@@ -290,16 +292,19 @@ public class ChatController {
         updateChatInfoUseCase.updateChatInfo(command);
     }
 
-    @Operation(summary = "Get chat members", description = "Retrieves a list of members for a given chat.")
+    @Operation(summary = "Get chat members", description = "Retrieves a paginated list of members for a given chat.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of members retrieved successfully")
     })
     @GetMapping("/{chatId}/members")
-    public List<ChatMemberResponse> getChatMembers(
+    public Page<ChatMemberResponse> getChatMembers(
             @PathVariable UUID chatId,
-            @RequestHeader("X-User-Id") UUID requesterId) {
-        log.info("Request to get members for chat {} from user {}", chatId, requesterId);
-        List<ChatMember> members = loadChatMembersUseCase.loadChatMembers(chatId, requesterId);
-        return presentationChatMapper.toMemberResponseList(members);
+            @RequestHeader("X-User-Id") UUID requesterId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+        log.info("Request to get members for chat {} from user {} page {} size {}", chatId, requesterId, page, size);
+        Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
+        Page<ChatMember> membersPage = loadChatMembersUseCase.loadChatMembers(chatId, requesterId, pageable);
+        return membersPage.map(presentationChatMapper::toMemberResponse);
     }
 }

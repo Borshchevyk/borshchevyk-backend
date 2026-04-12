@@ -1,6 +1,8 @@
 package ru.kubsu.borshchevyk.message.infrastructure.persistence;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import ru.kubsu.borshchevyk.message.application.port.out.ChatMemberPort;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember;
@@ -50,6 +52,12 @@ public class ChatMemberAdapter implements ChatMemberPort {
                 .stream()
                 .map(chatMemberMapper::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<ChatMember> findByChatId(ChatId chatId, Pageable pageable) {
+        return chatMemberRepository.findByChatId(chatId.value(), pageable)
+                .map(chatMemberMapper::toDomain);
     }
 
     @Override

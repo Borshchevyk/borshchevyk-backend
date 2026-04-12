@@ -20,6 +20,8 @@ import ru.kubsu.borshchevyk.message.application.port.in.InviteUserUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.JoinChatByLinkUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.KickUserUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.LeaveChatUseCase;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.kubsu.borshchevyk.message.application.dto.command.UpdateChatInfoCommand;
 import ru.kubsu.borshchevyk.message.application.port.in.LoadChatMembersUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.LoadUserChatsUseCase;
@@ -444,7 +446,7 @@ public class ChatService implements CreateChatUseCase, CreatePrivateChatUseCase,
 
     @Override
     @Transactional
-    public List<ChatMember> loadChatMembers(UUID chatIdRaw, UUID requesterIdRaw) {
+    public Page<ChatMember> loadChatMembers(UUID chatIdRaw, UUID requesterIdRaw, Pageable pageable) {
         log.info("Loading members for chat {} by user {}", chatIdRaw, requesterIdRaw);
         ChatId chatId = new ChatId(chatIdRaw);
         UserId requesterId = new UserId(requesterIdRaw);
@@ -455,6 +457,6 @@ public class ChatService implements CreateChatUseCase, CreatePrivateChatUseCase,
         chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
                 .orElseThrow(() -> new UserNotInChatException("Requester is not in the chat"));
 
-        return chatMemberPort.findByChatId(chatId);
+        return chatMemberPort.findByChatId(chatId, pageable);
     }
 }
