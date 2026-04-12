@@ -10,6 +10,7 @@ public record MessageCreatedEvent(
         UUID authorId,
         String text,
         LocalDateTime createdAt,
-        List<String> targetUserIds
+        List<String> targetUserIds,
+        List<UUID> attachmentIds
 ) {
 }

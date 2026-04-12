@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Schema(description = "Message details response")
@@ -27,7 +28,7 @@ public record MessageResponse(
         @Schema(description = "Identifier of the user who pinned the message")
         UUID pinnedBy,
         @Schema(description = "Reactions on the message")
-        java.util.List<MessageReactionResponse> reactions,
+        List<MessageReactionResponse> reactions,
         @Schema(description = "ID of the original chat if forwarded")
         UUID forwardedFromChatId,
         @Schema(description = "ID of the original user if forwarded")
@@ -35,6 +36,8 @@ public record MessageResponse(
         @Schema(description = "ID of the parent message if this is a comment")
         UUID parentMessageId,
         @Schema(description = "Number of comments on this message")
-        int commentsCount
+        int commentsCount,
+        @Schema(description = "List of attachment IDs")
+        List<UUID> attachmentIds
 ) {
 }

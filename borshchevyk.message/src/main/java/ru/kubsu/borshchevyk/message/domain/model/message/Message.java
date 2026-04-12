@@ -33,4 +33,6 @@ public class Message {
     private int commentsCount = 0;
     @Builder.Default
     private List<MessageReaction> reactions = new ArrayList<>();
+    @Builder.Default
+    private List<java.util.UUID> attachmentIds = new ArrayList<>();
 }

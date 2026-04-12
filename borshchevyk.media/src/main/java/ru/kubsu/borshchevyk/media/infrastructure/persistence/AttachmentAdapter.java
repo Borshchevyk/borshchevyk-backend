@@ -30,4 +30,26 @@ public class AttachmentAdapter implements AttachmentPort {
         return attachmentRepository.findById(id.value())
                 .map(attachmentMapper::toDomain);
     }
+
+    @Override
+    public java.util.List<Attachment> findAllById(java.util.List<AttachmentId> ids) {
+        java.util.List<java.util.UUID> uuidList = ids.stream().map(AttachmentId::value).toList();
+        return attachmentRepository.findAllById(uuidList)
+                .stream()
+                .map(attachmentMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public java.util.List<Attachment> findByStatusAndCreatedAtBefore(ru.kubsu.borshchevyk.media.domain.model.AttachmentStatus status, java.time.LocalDateTime createdAt) {
+        return attachmentRepository.findByStatusAndCreatedAtBefore(status, createdAt)
+                .stream()
+                .map(attachmentMapper::toDomain)
+                .toList();
+    }
+
+    @Override
+    public void delete(AttachmentId id) {
+        attachmentRepository.deleteById(id.value());
+    }
 }

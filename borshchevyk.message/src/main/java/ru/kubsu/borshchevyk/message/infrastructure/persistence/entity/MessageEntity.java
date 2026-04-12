@@ -73,4 +73,10 @@ public class MessageEntity {
     })
     @Builder.Default
     private List<MessageReactionEmbeddable> reactions = new ArrayList<>();
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "message_attachments", joinColumns = @JoinColumn(name = "message_id"))
+    @Column(name = "attachment_id", nullable = false)
+    @Builder.Default
+    private List<UUID> attachmentIds = new ArrayList<>();
 }

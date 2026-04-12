@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
 
+import java.util.List;
 import java.util.UUID;
 
 @Data
@@ -20,4 +21,5 @@ public class SendMessageCommand {
     private UUID forwardedFromChatId;
     private UUID forwardedFromUserId;
     private UUID parentMessageId;
+    private List<UUID> attachmentIds;
 }

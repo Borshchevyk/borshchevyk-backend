@@ -9,6 +9,7 @@ import ru.kubsu.borshchevyk.message.application.dto.command.SendMessageCommand;
 import ru.kubsu.borshchevyk.message.application.port.in.SendMessageUseCase;
 import ru.kubsu.borshchevyk.message.application.port.out.ChatMemberPort;
 import ru.kubsu.borshchevyk.message.application.port.out.ChatPort;
+import ru.kubsu.borshchevyk.message.application.port.out.MediaPort;
 import ru.kubsu.borshchevyk.message.application.port.out.MessageEventPublisherPort;
 import ru.kubsu.borshchevyk.message.application.port.out.MessagePort;
 import ru.kubsu.borshchevyk.message.domain.exception.ChatNotFoundException;
@@ -36,6 +37,7 @@ public class SendMessageService implements SendMessageUseCase {
     private final ChatPort chatPort;
     private final ChatMemberPort chatMemberPort;
     private final MessageEventPublisherPort messageEventPublisherPort;
+    private final MediaPort mediaPort;
 
     @Override
     @Transactional
@@ -69,6 +71,13 @@ public class SendMessageService implements SendMessageUseCase {
             }
         }
 
+        if (command.getAttachmentIds() != null && !command.getAttachmentIds().isEmpty()) {
+            boolean isValid = mediaPort.validateAttachments(command.getAttachmentIds(), command.getAuthorId());
+            if (!isValid) {
+                throw new IllegalArgumentException("Invalid attachments. Make sure they are uploaded and ready.");
+            }
+        }
+
         if (command.getParentMessageId() != null) {
             Message parentMessage = messagePort.findById(new MessageId(command.getParentMessageId()))
                     .orElseThrow(() -> new MessageNotFoundException("Parent message not found"));
@@ -90,6 +99,7 @@ public class SendMessageService implements SendMessageUseCase {
                 .forwardedFromChatId(command.getForwardedFromChatId() != null ? new ChatId(command.getForwardedFromChatId()) : null)
                 .forwardedFromUserId(command.getForwardedFromUserId() != null ? new UserId(command.getForwardedFromUserId()) : null)
                 .parentMessageId(command.getParentMessageId() != null ? new MessageId(command.getParentMessageId()) : null)
+                .attachmentIds(command.getAttachmentIds() != null ? command.getAttachmentIds() : new java.util.ArrayList<>())
                 .build();
 
         Message savedMessage = messagePort.save(message);

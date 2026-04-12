@@ -236,6 +236,7 @@ public class MessageController {
                 .forwardedFromChatId(request.forwardedFromChatId())
                 .forwardedFromUserId(request.forwardedFromUserId())
                 .parentMessageId(request.parentMessageId())
+                .attachmentIds(request.attachmentIds())
                 .build();
         
         Message message = sendMessageUseCase.sendMessage(command);

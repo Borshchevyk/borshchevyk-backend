@@ -18,4 +18,5 @@ public class MessageCreatedEvent {
     private String text;
     private String createdAt;
     private List<String> targetUserIds;
+    private List<String> attachmentIds;
 }

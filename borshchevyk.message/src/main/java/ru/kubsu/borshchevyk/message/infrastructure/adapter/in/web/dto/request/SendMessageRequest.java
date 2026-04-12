@@ -3,6 +3,7 @@ package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
 
+import java.util.List;
 import java.util.UUID;
 
 @Schema(description = "Request to send a new message")
@@ -20,6 +21,9 @@ public record SendMessageRequest(
         UUID forwardedFromUserId,
 
         @Schema(description = "ID of the parent message if this is a comment or reply", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
-        UUID parentMessageId
+        UUID parentMessageId,
+
+        @Schema(description = "List of attachment IDs", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+        List<UUID> attachmentIds
 ) {
 }
