@@ -22,6 +22,7 @@ public interface PresentationChatMapper {
 
     @Mapping(target = "chatId", source = "chatId.value")
     @Mapping(target = "userId", source = "userId.value")
+    @Mapping(target = "lastReadMessageId", source = "lastReadMessageId.value")
     ChatMemberResponse toMemberResponse(ChatMember chatMember);
 
     List<ChatMemberResponse> toMemberResponseList(List<ChatMember> chatMembers);

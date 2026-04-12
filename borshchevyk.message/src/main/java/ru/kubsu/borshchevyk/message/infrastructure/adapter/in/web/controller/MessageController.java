@@ -23,6 +23,10 @@ import ru.kubsu.borshchevyk.message.infrastructure.exception.MessageErrorRespons
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import ru.kubsu.borshchevyk.message.application.port.in.ReadMessageUseCase;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ReadReceiptEvent;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/chats/{chatId}/messages")
@@ -33,7 +37,33 @@ public class MessageController {
     private final SendMessageUseCase sendMessageUseCase;
     private final LoadChatHistoryUseCase loadChatHistoryUseCase;
     private final ru.kubsu.borshchevyk.message.application.port.in.DeleteMessageUseCase deleteMessageUseCase;
+    private final ReadMessageUseCase readMessageUseCase;
     private final PresentationMessageMapper presentationMessageMapper;
+    private final SimpMessagingTemplate messagingTemplate;
+
+    @Operation(summary = "Mark message as read", description = "Marks a specific message as read by the user.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Message marked as read successfully")
+    })
+    @PostMapping("/{messageId}/read")
+    @ResponseStatus(org.springframework.http.HttpStatus.NO_CONTENT)
+    public void readMessage(
+            @PathVariable UUID chatId,
+            @PathVariable UUID messageId,
+            @RequestHeader("X-User-Id") UUID userId) {
+        log.info("Request to mark message {} as read in chat {} by user {}", messageId, chatId, userId);
+        ru.kubsu.borshchevyk.message.application.dto.command.ReadMessageCommand command = ru.kubsu.borshchevyk.message.application.dto.command.ReadMessageCommand.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .requesterId(userId)
+                .build();
+                
+        readMessageUseCase.readMessage(command);
+
+        // Broadcast to WS
+        ReadReceiptEvent event = new ReadReceiptEvent(userId, messageId);
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/read", event);
+    }
 
     @Operation(summary = "Send a message", description = "Sends a new message to a specific chat.")
     @ApiResponses(value = {

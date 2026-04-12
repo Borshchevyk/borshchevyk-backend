@@ -12,6 +12,7 @@ public record ChatMemberResponse(
         boolean canSendMessages,
         boolean canDeleteMessages,
         boolean canInviteUsers,
-        boolean canChangeInfo
+        boolean canChangeInfo,
+        UUID lastReadMessageId
 ) {
 }
