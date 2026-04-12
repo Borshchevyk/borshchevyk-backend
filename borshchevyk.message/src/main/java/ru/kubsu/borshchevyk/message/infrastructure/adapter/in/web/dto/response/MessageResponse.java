@@ -21,6 +21,12 @@ public record MessageResponse(
         @Schema(description = "Indicates if the message is deleted")
         boolean isDeleted,
         @Schema(description = "Source of the message")
-        MessageSource source
+        MessageSource source,
+        @Schema(description = "Timestamp when the message was pinned")
+        LocalDateTime pinnedAt,
+        @Schema(description = "Identifier of the user who pinned the message")
+        UUID pinnedBy,
+        @Schema(description = "Reactions on the message")
+        java.util.List<MessageReactionResponse> reactions
 ) {
 }

@@ -10,20 +10,28 @@ import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageEnt
 
 import java.util.UUID;
 
+import ru.kubsu.borshchevyk.message.domain.model.message.MessageReaction;
+import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageReactionEmbeddable;
+
 @Mapper(componentModel = "spring")
 public interface MessageMapper {
 
-    @Mapping(target = "id", source = "id")
-    @Mapping(target = "chatId", source = "chatId")
-    @Mapping(target = "authorId", source = "authorId")
+    @Mapping(target = "id", source = "id.value")
+    @Mapping(target = "chatId", source = "chatId.value")
+    @Mapping(target = "authorId", source = "authorId.value")
     @Mapping(target = "isDeleted", source = "deleted")
+    @Mapping(target = "pinnedBy", source = "pinnedBy.value")
     MessageEntity toEntity(Message domain);
 
     @Mapping(target = "id", source = "id")
     @Mapping(target = "chatId", source = "chatId")
     @Mapping(target = "authorId", source = "authorId")
     @Mapping(target = "isDeleted", source = "deleted")
+    @Mapping(target = "pinnedBy", source = "pinnedBy")
     Message toDomain(MessageEntity entity);
+
+    MessageReactionEmbeddable toReactionEntity(MessageReaction reaction);
+    MessageReaction toReactionDomain(MessageReactionEmbeddable entity);
 
     default UUID map(MessageId value) {
         return value != null ? value.value() : null;

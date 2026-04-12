@@ -6,9 +6,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageEntity;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
 public interface MessageRepository extends JpaRepository<MessageEntity, UUID> {
     Page<MessageEntity> findByChatIdOrderByCreatedAtDesc(UUID chatId, Pageable pageable);
+
+    int countByChatIdAndPinnedAtIsNotNull(UUID chatId);
+    
+    List<MessageEntity> findByChatIdAndPinnedAtIsNotNullOrderByPinnedAtDesc(UUID chatId);
 }

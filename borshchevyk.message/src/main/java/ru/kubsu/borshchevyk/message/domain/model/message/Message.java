@@ -9,6 +9,8 @@ import ru.kubsu.borshchevyk.message.domain.model.value.MessageId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -22,4 +24,8 @@ public class Message {
     private LocalDateTime createdAt;
     private boolean isDeleted;
     private MessageSource source;
+    private LocalDateTime pinnedAt;
+    private UserId pinnedBy;
+    @Builder.Default
+    private List<MessageReaction> reactions = new ArrayList<>();
 }
