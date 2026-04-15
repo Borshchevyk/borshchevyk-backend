@@ -22,6 +22,7 @@ public class Message {
     private UserId authorId;
     private String text;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private boolean isDeleted;
     private MessageSource source;
     private LocalDateTime pinnedAt;

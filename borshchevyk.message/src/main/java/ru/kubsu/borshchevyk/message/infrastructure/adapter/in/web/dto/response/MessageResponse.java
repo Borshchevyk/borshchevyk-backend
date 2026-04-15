@@ -19,6 +19,8 @@ public record MessageResponse(
         String text,
         @Schema(description = "Timestamp when the message was sent")
         LocalDateTime createdAt,
+        @Schema(description = "Timestamp when the message was updated")
+        LocalDateTime updatedAt,
         @Schema(description = "Indicates if the message is deleted")
         boolean isDeleted,
         @Schema(description = "Source of the message")

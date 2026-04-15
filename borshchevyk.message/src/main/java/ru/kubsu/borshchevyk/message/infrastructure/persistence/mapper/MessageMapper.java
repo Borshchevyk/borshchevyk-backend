@@ -24,6 +24,7 @@ public interface MessageMapper {
     @Mapping(target = "forwardedFromChatId", source = "forwardedFromChatId.value")
     @Mapping(target = "forwardedFromUserId", source = "forwardedFromUserId.value")
     @Mapping(target = "parentMessageId", source = "parentMessageId.value")
+    @Mapping(target = "updatedAt", source = "updatedAt")
     MessageEntity toEntity(Message domain);
 
     @Mapping(target = "id", source = "id")
@@ -34,6 +35,7 @@ public interface MessageMapper {
     @Mapping(target = "forwardedFromChatId", source = "forwardedFromChatId")
     @Mapping(target = "forwardedFromUserId", source = "forwardedFromUserId")
     @Mapping(target = "parentMessageId", source = "parentMessageId")
+    @Mapping(target = "updatedAt", source = "updatedAt")
     Message toDomain(MessageEntity entity);
 
     MessageReactionEmbeddable toReactionEntity(MessageReaction reaction);

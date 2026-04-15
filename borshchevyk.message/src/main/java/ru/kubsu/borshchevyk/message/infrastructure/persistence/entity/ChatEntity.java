@@ -6,6 +6,8 @@ import lombok.experimental.SuperBuilder;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatType;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -32,4 +34,10 @@ public abstract class ChatEntity {
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
+
+    @ElementCollection
+    @CollectionTable(name = "chat_allowed_reactions", joinColumns = @JoinColumn(name = "chat_id"))
+    @Column(name = "reaction")
+    @Builder.Default
+    private Set<String> allowedReactions = new HashSet<>();
 }

@@ -37,42 +37,50 @@ public class CreateChatService implements CreateChatUseCase, CreatePrivateChatUs
     @Transactional
     public Chat createPrivateChat(UUID requesterId, UUID targetUserId) {
         log.info("Creating private chat between {} and {}", requesterId, targetUserId);
-        UserId u1 = new UserId(requesterId);
-        UserId u2 = new UserId(targetUserId);
-
+        
         if (requesterId.equals(targetUserId)) {
             throw new IllegalArgumentException("Cannot create private chat with yourself. Use Saved Messages.");
         }
+        
+        UserId u1 = new UserId(requesterId);
+        UserId u2 = new UserId(targetUserId);
 
-        Optional<Chat> existingChat = chatPort.findPrivateChatBetweenUsers(u1, u2);
-        if (existingChat.isPresent()) {
-            return existingChat.get();
+        // Using synchronized block to prevent concurrent creation of duplicates for the same pair in this JVM.
+        String lockKey = (requesterId.compareTo(targetUserId) < 0 
+                ? requesterId.toString() + "-" + targetUserId.toString() 
+                : targetUserId.toString() + "-" + requesterId.toString()).intern();
+
+        synchronized (lockKey) {
+            Optional<Chat> existingChat = chatPort.findPrivateChatBetweenUsers(u1, u2);
+            if (existingChat.isPresent()) {
+                return existingChat.get();
+            }
+
+            Chat chat = PrivateChat.builder()
+                    .id(new ChatId(UUID.randomUUID()))
+                    .type(ChatType.PRIVATE)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            chat = chatPort.save(chat);
+
+            ChatMember member1 = ChatMember.builder()
+                    .chatId(chat.getId())
+                    .userId(u1)
+                    .role(ChatRole.MEMBER)
+                    .joinedAt(LocalDateTime.now())
+                    .build();
+
+            ChatMember member2 = ChatMember.builder()
+                    .chatId(chat.getId())
+                    .userId(u2)
+                    .role(ChatRole.MEMBER)
+                    .joinedAt(LocalDateTime.now())
+                    .build();
+
+            chatMemberPort.saveAll(List.of(member1, member2));
+
+            return chat;
         }
-
-        Chat chat = PrivateChat.builder()
-                .id(new ChatId(UUID.randomUUID()))
-                .type(ChatType.PRIVATE)
-                .createdAt(LocalDateTime.now())
-                .build();
-        chat = chatPort.save(chat);
-
-        ChatMember member1 = ChatMember.builder()
-                .chatId(chat.getId())
-                .userId(u1)
-                .role(ChatRole.MEMBER)
-                .joinedAt(LocalDateTime.now())
-                .build();
-
-        ChatMember member2 = ChatMember.builder()
-                .chatId(chat.getId())
-                .userId(u2)
-                .role(ChatRole.MEMBER)
-                .joinedAt(LocalDateTime.now())
-                .build();
-
-        chatMemberPort.saveAll(List.of(member1, member2));
-
-        return chat;
     }
 
     @Override

@@ -10,6 +10,7 @@ import lombok.experimental.SuperBuilder;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatType;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @JsonTypeInfo(
@@ -36,4 +37,6 @@ public abstract class ChatResponse {
     private ChatType type;
     @Schema(description = "Timestamp when the chat was created")
     private LocalDateTime createdAt;
+    @Schema(description = "List of allowed reactions in the chat")
+    private Set<String> allowedReactions;
 }

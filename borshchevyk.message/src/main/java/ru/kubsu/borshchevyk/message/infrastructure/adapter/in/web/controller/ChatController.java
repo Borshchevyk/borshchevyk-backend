@@ -61,6 +61,7 @@ public class ChatController {
     private final JoinChatByLinkUseCase joinChatByLinkUseCase;
     private final UpdateChatInfoUseCase updateChatInfoUseCase;
     private final LoadChatMembersUseCase loadChatMembersUseCase;
+    private final ru.kubsu.borshchevyk.message.application.port.in.UpdateChatReactionsUseCase updateChatReactionsUseCase;
     private final PresentationChatMapper presentationChatMapper;
     private final ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatFacade chatFacade;
 
@@ -292,6 +293,27 @@ public class ChatController {
                 .commentsEnabled(request.commentsEnabled())
                 .build();
         updateChatInfoUseCase.updateChatInfo(command);
+    }
+
+    @Operation(summary = "Update allowed reactions", description = "Updates the list of allowed reactions for a chat.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Reactions updated successfully"),
+            @ApiResponse(responseCode = "403", description = "Forbidden to update reactions",
+                    content = @Content(schema = @Schema(implementation = MessageErrorResponse.class)))
+    })
+    @PutMapping("/{chatId}/reactions")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateChatReactions(
+            @PathVariable UUID chatId,
+            @RequestHeader("X-User-Id") UUID requesterId,
+            @RequestBody ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request.UpdateChatReactionsRequest request) {
+        log.info("Request to update chat reactions {} from user {}", chatId, requesterId);
+        ru.kubsu.borshchevyk.message.application.dto.command.UpdateChatReactionsCommand command = ru.kubsu.borshchevyk.message.application.dto.command.UpdateChatReactionsCommand.builder()
+                .chatId(chatId)
+                .requesterId(requesterId)
+                .allowedReactions(request.allowedReactions())
+                .build();
+        updateChatReactionsUseCase.updateChatReactions(command);
     }
 
     @Operation(summary = "Get chat members", description = "Retrieves a paginated list of members for a given chat.")

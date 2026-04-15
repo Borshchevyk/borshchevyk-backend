@@ -42,6 +42,10 @@ import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ReactionEvent;
 
 import ru.kubsu.borshchevyk.message.application.port.in.LoadMessageCommentsUseCase;
 
+import ru.kubsu.borshchevyk.message.application.port.in.UpdateMessageUseCase;
+import ru.kubsu.borshchevyk.message.application.dto.command.UpdateMessageCommand;
+import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request.UpdateMessageRequest;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/chats/{chatId}/messages")
@@ -60,6 +64,7 @@ public class MessageController {
     private final RemoveReactionUseCase removeReactionUseCase;
     private final LoadMessageReadersUseCase loadMessageReadersUseCase;
     private final LoadMessageCommentsUseCase loadMessageCommentsUseCase;
+    private final UpdateMessageUseCase updateMessageUseCase;
     private final PresentationMessageMapper presentationMessageMapper;
     private final SimpMessagingTemplate messagingTemplate;
 
@@ -278,5 +283,30 @@ public class MessageController {
                 .build();
         
         deleteMessageUseCase.deleteMessage(command);
+    }
+
+    @Operation(summary = "Update a message", description = "Updates an existing message.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Message updated successfully",
+                    content = @Content(schema = @Schema(implementation = MessageResponse.class))),
+            @ApiResponse(responseCode = "403", description = "Only the author can update the message",
+                    content = @Content(schema = @Schema(implementation = MessageErrorResponse.class)))
+    })
+    @PutMapping("/{messageId}")
+    public MessageResponse updateMessage(
+            @PathVariable UUID chatId,
+            @PathVariable UUID messageId,
+            @RequestHeader("X-User-Id") @Parameter(description = "ID of the authenticated user") UUID userId,
+            @RequestBody UpdateMessageRequest request) {
+        log.info("Request to update message {} in chat {} from user {}", messageId, chatId, userId);
+        UpdateMessageCommand command = UpdateMessageCommand.builder()
+                .chatId(chatId)
+                .messageId(messageId)
+                .requesterId(userId)
+                .text(request.text())
+                .build();
+
+        Message message = updateMessageUseCase.updateMessage(command);
+        return presentationMessageMapper.toResponse(message);
     }
 }

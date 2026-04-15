@@ -21,6 +21,7 @@ public interface PresentationMessageMapper {
     @Mapping(target = "forwardedFromUserId", source = "forwardedFromUserId.value")
     @Mapping(target = "parentMessageId", source = "parentMessageId.value")
     @Mapping(target = "commentsCount", source = "commentsCount")
+    @Mapping(target = "updatedAt", source = "updatedAt")
     MessageResponse toResponse(Message message);
 
     List<MessageResponse> toResponseList(List<Message> messages);

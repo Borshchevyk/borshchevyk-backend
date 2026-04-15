@@ -32,6 +32,7 @@ public abstract class PresentationChatMapper {
                     .id(map(p.getId()))
                     .type(ChatType.PRIVATE)
                     .createdAt(p.getCreatedAt())
+                    .allowedReactions(p.getAllowedReactions())
                     .build();
             return response;
         } else if (chat instanceof GroupChat g) {
@@ -42,6 +43,7 @@ public abstract class PresentationChatMapper {
                     .title(g.getTitle())
                     .description(g.getDescription())
                     .commentsEnabled(g.isCommentsEnabled())
+                    .allowedReactions(g.getAllowedReactions())
                     .build();
         } else if (chat instanceof Channel c) {
             return ChannelResponse.builder()
@@ -51,12 +53,14 @@ public abstract class PresentationChatMapper {
                     .title(c.getTitle())
                     .description(c.getDescription())
                     .commentsEnabled(c.isCommentsEnabled())
+                    .allowedReactions(c.getAllowedReactions())
                     .build();
         } else if (chat instanceof SavedMessages s) {
             return SavedMessagesResponse.builder()
                     .id(map(s.getId()))
                     .type(ChatType.SAVED_MESSAGES)
                     .createdAt(s.getCreatedAt())
+                    .allowedReactions(s.getAllowedReactions())
                     .build();
         }
 

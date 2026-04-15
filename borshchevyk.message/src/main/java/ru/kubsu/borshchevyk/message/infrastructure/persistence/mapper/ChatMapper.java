@@ -6,6 +6,7 @@ import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.*;
 
 import java.util.UUID;
+import java.util.HashSet;
 
 @Mapper(componentModel = "spring")
 public interface ChatMapper {
@@ -18,6 +19,7 @@ public interface ChatMapper {
                     .createdAt(p.getCreatedAt())
                     .isDeleted(p.isDeleted())
                     .type(ChatType.PRIVATE)
+                    .allowedReactions(p.getAllowedReactions() != null ? new HashSet<>(p.getAllowedReactions()) : new HashSet<>())
                     .build();
         }
         if (domain instanceof SavedMessages p) {
@@ -26,6 +28,7 @@ public interface ChatMapper {
                     .createdAt(p.getCreatedAt())
                     .isDeleted(p.isDeleted())
                     .type(ChatType.SAVED_MESSAGES)
+                    .allowedReactions(p.getAllowedReactions() != null ? new HashSet<>(p.getAllowedReactions()) : new HashSet<>())
                     .build();
         }
         if (domain instanceof GroupChat p) {
@@ -38,6 +41,7 @@ public interface ChatMapper {
                     .inviteCode(p.getInviteCode())
                     .commentsEnabled(p.isCommentsEnabled())
                     .type(ChatType.GROUP)
+                    .allowedReactions(p.getAllowedReactions() != null ? new HashSet<>(p.getAllowedReactions()) : new HashSet<>())
                     .build();
         }
         if (domain instanceof Channel p) {
@@ -50,6 +54,7 @@ public interface ChatMapper {
                     .inviteCode(p.getInviteCode())
                     .commentsEnabled(p.isCommentsEnabled())
                     .type(ChatType.CHANNEL)
+                    .allowedReactions(p.getAllowedReactions() != null ? new HashSet<>(p.getAllowedReactions()) : new HashSet<>())
                     .build();
         }
         throw new IllegalArgumentException("Unknown chat type: " + domain.getClass());
@@ -63,6 +68,7 @@ public interface ChatMapper {
                     .createdAt(p.getCreatedAt())
                     .isDeleted(p.isDeleted())
                     .type(ChatType.PRIVATE)
+                    .allowedReactions(p.getAllowedReactions() != null ? new HashSet<>(p.getAllowedReactions()) : new HashSet<>())
                     .build();
         }
         if (entity instanceof SavedMessagesEntity p) {
@@ -71,6 +77,7 @@ public interface ChatMapper {
                     .createdAt(p.getCreatedAt())
                     .isDeleted(p.isDeleted())
                     .type(ChatType.SAVED_MESSAGES)
+                    .allowedReactions(p.getAllowedReactions() != null ? new HashSet<>(p.getAllowedReactions()) : new HashSet<>())
                     .build();
         }
         if (entity instanceof GroupChatEntity p) {
@@ -83,6 +90,7 @@ public interface ChatMapper {
                     .inviteCode(p.getInviteCode())
                     .commentsEnabled(p.isCommentsEnabled())
                     .type(ChatType.GROUP)
+                    .allowedReactions(p.getAllowedReactions() != null ? new HashSet<>(p.getAllowedReactions()) : new HashSet<>())
                     .build();
         }
         if (entity instanceof ChannelEntity p) {
@@ -95,6 +103,7 @@ public interface ChatMapper {
                     .inviteCode(p.getInviteCode())
                     .commentsEnabled(p.isCommentsEnabled())
                     .type(ChatType.CHANNEL)
+                    .allowedReactions(p.getAllowedReactions() != null ? new HashSet<>(p.getAllowedReactions()) : new HashSet<>())
                     .build();
         }
         throw new IllegalArgumentException("Unknown chat entity type: " + entity.getClass());

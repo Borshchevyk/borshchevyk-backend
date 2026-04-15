@@ -53,22 +53,8 @@ public class SendMessageService implements SendMessageUseCase {
         ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember chatMember = chatMemberPort.findByChatIdAndUserId(chatId, authorId)
                 .orElseThrow(() -> new UserNotInChatException("User " + authorId.value() + " is not a member of chat " + chatId.value()));
 
-        if (!chatMember.isCanSendMessages()) {
+        if (!chat.canMemberSendMessage(chatMember, command.getParentMessageId() != null)) {
             throw new ForbiddenActionException("User is not allowed to send messages in this chat");
-        }
-
-        if (chat instanceof ru.kubsu.borshchevyk.message.domain.model.chat.Channel channelChat) {
-            if (command.getParentMessageId() == null) {
-                // Main channel post
-                if (chatMember.getRole() == ChatRole.MEMBER) {
-                    throw new ForbiddenActionException("Only ADMIN or OWNER can post in a channel");
-                }
-            } else {
-                // Comment on a channel post
-                if (!channelChat.isCommentsEnabled()) {
-                    throw new ForbiddenActionException("Comments are disabled for this channel");
-                }
-            }
         }
 
         if (command.getAttachmentIds() != null && !command.getAttachmentIds().isEmpty()) {

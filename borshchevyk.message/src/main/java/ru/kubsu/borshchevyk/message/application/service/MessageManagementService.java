@@ -12,18 +12,22 @@ import ru.kubsu.borshchevyk.message.application.port.in.DeleteMessageUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.PinMessageUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.UnpinMessageUseCase;
 import ru.kubsu.borshchevyk.message.application.port.out.ChatMemberPort;
+import ru.kubsu.borshchevyk.message.application.port.out.ChatPort;
 import ru.kubsu.borshchevyk.message.application.port.out.DeletedMessagePort;
 import ru.kubsu.borshchevyk.message.application.port.out.MessageEventPublisherPort;
 import ru.kubsu.borshchevyk.message.application.port.out.MessagePort;
+import ru.kubsu.borshchevyk.message.domain.exception.ChatNotFoundException;
 import ru.kubsu.borshchevyk.message.domain.exception.ForbiddenActionException;
 import ru.kubsu.borshchevyk.message.domain.exception.MessageNotFoundException;
 import ru.kubsu.borshchevyk.message.domain.exception.UserNotInChatException;
+import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatRole;
 import ru.kubsu.borshchevyk.message.domain.model.message.Message;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.MessageId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,8 +40,10 @@ public class MessageManagementService implements DeleteMessageUseCase, PinMessag
 
     private final MessagePort messagePort;
     private final ChatMemberPort chatMemberPort;
+    private final ChatPort chatPort;
     private final MessageEventPublisherPort messageEventPublisherPort;
     private final DeletedMessagePort deletedMessagePort;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     @Transactional
@@ -51,15 +57,16 @@ public class MessageManagementService implements DeleteMessageUseCase, PinMessag
 
         ChatId chatId = message.getChatId();
 
+        Chat chat = chatPort.findById(chatId)
+                .orElseThrow(() -> new ChatNotFoundException("Chat not found"));
+
         ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
                 .orElseThrow(() -> new UserNotInChatException("User is not a member of the chat"));
 
         if (command.isForAll()) {
             boolean isAuthor = message.getAuthorId().equals(requesterId);
-            boolean isAdminOrOwner = requester.getRole() == ChatRole.ADMIN || requester.getRole() == ChatRole.OWNER;
-            boolean canDelete = requester.isCanDeleteMessages();
 
-            if (isAuthor || (isAdminOrOwner && canDelete)) {
+            if (chat.canMemberDeleteMessage(requester, isAuthor)) {
                 message.setDeleted(true);
                 messagePort.save(message);
 
@@ -72,6 +79,7 @@ public class MessageManagementService implements DeleteMessageUseCase, PinMessag
             }
         } else {
             deletedMessagePort.save(messageId, requesterId);
+            messagingTemplate.convertAndSendToUser(requesterId.value().toString(), "/queue/messages/deleted", messageId.value());
         }
     }
 
@@ -83,10 +91,13 @@ public class MessageManagementService implements DeleteMessageUseCase, PinMessag
         ChatId chatId = new ChatId(command.getChatId());
         UserId requesterId = new UserId(command.getRequesterId());
 
+        Chat chat = chatPort.findById(chatId)
+                .orElseThrow(() -> new ChatNotFoundException("Chat not found"));
+
         ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
                 .orElseThrow(() -> new UserNotInChatException("User is not a member of the chat"));
 
-        if (requester.getRole() == ChatRole.MEMBER && !requester.isCanChangeInfo()) {
+        if (!chat.canMemberPinMessage(requester)) {
             throw new ForbiddenActionException("User is not allowed to pin messages");
         }
 
@@ -116,10 +127,13 @@ public class MessageManagementService implements DeleteMessageUseCase, PinMessag
         ChatId chatId = new ChatId(command.getChatId());
         UserId requesterId = new UserId(command.getRequesterId());
 
+        Chat chat = chatPort.findById(chatId)
+                .orElseThrow(() -> new ChatNotFoundException("Chat not found"));
+
         ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
                 .orElseThrow(() -> new UserNotInChatException("User is not a member of the chat"));
 
-        if (requester.getRole() == ChatRole.MEMBER && !requester.isCanChangeInfo()) {
+        if (!chat.canMemberPinMessage(requester)) {
             throw new ForbiddenActionException("User is not allowed to unpin messages");
         }
 
@@ -137,3 +151,4 @@ public class MessageManagementService implements DeleteMessageUseCase, PinMessag
         }
     }
 }
+
