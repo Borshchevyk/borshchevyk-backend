@@ -50,7 +50,7 @@ public class MessageEntity {
     private MessageSource source;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "status")
     @Builder.Default
     private ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus status = ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus.RECEIVED_BY_SERVER;
 
