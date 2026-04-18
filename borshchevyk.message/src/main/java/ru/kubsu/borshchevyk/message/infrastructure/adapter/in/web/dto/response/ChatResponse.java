@@ -1,5 +1,6 @@
 package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,9 +16,8 @@ import java.util.UUID;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
-        include = JsonTypeInfo.As.EXISTING_PROPERTY,
-        property = "type",
-        visible = true
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type"
 )
 @JsonSubTypes({
         @JsonSubTypes.Type(value = PrivateChatResponse.class, name = "PRIVATE"),
@@ -34,6 +34,7 @@ public abstract class ChatResponse {
     @Schema(description = "Unique identifier of the chat")
     private UUID id;
     @Schema(description = "Type of the chat")
+    @JsonIgnore
     private ChatType type;
     @Schema(description = "Timestamp when the chat was created")
     private LocalDateTime createdAt;
