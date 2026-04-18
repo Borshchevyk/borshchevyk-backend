@@ -24,9 +24,6 @@ public class ChannelEntity extends ChatEntity {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "invite_code")
-    private String inviteCode;
-
     @Column(name = "comments_enabled")
     @Builder.Default
     private boolean commentsEnabled = true;

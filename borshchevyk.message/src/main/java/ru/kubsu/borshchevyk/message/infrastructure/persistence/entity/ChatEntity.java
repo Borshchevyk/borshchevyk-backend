@@ -25,15 +25,14 @@ public abstract class ChatEntity {
     @Column(name = "id")
     private UUID id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false, insertable = false, updatable = false)
-    private ChatType type;
-
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
+
+    @Column(name = "invite_code")
+    private String inviteCode;
 
     @ElementCollection
     @CollectionTable(name = "chat_allowed_reactions", joinColumns = @JoinColumn(name = "chat_id"))

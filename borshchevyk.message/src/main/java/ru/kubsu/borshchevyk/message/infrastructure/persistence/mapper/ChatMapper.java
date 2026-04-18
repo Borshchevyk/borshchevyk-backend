@@ -18,7 +18,6 @@ public interface ChatMapper {
                     .id(map(p.getId()))
                     .createdAt(p.getCreatedAt())
                     .isDeleted(p.isDeleted())
-                    .type(ChatType.PRIVATE)
                     .allowedReactions(p.getAllowedReactions() != null ? new HashSet<>(p.getAllowedReactions()) : new HashSet<>())
                     .build();
         }
@@ -27,7 +26,6 @@ public interface ChatMapper {
                     .id(map(p.getId()))
                     .createdAt(p.getCreatedAt())
                     .isDeleted(p.isDeleted())
-                    .type(ChatType.SAVED_MESSAGES)
                     .allowedReactions(p.getAllowedReactions() != null ? new HashSet<>(p.getAllowedReactions()) : new HashSet<>())
                     .build();
         }
@@ -40,7 +38,6 @@ public interface ChatMapper {
                     .description(p.getDescription())
                     .inviteCode(p.getInviteCode())
                     .commentsEnabled(p.isCommentsEnabled())
-                    .type(ChatType.GROUP)
                     .allowedReactions(p.getAllowedReactions() != null ? new HashSet<>(p.getAllowedReactions()) : new HashSet<>())
                     .build();
         }
@@ -53,7 +50,6 @@ public interface ChatMapper {
                     .description(p.getDescription())
                     .inviteCode(p.getInviteCode())
                     .commentsEnabled(p.isCommentsEnabled())
-                    .type(ChatType.CHANNEL)
                     .allowedReactions(p.getAllowedReactions() != null ? new HashSet<>(p.getAllowedReactions()) : new HashSet<>())
                     .build();
         }
