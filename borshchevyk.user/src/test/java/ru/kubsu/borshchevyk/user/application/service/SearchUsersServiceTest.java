@@ -24,7 +24,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(final MockitoExtension.class)
+@ExtendWith(MockitoExtension.class)
 class SearchUsersServiceTest {
 
     @Mock
@@ -43,7 +43,7 @@ class SearchUsersServiceTest {
     @BeforeEach
     void setUp() {
         userId = new UserId(UUID.randomUUID());
-        testUser = User.builder(final )
+        testUser = User.builder()
                 .userId(userId)
                 .email(new Email("test@example.com"))
                 .tag(new Tag("test_user"))
@@ -52,11 +52,11 @@ class SearchUsersServiceTest {
 
     @Test
     void searchUsers_shouldReturnUser_whenPublic() {
-        SearchUsersCommand command = SearchUsersCommand.builder(final )
+        SearchUsersCommand command = SearchUsersCommand.builder()
                 .query("test")
                 .build();
         
-        PrivacySettings settings = PrivacySettings.builder(final )
+        PrivacySettings settings = PrivacySettings.builder()
                 .userId(userId)
                 .emailVisibility(Visibility.EVERYONE)
                 .build();
