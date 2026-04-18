@@ -83,6 +83,7 @@ public class ChatController {
                 .title(request.title())
                 .description(request.description())
                 .initialMemberIds(request.initialMemberIds())
+                .commentsEnabled(request.commentsEnabled() != null ? request.commentsEnabled() : true)
                 .build();
         
         Chat chat = createChatUseCase.createChat(command);
