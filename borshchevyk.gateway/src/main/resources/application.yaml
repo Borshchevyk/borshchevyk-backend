@@ -39,9 +39,9 @@ spring:
             - JwtAuthenticationFilter
 
         - id: message-service-ws
-          uri: ws://message-service:8083
+          uri: ${MESSAGE_SERVICE_URL}
           predicates:
-            - Path=/api/v1/messages/ws-message/**
+            - Path=/api/v1/messages/ws-message, /api/v1/messages/ws-message/**
           filters:
             - StripPrefix=3
 

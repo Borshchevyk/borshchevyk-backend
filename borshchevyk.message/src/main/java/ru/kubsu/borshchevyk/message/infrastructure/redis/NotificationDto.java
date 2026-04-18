@@ -23,15 +23,17 @@ public class NotificationDto {
         private String text;
         private String createdAt;
         private boolean isDeleted;
-        
+        private String status;
+
         public static MessageDto from(Message message) {
             return new MessageDto(
                 message.getId() != null ? message.getId().value().toString() : null,
                 message.getChatId() != null ? message.getChatId().value().toString() : null,
                 message.getAuthorId() != null ? message.getAuthorId().value().toString() : null,
                 message.getText(),
-                message.getCreatedAt() != null ? message.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) : null,
-                message.isDeleted()
+                message.getCreatedAt() != null ? message.getCreatedAt().toString() : null,
+                message.isDeleted(),
+                message.getStatus() != null ? message.getStatus().name() : null
             );
         }
     }

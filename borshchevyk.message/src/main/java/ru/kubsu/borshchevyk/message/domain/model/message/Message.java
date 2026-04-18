@@ -25,6 +25,8 @@ public class Message {
     private LocalDateTime updatedAt;
     private boolean isDeleted;
     private MessageSource source;
+    @Builder.Default
+    private MessageStatus status = MessageStatus.RECEIVED_BY_SERVER;
     private LocalDateTime pinnedAt;
     private UserId pinnedBy;
     private ChatId forwardedFromChatId;

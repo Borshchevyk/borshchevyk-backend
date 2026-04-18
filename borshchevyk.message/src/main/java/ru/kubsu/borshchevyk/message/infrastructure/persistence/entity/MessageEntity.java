@@ -49,6 +49,11 @@ public class MessageEntity {
     @Column(name = "source", nullable = false)
     private MessageSource source;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    @Builder.Default
+    private ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus status = ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus.RECEIVED_BY_SERVER;
+
     @Column(name = "pinned_at")
     private LocalDateTime pinnedAt;
 

@@ -17,6 +17,7 @@ public class MessageCreatedEvent {
     private String authorId;
     private String text;
     private String createdAt;
+    private String status;
     private List<String> targetUserIds;
     private List<String> attachmentIds;
 }

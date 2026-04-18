@@ -37,6 +37,7 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
                 message.getAuthorId() != null ? message.getAuthorId().value() : null,
                 message.getText(),
                 message.getCreatedAt(),
+                message.getStatus(),
                 targetUserIds,
                 message.getAttachmentIds()
         );

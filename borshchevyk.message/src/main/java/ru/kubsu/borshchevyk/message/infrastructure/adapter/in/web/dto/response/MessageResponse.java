@@ -2,6 +2,7 @@ package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
+import ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,6 +26,8 @@ public record MessageResponse(
         boolean isDeleted,
         @Schema(description = "Source of the message")
         MessageSource source,
+        @Schema(description = "Status of the message")
+        MessageStatus status,
         @Schema(description = "Timestamp when the message was pinned")
         LocalDateTime pinnedAt,
         @Schema(description = "Identifier of the user who pinned the message")
