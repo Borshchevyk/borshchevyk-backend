@@ -37,7 +37,9 @@ public abstract class Chat {
 
     public boolean canMemberDeleteMessage(ChatMember member, boolean isAuthor) {
         if (member.getRole() == ChatRole.OWNER) return true;
-        if (isAuthor) return true;
+        if (isAuthor) {
+            return member.isCanDeleteMessages();
+        }
         return member.getRole() == ChatRole.ADMIN && member.isCanDeleteMessages();
     }
 
