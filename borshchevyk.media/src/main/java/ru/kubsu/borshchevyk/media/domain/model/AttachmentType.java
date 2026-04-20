@@ -1,8 +1,10 @@
 package ru.kubsu.borshchevyk.media.domain.model;
 
 public enum AttachmentType {
-    IMAGE,
+    PHOTO,
     VIDEO,
-    AUDIO,
-    DOCUMENT
+    CIRCLE,
+    VOICE,
+    FILE,
+    STICKER
 }

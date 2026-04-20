@@ -18,10 +18,17 @@ public class Attachment {
     private UUID uploaderId;
     private AttachmentType type;
     private String s3Key;
+    private String thumbnailKey;
     private String originalFilename;
     private String extension;
     private String contentType;
     private Long sizeBytes;
+    
+    // Metadata
+    private Integer width;
+    private Integer height;
+    private Double duration; // in seconds
+    
     private AttachmentStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

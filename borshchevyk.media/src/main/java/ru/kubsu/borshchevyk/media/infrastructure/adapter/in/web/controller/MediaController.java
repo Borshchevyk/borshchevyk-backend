@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.media.application.dto.command.CompleteUploadCommand;
 import ru.kubsu.borshchevyk.media.application.dto.command.GetAttachmentUrlCommand;
@@ -12,10 +13,7 @@ import ru.kubsu.borshchevyk.media.application.dto.command.ValidateAttachmentsCom
 import ru.kubsu.borshchevyk.media.application.dto.response.AttachmentUrlResult;
 import ru.kubsu.borshchevyk.media.application.dto.response.UploadUrlResult;
 import ru.kubsu.borshchevyk.media.application.dto.response.ValidateAttachmentsResult;
-import ru.kubsu.borshchevyk.media.application.port.in.CompleteUploadUseCase;
-import ru.kubsu.borshchevyk.media.application.port.in.GetAttachmentUrlUseCase;
-import ru.kubsu.borshchevyk.media.application.port.in.RequestUploadUrlUseCase;
-import ru.kubsu.borshchevyk.media.application.port.in.ValidateAttachmentsUseCase;
+import ru.kubsu.borshchevyk.media.application.port.in.*;
 import ru.kubsu.borshchevyk.media.domain.model.Attachment;
 import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.dto.request.RequestUploadUrlRequest;
 import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.dto.request.ValidateAttachmentsRequest;
@@ -36,6 +34,7 @@ public class MediaController {
     private final CompleteUploadUseCase completeUploadUseCase;
     private final GetAttachmentUrlUseCase getAttachmentUrlUseCase;
     private final ValidateAttachmentsUseCase validateAttachmentsUseCase;
+    private final SoftDeleteUseCase softDeleteUseCase;
     private final PresentationMediaMapper presentationMediaMapper;
 
     @Operation(summary = "Get pre-signed URL for upload", description = "Generates a secure temporary link for the client to directly upload a file to S3 and returns attachment ID.")
@@ -44,7 +43,7 @@ public class MediaController {
             @RequestHeader(value = "X-User-Id") UUID userId,
             @RequestBody RequestUploadUrlRequest request) {
         
-        log.info("Requesting upload URL for user {}", userId);
+        log.info("Requesting upload URL for user {} type {}", userId, request.type());
 
         RequestUploadUrlCommand command = RequestUploadUrlCommand.builder()
                 .uploaderId(userId)
@@ -53,6 +52,9 @@ public class MediaController {
                 .originalFilename(request.originalFilename())
                 .extension(request.extension())
                 .sizeBytes(request.sizeBytes())
+                .width(request.width())
+                .height(request.height())
+                .duration(request.duration())
                 .build();
 
         return requestUploadUrlUseCase.requestUploadUrl(command);
@@ -89,6 +91,17 @@ public class MediaController {
                 .build();
 
         return getAttachmentUrlUseCase.getAttachmentUrl(command);
+    }
+
+    @Operation(summary = "Soft delete attachment", description = "Marks an attachment as DELETED. The file is not removed from S3 for history purposes.")
+    @DeleteMapping("/{attachmentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAttachment(
+            @PathVariable UUID attachmentId,
+            @RequestHeader(value = "X-User-Id") UUID userId) {
+        
+        log.info("Request to delete attachment {} by user {}", attachmentId, userId);
+        softDeleteUseCase.softDelete(attachmentId, userId);
     }
 
     @Operation(summary = "Validate attachments", description = "Internal endpoint to validate if attachments exist, belong to user and are READY.")

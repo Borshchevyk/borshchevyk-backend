@@ -15,4 +15,9 @@ public class RequestUploadUrlCommand {
     private String originalFilename;
     private String extension;
     private Long sizeBytes;
+    
+    // Metadata
+    private Integer width;
+    private Integer height;
+    private Double duration;
 }

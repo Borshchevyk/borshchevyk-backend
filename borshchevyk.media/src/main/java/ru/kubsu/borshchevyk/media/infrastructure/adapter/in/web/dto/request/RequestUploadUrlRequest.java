@@ -7,6 +7,9 @@ public record RequestUploadUrlRequest(
         String contentType,
         String originalFilename,
         String extension,
-        Long sizeBytes
+        Long sizeBytes,
+        Integer width,
+        Integer height,
+        Double duration
 ) {
 }

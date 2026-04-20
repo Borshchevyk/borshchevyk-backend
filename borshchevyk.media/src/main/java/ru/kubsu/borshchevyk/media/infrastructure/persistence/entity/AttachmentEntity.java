@@ -32,6 +32,9 @@ public class AttachmentEntity {
     @Column(name = "s3_key", nullable = false, unique = true)
     private String s3Key;
 
+    @Column(name = "thumbnail_key")
+    private String thumbnailKey;
+
     @Column(name = "original_filename")
     private String originalFilename;
 
@@ -43,6 +46,16 @@ public class AttachmentEntity {
 
     @Column(name = "size_bytes")
     private Long sizeBytes;
+
+    // Metadata
+    @Column(name = "width")
+    private Integer width;
+
+    @Column(name = "height")
+    private Integer height;
+
+    @Column(name = "duration")
+    private Double duration;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
