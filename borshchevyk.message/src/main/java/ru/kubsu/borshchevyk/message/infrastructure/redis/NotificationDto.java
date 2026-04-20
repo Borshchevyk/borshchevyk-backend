@@ -12,6 +12,15 @@ import java.time.format.DateTimeFormatter;
 public class NotificationDto {
     private String targetUserId;
     private MessageDto message;
+    private ChatEventDto chatEvent;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ChatEventDto {
+        private String chatId;
+        private String action;
+    }
 
     @Data
     @NoArgsConstructor

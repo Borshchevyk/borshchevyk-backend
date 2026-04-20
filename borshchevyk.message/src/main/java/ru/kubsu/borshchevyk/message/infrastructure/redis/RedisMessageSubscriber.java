@@ -24,11 +24,21 @@ public class RedisMessageSubscriber implements MessageListener {
             String jsonStr = new String(message.getBody(), StandardCharsets.UTF_8);
             NotificationDto notification = objectMapper.readValue(jsonStr, NotificationDto.class);
             
-            messagingTemplate.convertAndSendToUser(
-                    notification.getTargetUserId(),
-                    "/queue/messages",
-                    notification.getMessage()
-            );
+            if (notification.getMessage() != null) {
+                messagingTemplate.convertAndSendToUser(
+                        notification.getTargetUserId(),
+                        "/queue/messages",
+                        notification.getMessage()
+                );
+            }
+
+            if (notification.getChatEvent() != null) {
+                messagingTemplate.convertAndSendToUser(
+                        notification.getTargetUserId(),
+                        "/queue/chats",
+                        notification.getChatEvent()
+                );
+            }
         } catch (Exception e) {
             log.error("Failed to process message from Redis topic ws.messages", e);
         }

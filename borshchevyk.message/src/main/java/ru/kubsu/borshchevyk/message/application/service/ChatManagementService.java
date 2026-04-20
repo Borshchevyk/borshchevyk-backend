@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -38,6 +40,7 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
 
     private final ChatPort chatPort;
     private final ChatMemberPort chatMemberPort;
+    private final RealtimeNotificationPort realtimeNotificationPort;
 
     @Override
     @Transactional
@@ -56,13 +59,17 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
         if (!command.isForAll()) {
             requester.setHistoryClearedAt(LocalDateTime.now());
             chatMemberPort.saveAll(List.of(requester));
+            realtimeNotificationPort.notifyChatEvent(requesterId, chatId, "HISTORY_CLEARED");
         } else {
             if (chat.getType() != ru.kubsu.borshchevyk.message.domain.model.chat.ChatType.PRIVATE) {
                 throw new ForbiddenActionException("Clearing history for all is only allowed in private chats");
             }
             List<ChatMember> allMembers = chatMemberPort.findByChatId(chatId);
             LocalDateTime now = LocalDateTime.now();
-            allMembers.forEach(member -> member.setHistoryClearedAt(now));
+            allMembers.forEach(member -> {
+                member.setHistoryClearedAt(now);
+                realtimeNotificationPort.notifyChatEvent(member.getUserId(), chatId, "HISTORY_CLEARED");
+            });
             chatMemberPort.saveAll(allMembers);
         }
     }
@@ -84,12 +91,18 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
         if (chat.getType() == ru.kubsu.borshchevyk.message.domain.model.chat.ChatType.PRIVATE) {
             chat.setDeleted(true);
             chatPort.save(chat);
+            chatMemberPort.findByChatId(chatId).forEach(member -> 
+                realtimeNotificationPort.notifyChatEvent(member.getUserId(), chatId, "DELETED")
+            );
         } else {
             if (requester.getRole() != ChatRole.OWNER) {
                 throw new ForbiddenActionException("Only OWNER can delete group or channel chats");
             }
             chat.setDeleted(true);
             chatPort.save(chat);
+            chatMemberPort.findByChatId(chatId).forEach(member ->
+                realtimeNotificationPort.notifyChatEvent(member.getUserId(), chatId, "DELETED")
+            );
         }
     }
 
