@@ -43,6 +43,8 @@ import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.C
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember;
 
 import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ChatMemberEvent;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ChatInfoEvent;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ChatSettingsEvent;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 @Slf4j
@@ -342,6 +344,13 @@ public class ChatController {
         Chat chat = joinChatByLinkUseCase.joinChatByLink(inviteCode, userId);
         messagingTemplate.convertAndSend("/topic/chat/" + chat.getId().value() + "/members",
                 new ChatMemberEvent(chat.getId().value(), userId, "JOIN"));
+        
+        // Notify user personally
+        realtimeNotificationPort.notifyChatEvent(
+                new ru.kubsu.borshchevyk.message.domain.model.value.UserId(userId), 
+                chat.getId(), 
+                "JOINED"
+        );
         return chatFacade.enrichChatResponse(chat, userId);
     }
 
@@ -366,6 +375,16 @@ public class ChatController {
                 .commentsEnabled(request.commentsEnabled())
                 .build();
         updateChatInfoUseCase.updateChatInfo(command);
+
+        // Notify active viewers
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/info",
+                new ChatInfoEvent(chatId, request.title(), request.description(), request.commentsEnabled()));
+
+        // Signal a refresh to all members in their personal queues
+        Page<ChatMember> membersPage = loadChatMembersUseCase.loadChatMembers(chatId, requesterId, Pageable.unpaged());
+        for (ChatMember member : membersPage.getContent()) {
+            realtimeNotificationPort.notifyChatEvent(member.getUserId(), new ru.kubsu.borshchevyk.message.domain.model.value.ChatId(chatId), "INFO_UPDATED");
+        }
     }
 
     @Operation(summary = "Update allowed reactions", description = "Updates the list of allowed reactions for a chat.")
@@ -387,6 +406,10 @@ public class ChatController {
                 .allowedReactions(request.allowedReactions())
                 .build();
         updateChatReactionsUseCase.updateChatReactions(command);
+
+        // Notify active viewers
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/settings",
+                new ChatSettingsEvent(chatId, request.allowedReactions()));
     }
 
     @Operation(summary = "Get chat members", description = "Retrieves a paginated list of members for a given chat.")
