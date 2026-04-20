@@ -69,6 +69,8 @@ public class ChatController {
     private final ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatFacade chatFacade;
     private final SimpMessagingTemplate messagingTemplate;
 
+    private final ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort realtimeNotificationPort;
+
     @Operation(summary = "Create a new chat", description = "Creates a new chat with the given type, title, description, and initial members.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Chat created successfully",
@@ -97,6 +99,13 @@ public class ChatController {
             for (UUID memberId : request.initialMemberIds()) {
                 messagingTemplate.convertAndSend("/topic/chat/" + chat.getId().value() + "/members",
                         new ChatMemberEvent(chat.getId().value(), memberId, "JOIN"));
+                
+                // Notify user personally that they are now in a new chat
+                realtimeNotificationPort.notifyChatEvent(
+                        new ru.kubsu.borshchevyk.message.domain.model.value.UserId(memberId), 
+                        chat.getId(), 
+                        "JOINED"
+                );
             }
         }
 
@@ -117,6 +126,14 @@ public class ChatController {
         log.info("Request to create private chat from user {} to user {}", userId, request.targetUserId());
         
         Chat chat = ((ru.kubsu.borshchevyk.message.application.port.in.CreatePrivateChatUseCase) createChatUseCase).createPrivateChat(userId, request.targetUserId());
+        
+        // Notify target user about new private chat
+        realtimeNotificationPort.notifyChatEvent(
+                new ru.kubsu.borshchevyk.message.domain.model.value.UserId(request.targetUserId()), 
+                chat.getId(), 
+                "JOINED"
+        );
+        
         return chatFacade.enrichChatResponse(chat, userId);
     }
 
@@ -156,6 +173,13 @@ public class ChatController {
                 .build();
         
         updateMemberPermissionsUseCase.updatePermissions(command);
+        
+        // Notify user about permissions update
+        realtimeNotificationPort.notifyChatEvent(
+                new ru.kubsu.borshchevyk.message.domain.model.value.UserId(targetUserId), 
+                new ru.kubsu.borshchevyk.message.domain.model.value.ChatId(chatId), 
+                "PERMISSIONS_UPDATED"
+        );
     }
 
     @Operation(summary = "Clear chat history", description = "Clears history of the chat for the requester, or for all members if specified (private chats only).")
@@ -221,8 +245,17 @@ public class ChatController {
                 .targetUserId(request.targetUserId())
                 .build();
         inviteUserUseCase.inviteUser(command);
+        
+        // Notify existing members
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
                 new ChatMemberEvent(chatId, request.targetUserId(), "JOIN"));
+        
+        // Notify the invited user personally
+        realtimeNotificationPort.notifyChatEvent(
+                new ru.kubsu.borshchevyk.message.domain.model.value.UserId(request.targetUserId()), 
+                new ru.kubsu.borshchevyk.message.domain.model.value.ChatId(chatId), 
+                "JOINED"
+        );
     }
 
     @Operation(summary = "Kick user from chat", description = "Removes a user from the specified chat.")
@@ -244,8 +277,17 @@ public class ChatController {
                 .targetUserId(targetUserId)
                 .build();
         kickUserUseCase.kickUser(command);
+        
+        // Notify remaining members
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
                 new ChatMemberEvent(chatId, targetUserId, "LEAVE"));
+        
+        // Notify the kicked user personally
+        realtimeNotificationPort.notifyChatEvent(
+                new ru.kubsu.borshchevyk.message.domain.model.value.UserId(targetUserId), 
+                new ru.kubsu.borshchevyk.message.domain.model.value.ChatId(chatId), 
+                "KICKED"
+        );
     }
 
     @Operation(summary = "Leave chat", description = "Leaves the specified chat.")
@@ -263,8 +305,17 @@ public class ChatController {
                 .requesterId(requesterId)
                 .build();
         leaveChatUseCase.leaveChat(command);
+        
+        // Notify remaining members
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
                 new ChatMemberEvent(chatId, requesterId, "LEAVE"));
+        
+        // Notify the user personally (to sync other devices)
+        realtimeNotificationPort.notifyChatEvent(
+                new ru.kubsu.borshchevyk.message.domain.model.value.UserId(requesterId), 
+                new ru.kubsu.borshchevyk.message.domain.model.value.ChatId(chatId), 
+                "LEFT"
+        );
     }
 
     @Operation(summary = "Generate invite link", description = "Generates a new invite link for the chat.")
