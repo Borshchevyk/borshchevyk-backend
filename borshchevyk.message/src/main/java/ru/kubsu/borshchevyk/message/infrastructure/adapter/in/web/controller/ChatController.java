@@ -42,6 +42,9 @@ import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request.Up
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ChatMemberResponse;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember;
 
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ChatMemberEvent;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/chats")
@@ -64,6 +67,7 @@ public class ChatController {
     private final ru.kubsu.borshchevyk.message.application.port.in.UpdateChatReactionsUseCase updateChatReactionsUseCase;
     private final PresentationChatMapper presentationChatMapper;
     private final ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatFacade chatFacade;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Operation(summary = "Create a new chat", description = "Creates a new chat with the given type, title, description, and initial members.")
     @ApiResponses(value = {
@@ -87,6 +91,15 @@ public class ChatController {
                 .build();
         
         Chat chat = createChatUseCase.createChat(command);
+
+        // Notify initial members
+        if (request.initialMemberIds() != null) {
+            for (UUID memberId : request.initialMemberIds()) {
+                messagingTemplate.convertAndSend("/topic/chat/" + chat.getId().value() + "/members",
+                        new ChatMemberEvent(chat.getId().value(), memberId, "JOIN"));
+            }
+        }
+
         return chatFacade.enrichChatResponse(chat, userId);
     }
 
@@ -208,6 +221,8 @@ public class ChatController {
                 .targetUserId(request.targetUserId())
                 .build();
         inviteUserUseCase.inviteUser(command);
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
+                new ChatMemberEvent(chatId, request.targetUserId(), "JOIN"));
     }
 
     @Operation(summary = "Kick user from chat", description = "Removes a user from the specified chat.")
@@ -229,6 +244,8 @@ public class ChatController {
                 .targetUserId(targetUserId)
                 .build();
         kickUserUseCase.kickUser(command);
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
+                new ChatMemberEvent(chatId, targetUserId, "LEAVE"));
     }
 
     @Operation(summary = "Leave chat", description = "Leaves the specified chat.")
@@ -246,6 +263,8 @@ public class ChatController {
                 .requesterId(requesterId)
                 .build();
         leaveChatUseCase.leaveChat(command);
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
+                new ChatMemberEvent(chatId, requesterId, "LEAVE"));
     }
 
     @Operation(summary = "Generate invite link", description = "Generates a new invite link for the chat.")
@@ -270,6 +289,8 @@ public class ChatController {
             @RequestHeader("X-User-Id") UUID userId) {
         log.info("Request to join chat by link from user {}", userId);
         Chat chat = joinChatByLinkUseCase.joinChatByLink(inviteCode, userId);
+        messagingTemplate.convertAndSend("/topic/chat/" + chat.getId().value() + "/members",
+                new ChatMemberEvent(chat.getId().value(), userId, "JOIN"));
         return chatFacade.enrichChatResponse(chat, userId);
     }
 
