@@ -11,6 +11,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.ByteBuffer;
+import java.util.concurrent.Flow;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -40,11 +42,23 @@ public class S3Adapter implements S3Port {
     @Override
     public void uploadFile(String s3Key, InputStream inputStream, long contentLength, String contentType) {
         try {
+            HttpRequest.BodyPublisher publisher = HttpRequest.BodyPublishers.ofInputStream(() -> inputStream);
+            HttpRequest.BodyPublisher lengthAwarePublisher = new HttpRequest.BodyPublisher() {
+                @Override
+                public long contentLength() {
+                    return contentLength;
+                }
+                @Override
+                public void subscribe(Flow.Subscriber<? super ByteBuffer> subscriber) {
+                    publisher.subscribe(subscriber);
+                }
+            };
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(getUrl(s3Key)))
                     .header("Authorization", "Bearer " + accessKey)
                     .header("Content-Type", contentType)
-                    .PUT(HttpRequest.BodyPublishers.ofInputStream(() -> inputStream))
+                    .PUT(lengthAwarePublisher)
                     .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
