@@ -4,11 +4,12 @@ import lombok.Builder;
 import lombok.Data;
 import ru.kubsu.borshchevyk.media.domain.model.AttachmentType;
 
+import java.io.InputStream;
 import java.util.UUID;
 
 @Data
 @Builder
-public class RequestUploadUrlCommand {
+public class UploadAttachmentCommand {
     private UUID uploaderId;
     private AttachmentType type;
     private String contentType;
@@ -16,8 +17,9 @@ public class RequestUploadUrlCommand {
     private String extension;
     private Long sizeBytes;
     
-    // Metadata
     private Integer width;
     private Integer height;
     private Double duration;
+    
+    private InputStream inputStream;
 }

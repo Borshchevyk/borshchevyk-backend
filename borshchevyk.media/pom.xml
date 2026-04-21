@@ -48,19 +48,7 @@
 			<artifactId>mapstruct</artifactId>
 			<version>${org.mapstruct.version}</version>
 		</dependency>
-		<!-- AWS SDK for S3 -->
-		<dependency>
-			<groupId>software.amazon.awssdk</groupId>
-			<artifactId>s3</artifactId>
-			<version>${aws.java.sdk.version}</version>
-		</dependency>
-		<!-- Default HTTP client for AWS SDK v2 -->
-		<dependency>
-			<groupId>software.amazon.awssdk</groupId>
-			<artifactId>apache-client</artifactId>
-			<version>${aws.java.sdk.version}</version>
-		</dependency>
-		<!-- Data JPA & DB for tracking attachments (optional for phase 1, but let's add it) -->
+		<!-- Data JPA & DB for tracking attachments -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
