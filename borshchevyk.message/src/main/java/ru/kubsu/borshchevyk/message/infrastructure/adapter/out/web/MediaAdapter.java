@@ -9,8 +9,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import ru.kubsu.borshchevyk.message.application.dto.response.AttachmentMetadataDto;
 import ru.kubsu.borshchevyk.message.application.port.out.MediaPort;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,9 +27,9 @@ public class MediaAdapter implements MediaPort {
     private String mediaServiceUrl;
 
     @Override
-    public boolean validateAttachments(List<UUID> attachmentIds, UUID userId) {
+    public List<AttachmentMetadataDto> validateAttachments(List<UUID> attachmentIds, UUID userId) {
         if (attachmentIds == null || attachmentIds.isEmpty()) {
-            return true;
+            return new ArrayList<>();
         }
 
         try {
@@ -47,13 +49,16 @@ public class MediaAdapter implements MediaPort {
                     ValidateAttachmentsResponse.class
             );
 
-            return response.getBody() != null && response.getBody().valid();
+            if (response.getBody() != null && response.getBody().valid()) {
+                return response.getBody().attachments() != null ? response.getBody().attachments() : new ArrayList<>();
+            }
+            return null; // Return null to indicate validation failure
         } catch (Exception e) {
             log.error("Failed to validate attachments via MediaService", e);
-            return false; // Fail-safe: if we can't validate, we shouldn't allow sending
+            return null; // Fail-safe: if we can't validate, we shouldn't allow sending
         }
     }
 
     record ValidateAttachmentsRequest(List<UUID> attachmentIds) {}
-    record ValidateAttachmentsResponse(boolean valid) {}
+    record ValidateAttachmentsResponse(boolean valid, List<AttachmentMetadataDto> attachments) {}
 }

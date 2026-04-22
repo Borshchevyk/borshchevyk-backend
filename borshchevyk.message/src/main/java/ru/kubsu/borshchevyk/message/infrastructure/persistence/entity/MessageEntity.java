@@ -84,7 +84,6 @@ public class MessageEntity {
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "message_attachments", joinColumns = @JoinColumn(name = "message_id"))
-    @Column(name = "attachment_id", nullable = false)
     @Builder.Default
-    private List<UUID> attachmentIds = new ArrayList<>();
+    private List<MessageAttachmentEmbeddable> attachments = new ArrayList<>();
 }

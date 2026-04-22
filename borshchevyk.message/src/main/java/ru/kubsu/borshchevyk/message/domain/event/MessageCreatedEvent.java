@@ -12,6 +12,10 @@ public record MessageCreatedEvent(
         LocalDateTime createdAt,
         ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus status,
         List<String> targetUserIds,
-        List<UUID> attachmentIds
+        List<AttachmentInfo> attachments
 ) {
+    public record AttachmentInfo(
+            UUID id,
+            String type
+    ) {}
 }

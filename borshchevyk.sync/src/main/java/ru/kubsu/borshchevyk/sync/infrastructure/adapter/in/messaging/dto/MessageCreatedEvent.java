@@ -1,16 +1,10 @@
 package ru.kubsu.borshchevyk.sync.infrastructure.adapter.in.messaging.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class MessageCreatedEvent {
     private String id;
     private String chatId;
@@ -19,5 +13,11 @@ public class MessageCreatedEvent {
     private String createdAt;
     private String status;
     private List<String> targetUserIds;
-    private List<String> attachmentIds;
+    private List<AttachmentInfo> attachments;
+
+    @Data
+    public static class AttachmentInfo {
+        private String id;
+        private String type;
+    }
 }

@@ -30,19 +30,24 @@ public record MessageResponse(
         MessageStatus status,
         @Schema(description = "Timestamp when the message was pinned")
         LocalDateTime pinnedAt,
-        @Schema(description = "Identifier of the user who pinned the message")
+        @Schema(description = "User who pinned the message")
         UUID pinnedBy,
-        @Schema(description = "Reactions on the message")
-        List<MessageReactionResponse> reactions,
-        @Schema(description = "ID of the original chat if forwarded")
+        @Schema(description = "ID of the chat this message was forwarded from")
         UUID forwardedFromChatId,
-        @Schema(description = "ID of the original user if forwarded")
+        @Schema(description = "ID of the user this message was forwarded from")
         UUID forwardedFromUserId,
         @Schema(description = "ID of the parent message if this is a comment")
         UUID parentMessageId,
         @Schema(description = "Number of comments on this message")
         int commentsCount,
-        @Schema(description = "List of attachment IDs")
-        List<UUID> attachmentIds
+        @Schema(description = "List of attachments with metadata")
+        List<AttachmentResponse> attachments
 ) {
+    @Schema(description = "Attachment metadata inside a message")
+    public record AttachmentResponse(
+            @Schema(description = "ID of the attachment")
+            UUID id,
+            @Schema(description = "Type of the attachment")
+            String type
+    ) {}
 }

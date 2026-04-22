@@ -16,6 +16,7 @@ import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -39,7 +40,9 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
                 message.getCreatedAt(),
                 message.getStatus(),
                 targetUserIds,
-                message.getAttachmentIds()
+                message.getAttachments() != null ? message.getAttachments().stream()
+                        .map(a -> new MessageCreatedEvent.AttachmentInfo(a.getId(), a.getType()))
+                        .collect(Collectors.toList()) : null
         );
 
         try {

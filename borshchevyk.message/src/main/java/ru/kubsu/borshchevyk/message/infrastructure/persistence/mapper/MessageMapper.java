@@ -11,7 +11,9 @@ import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageEnt
 import java.util.UUID;
 
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageReaction;
+import ru.kubsu.borshchevyk.message.domain.model.message.MessageAttachment;
 import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageReactionEmbeddable;
+import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageAttachmentEmbeddable;
 
 @Mapper(componentModel = "spring")
 public interface MessageMapper {
@@ -40,6 +42,9 @@ public interface MessageMapper {
 
     MessageReactionEmbeddable toReactionEntity(MessageReaction reaction);
     MessageReaction toReactionDomain(MessageReactionEmbeddable entity);
+    
+    MessageAttachmentEmbeddable toAttachmentEntity(MessageAttachment attachment);
+    MessageAttachment toAttachmentDomain(MessageAttachmentEmbeddable entity);
 
     default UUID map(MessageId value) {
         return value != null ? value.value() : null;

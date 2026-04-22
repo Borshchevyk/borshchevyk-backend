@@ -4,10 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kubsu.borshchevyk.media.application.dto.command.CompleteUploadCommand;
 import ru.kubsu.borshchevyk.media.application.dto.command.GetAttachmentUrlCommand;
-import ru.kubsu.borshchevyk.media.application.dto.command.UploadAttachmentCommand;
+import ru.kubsu.borshchevyk.media.application.dto.command.RequestUploadUrlCommand;
 import ru.kubsu.borshchevyk.media.application.dto.command.ValidateAttachmentsCommand;
 import ru.kubsu.borshchevyk.media.application.dto.response.AttachmentUrlResult;
+import ru.kubsu.borshchevyk.media.application.dto.response.UploadUrlResult;
 import ru.kubsu.borshchevyk.media.application.dto.response.ValidateAttachmentsResult;
 import ru.kubsu.borshchevyk.media.application.port.in.*;
 import ru.kubsu.borshchevyk.media.application.port.out.AttachmentPort;
@@ -18,22 +20,24 @@ import ru.kubsu.borshchevyk.media.domain.model.Attachment;
 import ru.kubsu.borshchevyk.media.domain.model.AttachmentStatus;
 import ru.kubsu.borshchevyk.media.domain.model.value.AttachmentId;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+import java.util.ArrayList;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AttachmentService implements UploadAttachmentUseCase, GetAttachmentUrlUseCase, ValidateAttachmentsUseCase, SoftDeleteUseCase {
+public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploadUseCase, GetAttachmentUrlUseCase, ValidateAttachmentsUseCase, SoftDeleteUseCase {
 
     private final AttachmentPort attachmentPort;
     private final S3Port s3Port;
 
     @Override
     @Transactional
-    public Attachment uploadAttachment(UploadAttachmentCommand command) {
-        log.info("Uploading file for user {} type {}", command.getUploaderId(), command.getType());
+    public UploadUrlResult requestUploadUrl(RequestUploadUrlCommand command) {
+        log.info("Requesting upload URL for user {} type {}", command.getUploaderId(), command.getType());
 
         String s3Key = "attachments/" + command.getUploaderId() + "/" + UUID.randomUUID() + "." + command.getExtension();
 
@@ -49,35 +53,57 @@ public class AttachmentService implements UploadAttachmentUseCase, GetAttachment
                 .width(command.getWidth())
                 .height(command.getHeight())
                 .duration(command.getDuration())
-                .status(AttachmentStatus.UPLOADING)
+                .status(AttachmentStatus.INITIALIZED)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
         attachment = attachmentPort.save(attachment);
 
-        try {
-            s3Port.uploadFile(s3Key, command.getInputStream(), command.getSizeBytes(), command.getContentType());
-            attachment.setStatus(AttachmentStatus.READY);
-            attachment.setUpdatedAt(LocalDateTime.now());
-            return attachmentPort.save(attachment);
-        } catch (Exception e) {
-            log.error("Failed to upload attachment {} to S3", attachment.getId().value(), e);
+        String uploadUrl = s3Port.generatePresignedPutUrl(s3Key, command.getContentType(), Duration.ofMinutes(15));
+
+        return UploadUrlResult.builder()
+                .attachmentId(attachment.getId().value())
+                .uploadUrl(uploadUrl)
+                .s3Key(s3Key)
+                .build();
+    }
+
+    @Override
+    @Transactional
+    public Attachment completeUpload(CompleteUploadCommand command) {
+        log.info("Completing upload for attachment {} by user {}", command.getAttachmentId(), command.getRequesterId());
+
+        Attachment attachment = attachmentPort.findById(new AttachmentId(command.getAttachmentId()))
+                .orElseThrow(() -> new AttachmentNotFoundException("Attachment not found"));
+
+        if (!attachment.getUploaderId().equals(command.getRequesterId())) {
+            throw new ForbiddenActionException("Only the uploader can complete the upload");
+        }
+
+        if (attachment.getStatus() != AttachmentStatus.INITIALIZED && attachment.getStatus() != AttachmentStatus.UPLOADING) {
+            throw new IllegalStateException("Attachment is in invalid state: " + attachment.getStatus());
+        }
+
+        // Verify that object actually exists in S3
+        boolean exists = s3Port.checkObjectExists(attachment.getS3Key());
+        if (!exists) {
             attachment.setStatus(AttachmentStatus.FAILED);
             attachment.setUpdatedAt(LocalDateTime.now());
             attachmentPort.save(attachment);
-            throw new RuntimeException("Failed to upload attachment", e);
+            throw new IllegalStateException("Object not found in S3 bucket. Key: " + attachment.getS3Key());
         }
+
+        attachment.setStatus(AttachmentStatus.READY);
+        attachment.setUpdatedAt(LocalDateTime.now());
+        
+        return attachmentPort.save(attachment);
     }
 
     @Override
     @Transactional(readOnly = true)
     public AttachmentUrlResult getAttachmentUrl(GetAttachmentUrlCommand command) {
-        // Wait, since we are doing manual HTTP, there's no presigned URL capability without AWS SigV4.
-        // We can just proxy it through the MediaController using standard Java stream.
-        // We will return a URL pointing to the backend's download endpoint.
-        // The URL will be constructed in the Controller, but we just validate here.
-        log.info("Validating access for attachment {} by user {}", command.getAttachmentId(), command.getRequesterId());
+        log.info("Getting download URL for attachment {} by user {}", command.getAttachmentId(), command.getRequesterId());
 
         Attachment attachment = attachmentPort.findById(new AttachmentId(command.getAttachmentId()))
                 .orElseThrow(() -> new AttachmentNotFoundException("Attachment not found"));
@@ -86,30 +112,18 @@ public class AttachmentService implements UploadAttachmentUseCase, GetAttachment
             throw new IllegalStateException("Attachment is not ready for download");
         }
 
-        // Return the internal URL pattern, the controller will map it
-        String downloadUrl = "/api/v1/media/" + attachment.getId().value() + "/download";
+        String downloadUrl = s3Port.generatePresignedGetUrl(attachment.getS3Key(), Duration.ofHours(1));
 
         return AttachmentUrlResult.builder()
                 .url(downloadUrl)
                 .build();
     }
 
-    public java.io.InputStream downloadAttachmentContent(UUID attachmentId, UUID requesterId) {
-        Attachment attachment = attachmentPort.findById(new AttachmentId(attachmentId))
-                .orElseThrow(() -> new AttachmentNotFoundException("Attachment not found"));
-
-        if (attachment.getStatus() != AttachmentStatus.READY && attachment.getStatus() != AttachmentStatus.DELETED) {
-            throw new IllegalStateException("Attachment is not ready for download");
-        }
-
-        return s3Port.downloadFile(attachment.getS3Key());
-    }
-
     @Override
     @Transactional(readOnly = true)
     public ValidateAttachmentsResult validateAttachments(ValidateAttachmentsCommand command) {
         if (command.getAttachmentIds() == null || command.getAttachmentIds().isEmpty()) {
-            return ValidateAttachmentsResult.builder().valid(true).build();
+            return ValidateAttachmentsResult.builder().valid(true).attachments(new ArrayList<>()).build();
         }
 
         List<AttachmentId> ids = command.getAttachmentIds().stream().map(AttachmentId::new).toList();
@@ -117,21 +131,31 @@ public class AttachmentService implements UploadAttachmentUseCase, GetAttachment
 
         if (attachments.size() != command.getAttachmentIds().size()) {
             log.warn("Validation failed: some attachments not found. Expected: {}, Found: {}", command.getAttachmentIds().size(), attachments.size());
-            return ValidateAttachmentsResult.builder().valid(false).build();
+            return ValidateAttachmentsResult.builder().valid(false).attachments(new ArrayList<>()).build();
         }
+
+        List<ValidateAttachmentsResult.AttachmentMetadata> metadataList = new ArrayList<>();
 
         for (Attachment attachment : attachments) {
             if (!attachment.getUploaderId().equals(command.getRequesterId())) {
                 log.warn("Validation failed: attachment {} doesn't belong to user {}", attachment.getId().value(), command.getRequesterId());
-                return ValidateAttachmentsResult.builder().valid(false).build();
+                return ValidateAttachmentsResult.builder().valid(false).attachments(new ArrayList<>()).build();
             }
             if (attachment.getStatus() != AttachmentStatus.READY) {
                 log.warn("Validation failed: attachment {} is not READY (status: {})", attachment.getId().value(), attachment.getStatus());
-                return ValidateAttachmentsResult.builder().valid(false).build();
+                return ValidateAttachmentsResult.builder().valid(false).attachments(new ArrayList<>()).build();
             }
+            
+            metadataList.add(ValidateAttachmentsResult.AttachmentMetadata.builder()
+                    .id(attachment.getId().value())
+                    .type(attachment.getType().name())
+                    .build());
         }
 
-        return ValidateAttachmentsResult.builder().valid(true).build();
+        return ValidateAttachmentsResult.builder()
+                .valid(true)
+                .attachments(metadataList)
+                .build();
     }
 
     @Override

@@ -4,27 +4,24 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import ru.kubsu.borshchevyk.media.application.dto.command.CompleteUploadCommand;
 import ru.kubsu.borshchevyk.media.application.dto.command.GetAttachmentUrlCommand;
-import ru.kubsu.borshchevyk.media.application.dto.command.UploadAttachmentCommand;
+import ru.kubsu.borshchevyk.media.application.dto.command.RequestUploadUrlCommand;
 import ru.kubsu.borshchevyk.media.application.dto.command.ValidateAttachmentsCommand;
 import ru.kubsu.borshchevyk.media.application.dto.response.AttachmentUrlResult;
+import ru.kubsu.borshchevyk.media.application.dto.response.UploadUrlResult;
 import ru.kubsu.borshchevyk.media.application.dto.response.ValidateAttachmentsResult;
 import ru.kubsu.borshchevyk.media.application.port.in.*;
 import ru.kubsu.borshchevyk.media.domain.model.Attachment;
-import ru.kubsu.borshchevyk.media.domain.model.AttachmentType;
+import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.dto.request.RequestUploadUrlRequest;
 import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.dto.request.ValidateAttachmentsRequest;
 import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.dto.response.AttachmentResponse;
 import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.dto.response.ValidateAttachmentsResponse;
 import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.mapper.PresentationMediaMapper;
 
-import java.io.InputStream;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -34,53 +31,54 @@ import java.util.UUID;
 @Tag(name = "Media", description = "Endpoints for handling media files")
 public class MediaController {
 
-    private final UploadAttachmentUseCase uploadAttachmentUseCase;
+    private final RequestUploadUrlUseCase requestUploadUrlUseCase;
+    private final CompleteUploadUseCase completeUploadUseCase;
     private final GetAttachmentUrlUseCase getAttachmentUrlUseCase;
     private final ValidateAttachmentsUseCase validateAttachmentsUseCase;
     private final SoftDeleteUseCase softDeleteUseCase;
     private final PresentationMediaMapper presentationMediaMapper;
 
-    @Operation(summary = "Upload file directly", description = "Uploads a file directly to the backend, which forwards it to S3.")
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public AttachmentResponse uploadFile(
+    @Operation(summary = "Get pre-signed URL for upload", description = "Generates a secure temporary link for the client to directly upload a file to S3 and returns attachment ID.")
+    @PostMapping("/upload-url")
+    public UploadUrlResult requestUploadUrl(
             @RequestHeader(value = "X-User-Id") UUID userId,
-            @RequestParam("file") MultipartFile file,
-            @RequestParam("type") AttachmentType type,
-            @RequestParam(value = "width", required = false) Integer width,
-            @RequestParam(value = "height", required = false) Integer height,
-            @RequestParam(value = "duration", required = false) Double duration) {
+            @RequestBody RequestUploadUrlRequest request) {
         
-        log.info("Requesting upload for user {} type {}", userId, type);
+        log.info("Requesting upload URL for user {} type {}", userId, request.type());
 
-        try {
-            String originalFilename = file.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf('.') + 1);
-            }
+        RequestUploadUrlCommand command = RequestUploadUrlCommand.builder()
+                .uploaderId(userId)
+                .type(request.type())
+                .contentType(request.contentType())
+                .originalFilename(request.originalFilename())
+                .extension(request.extension())
+                .sizeBytes(request.sizeBytes())
+                .width(request.width())
+                .height(request.height())
+                .duration(request.duration())
+                .build();
 
-            UploadAttachmentCommand command = UploadAttachmentCommand.builder()
-                    .uploaderId(userId)
-                    .type(type)
-                    .contentType(file.getContentType())
-                    .originalFilename(originalFilename)
-                    .extension(extension)
-                    .sizeBytes(file.getSize())
-                    .width(width)
-                    .height(height)
-                    .duration(duration)
-                    .inputStream(file.getInputStream())
-                    .build();
-
-            Attachment attachment = uploadAttachmentUseCase.uploadAttachment(command);
-            return presentationMediaMapper.toResponse(attachment);
-        } catch (Exception e) {
-            log.error("Error processing file upload", e);
-            throw new RuntimeException("Error processing file upload", e);
-        }
+        return requestUploadUrlUseCase.requestUploadUrl(command);
     }
 
-    @Operation(summary = "Get URL for downloading file", description = "Returns a URL to download the file. The URL points to the backend proxy.")
+    @Operation(summary = "Complete upload", description = "Notifies the server that the client has finished uploading the file to S3.")
+    @PutMapping("/{attachmentId}/complete")
+    public AttachmentResponse completeUpload(
+            @PathVariable UUID attachmentId,
+            @RequestHeader(value = "X-User-Id") UUID userId) {
+        
+        log.info("Completing upload for attachment {} by user {}", attachmentId, userId);
+
+        CompleteUploadCommand command = CompleteUploadCommand.builder()
+                .attachmentId(attachmentId)
+                .requesterId(userId)
+                .build();
+
+        Attachment attachment = completeUploadUseCase.completeUpload(command);
+        return presentationMediaMapper.toResponse(attachment);
+    }
+
+    @Operation(summary = "Get pre-signed URL for download", description = "Generates a secure temporary link for the client to directly download a file from S3.")
     @GetMapping("/{attachmentId}/url")
     public AttachmentUrlResult getAttachmentUrl(
             @PathVariable UUID attachmentId,
@@ -96,31 +94,6 @@ public class MediaController {
         return getAttachmentUrlUseCase.getAttachmentUrl(command);
     }
 
-    @Operation(summary = "Download file content", description = "Streams the file content directly from S3 via the backend.")
-    @GetMapping("/{attachmentId}/download")
-    public ResponseEntity<InputStreamResource> downloadAttachment(
-            @PathVariable UUID attachmentId,
-            @RequestHeader(value = "X-User-Id", required = false) UUID userId) {
-        
-        log.info("Downloading attachment {} by user {}", attachmentId, userId);
-
-        // We assume that the attachmentUrl was passed to the client. The client will call this.
-        // It requires an authenticated user or a specific mechanism.
-        // For simplicity and to match the generated URL from `getAttachmentUrl`, we stream it.
-        try {
-            ru.kubsu.borshchevyk.media.application.service.AttachmentService service = (ru.kubsu.borshchevyk.media.application.service.AttachmentService) uploadAttachmentUseCase;
-            InputStream is = service.downloadAttachmentContent(attachmentId, userId);
-            
-            return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + attachmentId + "\"")
-                    .body(new InputStreamResource(is));
-        } catch (Exception e) {
-            log.error("Failed to download attachment", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
     @Operation(summary = "Soft delete attachment", description = "Marks an attachment as DELETED. The file is not removed from S3 for history purposes.")
     @DeleteMapping("/{attachmentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -132,7 +105,7 @@ public class MediaController {
         softDeleteUseCase.softDelete(attachmentId, userId);
     }
 
-    @Operation(summary = "Validate attachments", description = "Internal endpoint to validate if attachments exist, belong to user and are READY.")
+    @Operation(summary = "Validate attachments", description = "Internal endpoint to validate if attachments exist, belong to user and are READY. Returns attachment metadata.")
     @PostMapping("/validate")
     public ValidateAttachmentsResponse validateAttachments(
             @RequestHeader(value = "X-User-Id") UUID userId,
@@ -147,6 +120,13 @@ public class MediaController {
 
         ValidateAttachmentsResult result = validateAttachmentsUseCase.validateAttachments(command);
         
-        return new ValidateAttachmentsResponse(result.isValid());
+        List<ValidateAttachmentsResponse.AttachmentMetadataResponse> metadataResponses = null;
+        if (result.getAttachments() != null) {
+            metadataResponses = result.getAttachments().stream()
+                    .map(m -> new ValidateAttachmentsResponse.AttachmentMetadataResponse(m.getId(), m.getType()))
+                    .toList();
+        }
+        
+        return new ValidateAttachmentsResponse(result.isValid(), metadataResponses);
     }
 }

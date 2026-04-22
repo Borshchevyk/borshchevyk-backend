@@ -37,5 +37,5 @@ public class Message {
     @Builder.Default
     private List<MessageReaction> reactions = new ArrayList<>();
     @Builder.Default
-    private List<java.util.UUID> attachmentIds = new ArrayList<>();
+    private List<MessageAttachment> attachments = new ArrayList<>();
 }

@@ -57,11 +57,15 @@ public class SendMessageService implements SendMessageUseCase {
             throw new ForbiddenActionException("User is not allowed to send messages in this chat");
         }
 
+        List<ru.kubsu.borshchevyk.message.domain.model.message.MessageAttachment> attachments = new java.util.ArrayList<>();
         if (command.getAttachmentIds() != null && !command.getAttachmentIds().isEmpty()) {
-            boolean isValid = mediaPort.validateAttachments(command.getAttachmentIds(), command.getAuthorId());
-            if (!isValid) {
+            List<ru.kubsu.borshchevyk.message.application.dto.response.AttachmentMetadataDto> validAttachments = mediaPort.validateAttachments(command.getAttachmentIds(), command.getAuthorId());
+            if (validAttachments == null || validAttachments.isEmpty() || validAttachments.size() != command.getAttachmentIds().size()) {
                 throw new IllegalArgumentException("Invalid attachments. Make sure they are uploaded and ready.");
             }
+            attachments = validAttachments.stream()
+                    .map(m -> new ru.kubsu.borshchevyk.message.domain.model.message.MessageAttachment(m.getId(), m.getType()))
+                    .collect(Collectors.toList());
         }
 
         if (command.getParentMessageId() != null) {
@@ -85,7 +89,7 @@ public class SendMessageService implements SendMessageUseCase {
                 .forwardedFromChatId(command.getForwardedFromChatId() != null ? new ChatId(command.getForwardedFromChatId()) : null)
                 .forwardedFromUserId(command.getForwardedFromUserId() != null ? new UserId(command.getForwardedFromUserId()) : null)
                 .parentMessageId(command.getParentMessageId() != null ? new MessageId(command.getParentMessageId()) : null)
-                .attachmentIds(command.getAttachmentIds() != null ? command.getAttachmentIds() : new java.util.ArrayList<>())
+                .attachments(attachments)
                 .build();
 
         Message savedMessage = messagePort.save(message);

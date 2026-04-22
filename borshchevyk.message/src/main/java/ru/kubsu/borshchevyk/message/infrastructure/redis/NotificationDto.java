@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.kubsu.borshchevyk.message.domain.model.message.Message;
-import java.time.format.DateTimeFormatter;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -25,6 +27,14 @@ public class NotificationDto {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class AttachmentDto {
+        private String id;
+        private String type;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class MessageDto {
         private String id;
         private String chatId;
@@ -33,8 +43,14 @@ public class NotificationDto {
         private String createdAt;
         private boolean isDeleted;
         private String status;
+        private List<AttachmentDto> attachments;
 
         public static MessageDto from(Message message) {
+            List<AttachmentDto> attachmentDtos = message.getAttachments() != null ?
+                    message.getAttachments().stream()
+                            .map(a -> new AttachmentDto(a.getId() != null ? a.getId().toString() : null, a.getType()))
+                            .collect(Collectors.toList()) : null;
+
             return new MessageDto(
                 message.getId() != null ? message.getId().value().toString() : null,
                 message.getChatId() != null ? message.getChatId().value().toString() : null,
@@ -42,7 +58,8 @@ public class NotificationDto {
                 message.getText(),
                 message.getCreatedAt() != null ? message.getCreatedAt().toString() : null,
                 message.isDeleted(),
-                message.getStatus() != null ? message.getStatus().name() : null
+                message.getStatus() != null ? message.getStatus().name() : null,
+                attachmentDtos
             );
         }
     }

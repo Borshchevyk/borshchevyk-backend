@@ -10,6 +10,8 @@ import java.util.List;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.MessageReactionResponse;
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageReaction;
 
+import ru.kubsu.borshchevyk.message.domain.model.message.MessageAttachment;
+
 @Mapper(componentModel = "spring")
 public interface PresentationMessageMapper {
     @Mapping(target = "id", source = "id.value")
@@ -27,4 +29,6 @@ public interface PresentationMessageMapper {
     List<MessageResponse> toResponseList(List<Message> messages);
 
     MessageReactionResponse toReactionResponse(MessageReaction reaction);
+
+    MessageResponse.AttachmentResponse toAttachmentResponse(MessageAttachment attachment);
 }
