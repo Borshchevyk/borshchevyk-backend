@@ -30,6 +30,9 @@ public class NotificationDto {
     public static class AttachmentDto {
         private String id;
         private String type;
+        private String originalFilename;
+        private String extension;
+        private Long sizeBytes;
     }
 
     @Data
@@ -48,7 +51,13 @@ public class NotificationDto {
         public static MessageDto from(Message message) {
             List<AttachmentDto> attachmentDtos = message.getAttachments() != null ?
                     message.getAttachments().stream()
-                            .map(a -> new AttachmentDto(a.getId() != null ? a.getId().toString() : null, a.getType()))
+                            .map(a -> new AttachmentDto(
+                                    a.getId() != null ? a.getId().toString() : null, 
+                                    a.getType(),
+                                    a.getOriginalFilename(),
+                                    a.getExtension(),
+                                    a.getSizeBytes()
+                            ))
                             .collect(Collectors.toList()) : null;
 
             return new MessageDto(

@@ -16,6 +16,9 @@ public record MessageCreatedEvent(
 ) {
     public record AttachmentInfo(
             UUID id,
-            String type
+            String type,
+            String originalFilename,
+            String extension,
+            Long sizeBytes
     ) {}
 }

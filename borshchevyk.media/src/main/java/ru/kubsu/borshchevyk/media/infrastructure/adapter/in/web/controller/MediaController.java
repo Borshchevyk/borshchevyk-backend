@@ -123,7 +123,13 @@ public class MediaController {
         List<ValidateAttachmentsResponse.AttachmentMetadataResponse> metadataResponses = null;
         if (result.getAttachments() != null) {
             metadataResponses = result.getAttachments().stream()
-                    .map(m -> new ValidateAttachmentsResponse.AttachmentMetadataResponse(m.getId(), m.getType()))
+                    .map(m -> new ValidateAttachmentsResponse.AttachmentMetadataResponse(
+                            m.getId(), 
+                            m.getType(),
+                            m.getOriginalFilename(),
+                            m.getExtension(),
+                            m.getSizeBytes()
+                    ))
                     .toList();
         }
         

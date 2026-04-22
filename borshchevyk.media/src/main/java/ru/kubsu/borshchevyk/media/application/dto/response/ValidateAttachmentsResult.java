@@ -17,5 +17,8 @@ public class ValidateAttachmentsResult {
     public static class AttachmentMetadata {
         UUID id;
         String type;
+        String originalFilename;
+        String extension;
+        Long sizeBytes;
     }
 }

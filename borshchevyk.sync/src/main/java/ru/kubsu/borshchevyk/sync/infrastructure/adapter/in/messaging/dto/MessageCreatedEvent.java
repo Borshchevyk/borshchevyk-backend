@@ -19,5 +19,8 @@ public class MessageCreatedEvent {
     public static class AttachmentInfo {
         private String id;
         private String type;
+        private String originalFilename;
+        private String extension;
+        private Long sizeBytes;
     }
 }

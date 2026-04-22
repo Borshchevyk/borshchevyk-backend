@@ -64,7 +64,13 @@ public class SendMessageService implements SendMessageUseCase {
                 throw new IllegalArgumentException("Invalid attachments. Make sure they are uploaded and ready.");
             }
             attachments = validAttachments.stream()
-                    .map(m -> new ru.kubsu.borshchevyk.message.domain.model.message.MessageAttachment(m.getId(), m.getType()))
+                    .map(m -> new ru.kubsu.borshchevyk.message.domain.model.message.MessageAttachment(
+                            m.getId(), 
+                            m.getType(),
+                            m.getOriginalFilename(),
+                            m.getExtension(),
+                            m.getSizeBytes()
+                    ))
                     .collect(Collectors.toList());
         }
 

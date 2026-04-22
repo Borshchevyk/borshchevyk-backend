@@ -21,4 +21,13 @@ public class MessageAttachmentEmbeddable {
 
     @Column(name = "type")
     private String type;
+
+    @Column(name = "original_filename")
+    private String originalFilename;
+
+    @Column(name = "extension")
+    private String extension;
+
+    @Column(name = "size_bytes")
+    private Long sizeBytes;
 }

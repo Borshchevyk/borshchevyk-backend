@@ -41,7 +41,13 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
                 message.getStatus(),
                 targetUserIds,
                 message.getAttachments() != null ? message.getAttachments().stream()
-                        .map(a -> new MessageCreatedEvent.AttachmentInfo(a.getId(), a.getType()))
+                        .map(a -> new MessageCreatedEvent.AttachmentInfo(
+                                a.getId(), 
+                                a.getType(),
+                                a.getOriginalFilename(),
+                                a.getExtension(),
+                                a.getSizeBytes()
+                        ))
                         .collect(Collectors.toList()) : null
         );
 

@@ -14,4 +14,7 @@ import java.util.UUID;
 public class AttachmentMetadataDto {
     private UUID id;
     private String type;
+    private String originalFilename;
+    private String extension;
+    private Long sizeBytes;
 }

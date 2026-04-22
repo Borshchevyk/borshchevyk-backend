@@ -149,6 +149,9 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
             metadataList.add(ValidateAttachmentsResult.AttachmentMetadata.builder()
                     .id(attachment.getId().value())
                     .type(attachment.getType().name())
+                    .originalFilename(attachment.getOriginalFilename())
+                    .extension(attachment.getExtension())
+                    .sizeBytes(attachment.getSizeBytes())
                     .build());
         }
 

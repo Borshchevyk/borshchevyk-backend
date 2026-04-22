@@ -48,6 +48,12 @@ public record MessageResponse(
             @Schema(description = "ID of the attachment")
             UUID id,
             @Schema(description = "Type of the attachment")
-            String type
+            String type,
+            @Schema(description = "Original filename of the attachment")
+            String originalFilename,
+            @Schema(description = "Extension of the attachment")
+            String extension,
+            @Schema(description = "Size of the attachment in bytes")
+            Long sizeBytes
     ) {}
 }
