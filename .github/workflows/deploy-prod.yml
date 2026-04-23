@@ -122,7 +122,6 @@ jobs:
           envs: PROD_ENV_FILE,GH_TOKEN,GH_ACTOR
           script: |
             cd ~/borshchevyk-backend
-            docker compose down
             git checkout prod
             git pull
             echo "$PROD_ENV_FILE" > .env
