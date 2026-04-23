@@ -20,6 +20,7 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
       ZOOKEEPER_TICK_TIME: ${ZOOKEEPER_TICK_TIME}
+      KAFKA_HEAP_OPTS: "-Xms128M -Xmx128M"
 
   kafka:
     image: ${KAFKA_IMAGE:-confluentinc/cp-kafka:7.3.2}
@@ -33,6 +34,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: ${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP}
       KAFKA_INTER_BROKER_LISTENER_NAME: ${KAFKA_INTER_BROKER_LISTENER_NAME}
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR}
+      KAFKA_HEAP_OPTS: "-Xms256M -Xmx256M"
 
   borshchevyk-redis:
     image: ${REDIS_IMAGE:-redis:7-alpine}
@@ -52,6 +54,7 @@ services:
     env_file:
       - .env
     environment:
+      - JAVA_TOOL_OPTIONS=-Xms64m -Xmx128m
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_AUTH:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_auth}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
@@ -74,6 +77,7 @@ services:
     env_file:
       - .env
     environment:
+      - JAVA_TOOL_OPTIONS=-Xms64m -Xmx128m
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_USER:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_user}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
@@ -94,6 +98,7 @@ services:
     env_file:
       - .env
     environment:
+      - JAVA_TOOL_OPTIONS=-Xms64m -Xmx128m
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_MESSAGE:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_message}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
@@ -118,6 +123,7 @@ services:
     env_file:
       - .env
     environment:
+      - JAVA_TOOL_OPTIONS=-Xms64m -Xmx128m
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_SYNC:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_sync}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
@@ -138,6 +144,7 @@ services:
     env_file:
       - .env
     environment:
+      - JAVA_TOOL_OPTIONS=-Xms64m -Xmx128m
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_MEDIA:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_media}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
@@ -153,6 +160,7 @@ services:
     env_file:
       - .env
     environment:
+      - JAVA_TOOL_OPTIONS=-Xms64m -Xmx128m
       - AUTH_SERVICE_URL=${AUTH_SERVICE_URL:-http://auth-service:8081}
       - USER_SERVICE_URL=${USER_SERVICE_URL:-http://user-service:8082}
       - MESSAGE_SERVICE_URL=${MESSAGE_SERVICE_URL:-http://message-service:8083}
@@ -174,6 +182,7 @@ services:
     env_file:
       - .env
     environment:
+      - JAVA_TOOL_OPTIONS=-Xms64m -Xmx128m
       - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
 
@@ -197,4 +206,3 @@ volumes:
   postgres-data:
   caddy_data:
   caddy_config:
-
