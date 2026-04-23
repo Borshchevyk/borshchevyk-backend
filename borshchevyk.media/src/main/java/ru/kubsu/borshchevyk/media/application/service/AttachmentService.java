@@ -39,7 +39,8 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
     public UploadUrlResult requestUploadUrl(RequestUploadUrlCommand command) {
         log.info("Requesting upload URL for user {} type {}", command.getUploaderId(), command.getType());
 
-        String s3Key = "attachments/" + command.getUploaderId() + "/" + UUID.randomUUID() + "." + command.getExtension();
+        String extensionPart = (command.getExtension() != null && !command.getExtension().isEmpty()) ? "." + command.getExtension() : "";
+        String s3Key = "attachments/" + command.getUploaderId() + "/" + UUID.randomUUID() + extensionPart;
 
         Attachment attachment = Attachment.builder()
                 .id(new AttachmentId(UUID.randomUUID()))

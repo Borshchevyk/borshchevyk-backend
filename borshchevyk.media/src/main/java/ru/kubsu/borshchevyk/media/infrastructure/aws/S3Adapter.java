@@ -33,7 +33,9 @@ public class S3Adapter implements S3Port {
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(s3Key)
-                .contentType(contentType)
+                // We DO NOT set .contentType() here. If we do, the generated signature 
+                // will rigidly require the Android client to send EXACTLY this Content-Type header. 
+                // If OkHttp appends a charset or omits it, AWS will reject with 403 SignatureDoesNotMatch.
                 .build();
 
         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
@@ -112,6 +114,10 @@ public class S3Adapter implements S3Port {
         } catch (NoSuchKeyException e) {
             return false;
         } catch (S3Exception e) {
+            if (e.statusCode() == 404) {
+                // S3 headObject returns 404 if the object does not exist. This is expected.
+                return false;
+            }
             log.error("S3 SDK error checking existence for key {}: {}", s3Key, e.awsErrorDetails().errorMessage(), e);
             return false;
         }
