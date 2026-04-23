@@ -1,4 +1,4 @@
-{$DOMAIN_NAME} {
+http://{$DOMAIN_NAME}, https://{$DOMAIN_NAME} {
     handle /admin* {
         reverse_proxy admin-service:{$ADMIN_SERVICE_PORT:8085}
     }
