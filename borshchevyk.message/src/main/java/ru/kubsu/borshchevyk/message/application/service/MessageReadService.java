@@ -60,6 +60,12 @@ public class MessageReadService implements ReadMessageUseCase, LoadMessageReader
         requester.setLastReadMessageId(messageId);
         chatMemberPort.saveAll(List.of(requester));
 
+        // Update message status to READ if someone other than author reads it
+        if (!message.getAuthorId().equals(requesterId) && message.getStatus() != ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus.READ) {
+            message.setStatus(ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus.READ);
+            messagePort.save(message);
+        }
+
         // Exact tracking
         messageReaderPort.save(messageId, requesterId);
     }
