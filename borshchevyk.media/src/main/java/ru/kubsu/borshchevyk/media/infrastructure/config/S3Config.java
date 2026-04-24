@@ -38,6 +38,7 @@ public class S3Config {
                 ))
                 .serviceConfiguration(S3Configuration.builder()
                         .pathStyleAccessEnabled(true)
+                        .checksumValidationEnabled(false)
                         .build())
                 .httpClientBuilder(ApacheHttpClient.builder())
                 .build();
@@ -51,6 +52,10 @@ public class S3Config {
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(accessKey, secretKey)
                 ))
+                .serviceConfiguration(S3Configuration.builder()
+                        .pathStyleAccessEnabled(true)
+                        .checksumValidationEnabled(false)
+                        .build())
                 .build();
     }
 }
