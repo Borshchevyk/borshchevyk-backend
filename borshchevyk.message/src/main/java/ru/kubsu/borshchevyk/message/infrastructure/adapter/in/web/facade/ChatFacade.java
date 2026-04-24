@@ -72,7 +72,7 @@ public class ChatFacade {
                 // Unread count
                 java.time.LocalDateTime lastReadAt = null;
                 if (member.getLastReadMessageId() != null) {
-                    lastReadAt = messagePort.findById(new ru.kubsu.borshchevyk.message.domain.model.value.MessageId(member.getLastReadMessageId()))
+                    lastReadAt = messagePort.findById(member.getLastReadMessageId())
                             .map(ru.kubsu.borshchevyk.message.domain.model.message.Message::getCreatedAt)
                             .orElse(null);
                 }

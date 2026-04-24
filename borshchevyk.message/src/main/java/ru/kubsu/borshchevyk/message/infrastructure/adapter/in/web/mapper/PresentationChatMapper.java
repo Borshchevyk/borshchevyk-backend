@@ -110,6 +110,7 @@ public abstract class PresentationChatMapper {
     @Mapping(target = "chatId", source = "chatId.value")
     @Mapping(target = "userId", source = "userId.value")
     @Mapping(target = "lastReadMessageId", source = "lastReadMessageId.value")
+    @Mapping(target = "userDetails", ignore = true)
     public abstract ChatMemberResponse toMemberResponse(ChatMember chatMember);
 
     public abstract List<ChatMemberResponse> toMemberResponseList(List<ChatMember> chatMembers);
