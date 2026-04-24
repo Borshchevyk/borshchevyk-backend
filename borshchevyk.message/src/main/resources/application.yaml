@@ -16,6 +16,11 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        jdbc:
+          batch_size: 25
+          order_inserts: true
+          order_updates: true
+        generate_statistics: false
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
@@ -38,6 +43,12 @@ spring:
         password: ${ADMIN_PASSWORD:admin}
         instance:
           prefer-ip: true
+
+grpc:
+  client:
+    user-service:
+      address: 'static://user-service:9090'
+      negotiation-type: plaintext
 
 app:
   kafka:

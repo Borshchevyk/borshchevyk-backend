@@ -20,5 +20,6 @@ public record UserRegisteredEvent(
         UUID userId,
         String email,
         String tag,
-        String firstName
+        String firstName,
+        String lastName
 ) {}

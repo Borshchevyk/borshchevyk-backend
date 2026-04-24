@@ -43,6 +43,10 @@ springdoc:
   api-docs:
     path: /v3/api-docs
 
+grpc:
+  server:
+    port: 9090
+
 management:
   endpoints:
     web:

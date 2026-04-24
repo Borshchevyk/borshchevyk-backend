@@ -39,6 +39,7 @@ public class CreateUserService implements CreateUserUseCase {
                 .email(new Email(event.email()))
                 .tag(new Tag(event.tag()))
                 .firstName(event.firstName())
+                .lastName(event.lastName())
                 .build();
         
         saveUserPort.saveUser(user);

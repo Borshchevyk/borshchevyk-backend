@@ -412,6 +412,8 @@ public class ChatController {
                 new ChatSettingsEvent(chatId, request.allowedReactions()));
     }
 
+    private final ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService userEnrichmentService;
+
     @Operation(summary = "Get chat members", description = "Retrieves a paginated list of members for a given chat.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of members retrieved successfully")
@@ -425,6 +427,27 @@ public class ChatController {
         log.info("Request to get members for chat {} from user {} page {} size {}", chatId, requesterId, page, size);
         Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
         Page<ChatMember> membersPage = loadChatMembersUseCase.loadChatMembers(chatId, requesterId, pageable);
-        return membersPage.map(presentationChatMapper::toMemberResponse);
+        
+        List<UUID> userIds = membersPage.getContent().stream()
+                .map(m -> m.getUserId().value())
+                .toList();
+        
+        java.util.Map<UUID, ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.EnrichedUserResponse> userMap = userEnrichmentService.enrichUsersToMap(userIds);
+
+        return membersPage.map(member -> {
+            ChatMemberResponse basic = presentationChatMapper.toMemberResponse(member);
+            return new ChatMemberResponse(
+                    basic.chatId(),
+                    basic.userId(),
+                    userMap.get(member.getUserId().value()),
+                    basic.role(),
+                    basic.joinedAt(),
+                    basic.canSendMessages(),
+                    basic.canDeleteMessages(),
+                    basic.canInviteUsers(),
+                    basic.canChangeInfo(),
+                    basic.lastReadMessageId()
+            );
+        });
     }
 }

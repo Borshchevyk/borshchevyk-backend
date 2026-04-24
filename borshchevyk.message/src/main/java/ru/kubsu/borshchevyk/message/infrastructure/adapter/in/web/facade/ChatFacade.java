@@ -20,7 +20,6 @@ import ru.kubsu.borshchevyk.message.infrastructure.persistence.repository.ChatMe
 
 import java.util.*;
 import java.util.stream.Collectors;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -28,7 +27,7 @@ public class ChatFacade {
 
     private final PresentationChatMapper presentationChatMapper;
     private final ChatMemberRepository chatMemberRepository;
-    private final RestTemplate restTemplate;
+    private final ru.kubsu.borshchevyk.message.infrastructure.adapter.out.grpc.UserGrpcClient userGrpcClient;
 
     public ChatResponse enrichChatResponse(Chat chat, UUID requesterId) {
         ChatResponse response = presentationChatMapper.toResponse(chat, requesterId);
@@ -75,43 +74,27 @@ public class ChatFacade {
             return;
         }
 
-        Map<UUID, JsonNode> userProfileMap = new HashMap<>();
+        Map<UUID, ru.kubsu.borshchevyk.grpc.UserResponse> userProfileMap = new HashMap<>();
         try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            if (requesterId != null) {
-                headers.set("X-User-Id", requesterId.toString());
-            }
-
-            HttpEntity<List<UUID>> requestEntity = new HttpEntity<>(new ArrayList<>(partnerIds), headers);
-            
-            ResponseEntity<JsonNode[]> userResponse = restTemplate.exchange(
-                    "http://borshchevyk-user:8080/api/v1/users/batch",
-                    HttpMethod.POST,
-                    requestEntity,
-                    JsonNode[].class
-            );
-
-            if (userResponse.getStatusCode().is2xxSuccessful() && userResponse.getBody() != null) {
-                for (JsonNode node : userResponse.getBody()) {
-                    if (node.has("id")) {
-                        userProfileMap.put(UUID.fromString(node.get("id").asText()), node);
-                    }
-                }
+            List<ru.kubsu.borshchevyk.grpc.UserResponse> userResponses = userGrpcClient.getUsersBatch(new ArrayList<>(partnerIds));
+            for (ru.kubsu.borshchevyk.grpc.UserResponse u : userResponses) {
+                userProfileMap.put(UUID.fromString(u.getUserId()), u);
             }
         } catch (Exception e) {
-            log.error("Failed to fetch user profiles batch", e);
+            log.error("Failed to fetch user profiles batch via gRPC", e);
         }
 
         for (PrivateChatResponse response : privateChats) {
             UUID partnerId = chatPartnerMap.get(response.getId());
             if (partnerId != null) {
                 response.setPartnerId(partnerId);
-                JsonNode userProfile = userProfileMap.get(partnerId);
+                ru.kubsu.borshchevyk.grpc.UserResponse userProfile = userProfileMap.get(partnerId);
                 if (userProfile != null) {
-                    if (userProfile.has("username")) response.setPartnerName(userProfile.get("username").asText());
-                    if (userProfile.has("avatarUrl") && !userProfile.get("avatarUrl").isNull()) {
-                        response.setPartnerAvatarUrl(userProfile.get("avatarUrl").asText());
+                    String name = (userProfile.getFirstName() + " " + userProfile.getLastName()).trim();
+                    if (name.isEmpty()) name = userProfile.getTag();
+                    response.setPartnerName(name);
+                    if (!userProfile.getAvatarUrl().isEmpty()) {
+                        response.setPartnerAvatarUrl(userProfile.getAvatarUrl());
                     }
                 } else {
                     response.setPartnerName("Unknown User");

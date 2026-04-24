@@ -15,10 +15,12 @@ public interface ChatRepository extends JpaRepository<ChatEntity, UUID> {
     List<ChatEntity> findByIdIn(List<UUID> ids);
 
     @Query("SELECT c FROM ChatEntity c " +
+           "JOIN ChatMemberEntity cm1 ON c.id = cm1.chatId " +
+           "JOIN ChatMemberEntity cm2 ON c.id = cm2.chatId " +
            "WHERE TYPE(c) = PrivateChatEntity " +
            "AND c.isDeleted = false " +
-           "AND c.id IN (SELECT cm.chatId FROM ChatMemberEntity cm WHERE cm.userId = :userId1) " +
-           "AND c.id IN (SELECT cm.chatId FROM ChatMemberEntity cm WHERE cm.userId = :userId2)")
+           "AND cm1.userId = :userId1 " +
+           "AND cm2.userId = :userId2")
     Optional<ChatEntity> findPrivateChatBetweenUsers(@Param("userId1") UUID userId1, @Param("userId2") UUID userId2);
 
     Optional<ChatEntity> findByInviteCode(String inviteCode);

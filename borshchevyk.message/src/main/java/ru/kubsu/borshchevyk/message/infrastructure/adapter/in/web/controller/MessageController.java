@@ -84,17 +84,20 @@ public class MessageController {
         return presentationMessageMapper.toResponseList(comments);
     }
 
-    @Operation(summary = "Get message readers", description = "Retrieves a list of user IDs who have read the message.")
+    private final ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService userEnrichmentService;
+
+    @Operation(summary = "Get message readers", description = "Retrieves a list of users who have read the message.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of readers retrieved successfully")
     })
     @GetMapping("/{messageId}/readers")
-    public List<UUID> getMessageReaders(
+    public List<ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.EnrichedUserResponse> getMessageReaders(
             @PathVariable UUID chatId,
             @PathVariable UUID messageId,
             @RequestHeader("X-User-Id") UUID userId) {
         log.info("Request to get readers of message {} in chat {} by user {}", messageId, chatId, userId);
-        return loadMessageReadersUseCase.loadMessageReaders(chatId, messageId, userId);
+        List<UUID> readerIds = loadMessageReadersUseCase.loadMessageReaders(chatId, messageId, userId);
+        return userEnrichmentService.enrichUsers(readerIds);
     }
 
     @Operation(summary = "Add reaction", description = "Adds a reaction to a message.")

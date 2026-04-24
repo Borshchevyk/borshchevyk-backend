@@ -24,6 +24,8 @@ public record RegisterRequest(
         @NotBlank(message = "First name is mandatory")
         @Schema(description = "User's first name", example = "John")
         String firstName,
+        @Schema(description = "User's last name (optional)", example = "Doe")
+        String lastName,
         @Schema(description = "Client-side AuthHash (not the raw password)", example = "e3b0c442...")
         String passwordHash,
         @Schema(description = "Base64 encoded RSA Public Key", example = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...")

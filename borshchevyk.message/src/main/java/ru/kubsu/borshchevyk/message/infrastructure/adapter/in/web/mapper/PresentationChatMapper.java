@@ -1,12 +1,9 @@
 package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.mapper;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 import ru.kubsu.borshchevyk.message.domain.model.chat.*;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
@@ -22,19 +19,53 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring")
 public abstract class PresentationChatMapper {
 
+    @Autowired
+    private ChatMemberRepository chatMemberRepository;
+
+    @Autowired
+    private ru.kubsu.borshchevyk.message.infrastructure.adapter.out.grpc.UserGrpcClient userGrpcClient;
+
     public ChatResponse toResponse(Chat chat, @Context UUID requesterId) {
         if (chat == null) {
             return null;
         }
 
         if (chat instanceof PrivateChat p) {
-            PrivateChatResponse response = PrivateChatResponse.builder()
+            UUID partnerId = chatMemberRepository.findByChatId(p.getId().value())
+                    .stream()
+                    .map(ChatMemberEntity::getUserId)
+                    .filter(id -> !id.equals(requesterId))
+                    .findFirst()
+                    .orElse(null);
+
+            String partnerName = null;
+            String partnerAvatarUrl = null;
+            LocalDateTime partnerLastOnline = null;
+
+            if (partnerId != null) {
+                try {
+                    ru.kubsu.borshchevyk.grpc.UserResponse userResponse = userGrpcClient.getUserInfo(partnerId);
+                    partnerName = (userResponse.getFirstName() + " " + userResponse.getLastName()).trim();
+                    if (partnerName.isEmpty()) {
+                        partnerName = userResponse.getTag();
+                    }
+                    partnerAvatarUrl = userResponse.getAvatarUrl().isEmpty() ? null : userResponse.getAvatarUrl();
+                } catch (Exception e) {
+                    // Fallback to ID if user-service is down
+                    partnerName = "User " + partnerId.toString().substring(0, 8);
+                }
+            }
+
+            return PrivateChatResponse.builder()
                     .id(map(p.getId()))
                     .type(ChatType.PRIVATE)
                     .createdAt(p.getCreatedAt())
                     .allowedReactions(p.getAllowedReactions())
+                    .partnerId(partnerId)
+                    .partnerName(partnerName)
+                    .partnerAvatarUrl(partnerAvatarUrl)
+                    .partnerLastOnline(partnerLastOnline)
                     .build();
-            return response;
         } else if (chat instanceof GroupChat g) {
             return GroupChatResponse.builder()
                     .id(map(g.getId()))

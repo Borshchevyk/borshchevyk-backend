@@ -16,6 +16,10 @@ public record MessageResponse(
         UUID chatId,
         @Schema(description = "Unique identifier of the author")
         UUID authorId,
+        @Schema(description = "Name of the author")
+        String authorName,
+        @Schema(description = "Avatar URL of the author")
+        String authorAvatarUrl,
         @Schema(description = "Text of the message")
         String text,
         @Schema(description = "Timestamp when the message was sent")
