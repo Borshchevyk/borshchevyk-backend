@@ -66,4 +66,18 @@ public class MessageAdapter implements MessagePort {
         return messageRepository.findById(messageId.value())
                 .map(messageMapper::toDomain);
     }
+
+    @Override
+    public Optional<Message> getLastMessage(ChatId chatId, ru.kubsu.borshchevyk.message.domain.model.value.UserId userId, java.time.LocalDateTime historyClearedAt) {
+        Pageable pageable = PageRequest.of(0, 1);
+        return messageRepository.loadChatHistory(chatId.value(), userId.value(), historyClearedAt, pageable)
+                .stream()
+                .map(messageMapper::toDomain)
+                .findFirst();
+    }
+
+    @Override
+    public long countUnreadMessages(ChatId chatId, ru.kubsu.borshchevyk.message.domain.model.value.UserId userId, java.time.LocalDateTime historyClearedAt, java.time.LocalDateTime lastReadAt) {
+        return messageRepository.countUnreadMessages(chatId.value(), userId.value(), historyClearedAt, lastReadAt);
+    }
 }

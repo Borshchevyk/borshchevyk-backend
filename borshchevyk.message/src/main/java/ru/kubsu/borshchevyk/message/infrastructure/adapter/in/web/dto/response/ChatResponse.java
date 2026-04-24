@@ -40,4 +40,8 @@ public abstract class ChatResponse {
     private LocalDateTime createdAt;
     @Schema(description = "List of allowed reactions in the chat")
     private Set<String> allowedReactions;
+    @Schema(description = "The last message in the chat")
+    private String lastMessage;
+    @Schema(description = "Number of unread messages for the requester")
+    private long unreadCount;
 }

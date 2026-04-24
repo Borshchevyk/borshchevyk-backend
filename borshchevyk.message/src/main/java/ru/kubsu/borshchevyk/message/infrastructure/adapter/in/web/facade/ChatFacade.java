@@ -27,10 +27,13 @@ public class ChatFacade {
 
     private final PresentationChatMapper presentationChatMapper;
     private final ChatMemberRepository chatMemberRepository;
+    private final ru.kubsu.borshchevyk.message.application.port.out.ChatMemberPort chatMemberPort;
+    private final ru.kubsu.borshchevyk.message.application.port.out.MessagePort messagePort;
     private final ru.kubsu.borshchevyk.message.infrastructure.adapter.out.grpc.UserGrpcClient userGrpcClient;
 
     public ChatResponse enrichChatResponse(Chat chat, UUID requesterId) {
         ChatResponse response = presentationChatMapper.toResponse(chat, requesterId);
+        enrichWithLastMessageAndUnreadCount(List.of(response), requesterId);
         if (response instanceof PrivateChatResponse pResponse) {
             enrichPrivateChatResponses(List.of(pResponse), requesterId);
         }
@@ -40,6 +43,8 @@ public class ChatFacade {
     public List<ChatResponse> enrichChatResponses(List<Chat> chats, UUID requesterId) {
         List<ChatResponse> responses = presentationChatMapper.toResponseList(chats, requesterId);
         
+        enrichWithLastMessageAndUnreadCount(responses, requesterId);
+
         List<PrivateChatResponse> privateChatResponses = responses.stream()
                 .filter(r -> r instanceof PrivateChatResponse)
                 .map(r -> (PrivateChatResponse) r)
@@ -47,6 +52,35 @@ public class ChatFacade {
 
         enrichPrivateChatResponses(privateChatResponses, requesterId);
         return responses;
+    }
+
+    private void enrichWithLastMessageAndUnreadCount(List<ChatResponse> responses, UUID requesterId) {
+        if (requesterId == null) return;
+        ru.kubsu.borshchevyk.message.domain.model.value.UserId userId = new ru.kubsu.borshchevyk.message.domain.model.value.UserId(requesterId);
+
+        for (ChatResponse response : responses) {
+            ru.kubsu.borshchevyk.message.domain.model.value.ChatId chatId = new ru.kubsu.borshchevyk.message.domain.model.value.ChatId(response.getId());
+            
+            chatMemberPort.findByChatIdAndUserId(chatId, userId).ifPresent(member -> {
+                java.time.LocalDateTime historyClearedAt = member.getHistoryClearedAt();
+                
+                // Last message
+                messagePort.getLastMessage(chatId, userId, historyClearedAt).ifPresent(msg -> {
+                    response.setLastMessage(msg.getText());
+                });
+
+                // Unread count
+                java.time.LocalDateTime lastReadAt = null;
+                if (member.getLastReadMessageId() != null) {
+                    lastReadAt = messagePort.findById(new ru.kubsu.borshchevyk.message.domain.model.value.MessageId(member.getLastReadMessageId()))
+                            .map(ru.kubsu.borshchevyk.message.domain.model.message.Message::getCreatedAt)
+                            .orElse(null);
+                }
+                
+                long unread = messagePort.countUnreadMessages(chatId, userId, historyClearedAt, lastReadAt);
+                response.setUnreadCount(unread);
+            });
+        }
     }
 
     private void enrichPrivateChatResponses(List<PrivateChatResponse> privateChats, UUID requesterId) {

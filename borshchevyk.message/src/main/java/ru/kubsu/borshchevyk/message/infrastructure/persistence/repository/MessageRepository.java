@@ -45,4 +45,16 @@ public interface MessageRepository extends JpaRepository<MessageEntity, UUID> {
     int countByChatIdAndPinnedAtIsNotNull(UUID chatId);
     
     List<MessageEntity> findByChatIdAndPinnedAtIsNotNullOrderByPinnedAtDesc(UUID chatId);
+
+    @Query("SELECT COUNT(m) FROM MessageEntity m " +
+           "WHERE m.chatId = :chatId " +
+           "AND m.isDeleted = false " +
+           "AND m.id NOT IN (SELECT dm.messageId FROM DeletedMessageEntity dm WHERE dm.userId = :userId) " +
+           "AND (cast(:historyClearedAt as timestamp) IS NULL OR m.createdAt > :historyClearedAt) " +
+           "AND (cast(:lastReadAt as timestamp) IS NULL OR m.createdAt > :lastReadAt)")
+    long countUnreadMessages(
+            @Param("chatId") UUID chatId,
+            @Param("userId") UUID userId,
+            @Param("historyClearedAt") java.time.LocalDateTime historyClearedAt,
+            @Param("lastReadAt") java.time.LocalDateTime lastReadAt);
 }

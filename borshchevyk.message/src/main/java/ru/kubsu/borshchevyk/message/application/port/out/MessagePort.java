@@ -14,4 +14,6 @@ public interface MessagePort {
     int countPinnedMessagesByChatId(ChatId chatId);
     List<Message> findPinnedMessagesByChatId(ChatId chatId);
     Optional<Message> findById(MessageId messageId);
+    Optional<Message> getLastMessage(ChatId chatId, ru.kubsu.borshchevyk.message.domain.model.value.UserId userId, java.time.LocalDateTime historyClearedAt);
+    long countUnreadMessages(ChatId chatId, ru.kubsu.borshchevyk.message.domain.model.value.UserId userId, java.time.LocalDateTime historyClearedAt, java.time.LocalDateTime lastReadAt);
 }
