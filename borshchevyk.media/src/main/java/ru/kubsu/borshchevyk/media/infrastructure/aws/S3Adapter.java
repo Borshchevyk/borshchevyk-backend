@@ -28,14 +28,20 @@ public class S3Adapter implements S3Port {
     @Value("${app.s3.bucket}")
     private String bucket;
 
+    @Value("${app.s3.tenant-id}")
+    private String tenantId;
+
+    private String getFullBucketName() {
+        return bucket; // The user provided bucket-d6b96b as part of the endpoint in text, but usually it's bucket-name.tenant-id or similar in Cloud.ru.
+        // However, the user said "API Endpoint https://s3.cloud.ru/bucket-d6b96b" and "bucket-d6b96b".
+        // Let's assume the bucket name is just bucket-d6b96b as provided.
+    }
+
     @Override
     public String generatePresignedPutUrl(String s3Key, String contentType, Duration expiration) {
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(s3Key)
-                // We DO NOT set .contentType() here. If we do, the generated signature 
-                // will rigidly require the Android client to send EXACTLY this Content-Type header. 
-                // If OkHttp appends a charset or omits it, AWS will reject with 403 SignatureDoesNotMatch.
                 .build();
 
         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()

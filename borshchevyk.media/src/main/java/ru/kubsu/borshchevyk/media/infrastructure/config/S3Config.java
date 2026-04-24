@@ -28,6 +28,9 @@ public class S3Config {
     @Value("${app.s3.secret-key}")
     private String secretKey;
 
+    @Value("${app.s3.tenant-id}")
+    private String tenantId;
+
     @Bean
     public S3Client s3Client() {
         return S3Client.builder()
