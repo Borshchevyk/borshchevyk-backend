@@ -21,6 +21,38 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
     private final GetUserProfileUseCase getUserProfileUseCase;
 
     private final ru.kubsu.borshchevyk.user.application.port.in.GetUsersBatchUseCase getUsersBatchUseCase;
+    private final ru.kubsu.borshchevyk.user.application.port.in.SearchUsersUseCase searchUsersUseCase;
+
+    @Override
+    public void searchUsers(ru.kubsu.borshchevyk.grpc.SearchUsersRequest request, StreamObserver<ru.kubsu.borshchevyk.grpc.UsersBatchResponse> responseObserver) {
+        try {
+            List<User> users = searchUsersUseCase.searchUsers(
+                    ru.kubsu.borshchevyk.user.application.dto.command.SearchUsersCommand.builder()
+                            .query(request.getQuery())
+                            .requesterId(request.getRequesterId().isEmpty() ? null : request.getRequesterId())
+                            .build()
+            );
+
+            ru.kubsu.borshchevyk.grpc.UsersBatchResponse response = ru.kubsu.borshchevyk.grpc.UsersBatchResponse.newBuilder()
+                    .addAllUsers(users.stream()
+                            .map(user -> UserResponse.newBuilder()
+                                    .setUserId(user.getUserId().getValue().toString())
+                                    .setFirstName(user.getFirstName() != null ? user.getFirstName() : "")
+                                    .setLastName(user.getLastName() != null ? user.getLastName() : "")
+                                    .setTag(user.getTag().getValue())
+                                    .setAvatarUrl(user.getAvatarUrl() != null ? user.getAvatarUrl() : "")
+                                    .build())
+                            .collect(Collectors.toList()))
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+        } catch (Exception e) {
+            responseObserver.onError(io.grpc.Status.INTERNAL
+                    .withDescription("Failed to search users: " + e.getMessage())
+                    .asRuntimeException());
+        }
+    }
 
     @Override
     public void getUserInfo(UserRequest request, StreamObserver<UserResponse> responseObserver) {

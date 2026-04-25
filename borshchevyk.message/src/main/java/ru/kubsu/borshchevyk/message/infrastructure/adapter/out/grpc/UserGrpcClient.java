@@ -29,4 +29,12 @@ public class UserGrpcClient {
                 .build();
         return userServiceStub.getUsersBatch(request).getUsersList();
     }
+
+    public java.util.List<UserResponse> searchUsers(String query, UUID requesterId) {
+        ru.kubsu.borshchevyk.grpc.SearchUsersRequest request = ru.kubsu.borshchevyk.grpc.SearchUsersRequest.newBuilder()
+                .setQuery(query)
+                .setRequesterId(requesterId != null ? requesterId.toString() : "")
+                .build();
+        return userServiceStub.searchUsers(request).getUsersList();
+    }
 }

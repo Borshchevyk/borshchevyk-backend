@@ -9,6 +9,12 @@ option java_outer_classname = "UserProto";
 service UserService {
   rpc GetUserInfo (UserRequest) returns (UserResponse);
   rpc GetUsersBatch (UsersBatchRequest) returns (UsersBatchResponse);
+  rpc SearchUsers (SearchUsersRequest) returns (UsersBatchResponse);
+}
+
+message SearchUsersRequest {
+  string query = 1;
+  string requesterId = 2;
 }
 
 message UserRequest {

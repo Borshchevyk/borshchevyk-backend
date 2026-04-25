@@ -58,22 +58,6 @@ public class UserController {
                 .toList());
     }
 
-    @Operation(summary = "Search users by tag or name", description = "Searches users considering their privacy settings")
-    @ApiResponse(responseCode = "200", description = "Successful search")
-    @GetMapping("/search")
-    public ResponseEntity<List<UserProfileResponse>> searchUsers(
-            @RequestParam("q") String query,
-            @RequestHeader(value = "X-User-Id", required = false) String requesterId) {
-        var command = SearchUsersCommand.builder()
-                .query(query)
-                .requesterId(requesterId)
-                .build();
-        var users = searchUsersUseCase.searchUsers(command);
-        return ResponseEntity.ok(users.stream()
-                .map(mapper::toUserProfileResponse)
-                .toList());
-    }
-
     @Operation(summary = "Get user profile", description = "Gets profile by userId or tag")
     @ApiResponse(responseCode = "200", description = "Profile found")
     @ApiResponse(responseCode = "404", description = "User not found", content = @Content(schema = @Schema(implementation = UserErrorResponse.class)))
