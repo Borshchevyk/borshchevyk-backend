@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 /**
  * REST Controller for managing Calls.
  *
- * @author Gemini
+ * @author Aleksey Timko
  * @since 2026-04-25
  */
 @RestController

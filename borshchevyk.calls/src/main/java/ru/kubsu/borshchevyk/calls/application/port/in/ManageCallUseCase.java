@@ -7,7 +7,7 @@ import ru.kubsu.borshchevyk.calls.domain.model.Call;
 /**
  * Inbound port for managing call lifecycles.
  *
- * @author Gemini
+ * @author Aleksey Timko
  * @since 2026-04-25
  */
 public interface ManageCallUseCase {

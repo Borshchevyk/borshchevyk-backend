@@ -6,7 +6,7 @@ import ru.kubsu.borshchevyk.calls.domain.model.UserId;
 /**
  * Command to join an existing call.
  *
- * @author Gemini
+ * @author Aleksey Timko
  * @since 2026-04-25
  */
 public record JoinCallCommand(

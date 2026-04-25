@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * Mapper for Web-layer DTOs.
  *
- * @author Gemini
+ * @author Aleksey Timko
  * @since 2026-04-25
  */
 @Mapper(componentModel = "spring")

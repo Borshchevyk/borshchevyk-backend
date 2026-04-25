@@ -6,7 +6,7 @@ import java.util.Set;
 /**
  * Command to initiate a new call.
  *
- * @author Gemini
+ * @author Aleksey Timko
  * @since 2026-04-25
  */
 public record InitiateCallCommand(

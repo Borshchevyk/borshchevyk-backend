@@ -5,7 +5,7 @@ import ru.kubsu.borshchevyk.calls.domain.model.Call;
 /**
  * Port for saving Call entities to persistence.
  *
- * @author Gemini
+ * @author Aleksey Timko
  * @since 2026-04-25
  */
 public interface SaveCallPort {

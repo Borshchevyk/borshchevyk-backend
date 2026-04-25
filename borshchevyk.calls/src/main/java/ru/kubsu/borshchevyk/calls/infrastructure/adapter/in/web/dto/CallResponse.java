@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  * Response DTO representing a Call.
  *
- * @author Gemini
+ * @author Aleksey Timko
  * @since 2026-04-25
  */
 @Schema(description = "Response object representing a Call")

@@ -5,7 +5,7 @@ import java.util.UUID;
 /**
  * Value object representing a unique User Identifier.
  *
- * @author Gemini
+ * @author Aleksey Timko
  * @since 2026-04-25
  */
 public record UserId(UUID value) {

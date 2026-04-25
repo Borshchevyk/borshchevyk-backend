@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  * Request DTO for initiating a new call.
  *
- * @author Gemini
+ * @author Aleksey Timko
  * @since 2026-04-25
  */
 @Schema(description = "Request object for initiating a new call")

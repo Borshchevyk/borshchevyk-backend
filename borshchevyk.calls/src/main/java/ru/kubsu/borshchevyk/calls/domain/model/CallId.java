@@ -5,7 +5,7 @@ import java.util.UUID;
 /**
  * Value object representing a unique Call Identifier.
  *
- * @author Gemini
+ * @author Aleksey Timko
  * @since 2026-04-25
  */
 public record CallId(UUID value) {

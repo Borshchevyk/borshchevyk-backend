@@ -5,7 +5,7 @@ import ru.kubsu.borshchevyk.calls.domain.model.Call;
 /**
  * Port for publishing domain events related to calls (e.g., to Kafka).
  *
- * @author Gemini
+ * @author Aleksey Timko
  * @since 2026-04-25
  */
 public interface PublishCallEventPort {
