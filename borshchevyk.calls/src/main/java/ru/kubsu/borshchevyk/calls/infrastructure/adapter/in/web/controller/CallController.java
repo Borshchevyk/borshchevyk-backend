@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.calls.application.dto.command.EndCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.command.InitiateCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.command.JoinCallCommand;
+import ru.kubsu.borshchevyk.calls.application.dto.command.LeaveCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.query.GetCallQuery;
 import ru.kubsu.borshchevyk.calls.application.port.in.ManageCallUseCase;
 import ru.kubsu.borshchevyk.calls.domain.model.Call;
@@ -78,8 +79,8 @@ public class CallController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully generated join token",
                     content = @Content(schema = @Schema(implementation = JoinCallResponse.class))),
-            @ApiResponse(responseCode = "400", description = "User is not a participant of this call or call has ended", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+            @ApiResponse(responseCode = "403", description = "User is not a participant of this call", content = @Content),
+            @ApiResponse(responseCode = "409", description = "Call has ended", content = @Content),
             @ApiResponse(responseCode = "404", description = "Call not found", content = @Content)
     })
     @PostMapping("/{callId}/join")
@@ -104,8 +105,7 @@ public class CallController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Call retrieved successfully",
                     content = @Content(schema = @Schema(implementation = CallResponse.class))),
-            @ApiResponse(responseCode = "400", description = "User is not a participant of this call", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+            @ApiResponse(responseCode = "403", description = "User is not a participant of this call", content = @Content),
             @ApiResponse(responseCode = "404", description = "Call not found", content = @Content)
     })
     @GetMapping("/{callId}")
@@ -126,12 +126,35 @@ public class CallController {
         return ResponseEntity.ok(callWebMapper.toResponse(call));
     }
 
-    @Operation(summary = "End a call", description = "Terminates an active call.")
+    @Operation(summary = "Leave a call", description = "Removes the user from the call's participant list.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully left the call",
+                    content = @Content(schema = @Schema(implementation = CallResponse.class))),
+            @ApiResponse(responseCode = "404", description = "Call not found", content = @Content)
+    })
+    @PostMapping("/{callId}/leave")
+    public ResponseEntity<CallResponse> leaveCall(
+            @Parameter(description = "ID of the user making the request", required = true)
+            @RequestHeader("X-User-Id") UUID currentUserId,
+            @Parameter(description = "ID of the call to leave", required = true)
+            @PathVariable UUID callId) {
+
+        log.debug("User {} attempting to leave call {}", currentUserId, callId);
+
+        LeaveCallCommand command = new LeaveCallCommand(
+                new CallId(callId),
+                new UserId(currentUserId)
+        );
+
+        Call call = manageCallUseCase.leaveCall(command);
+        return ResponseEntity.ok(callWebMapper.toResponse(call));
+    }
+
+    @Operation(summary = "End a call", description = "Terminates an active call. Only the initiator can perform this.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Call ended successfully",
                     content = @Content(schema = @Schema(implementation = CallResponse.class))),
-            @ApiResponse(responseCode = "400", description = "User is not a participant of this call", content = @Content),
-            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+            @ApiResponse(responseCode = "403", description = "Only the initiator can end the call", content = @Content),
             @ApiResponse(responseCode = "404", description = "Call not found", content = @Content)
     })
     @PostMapping("/{callId}/end")

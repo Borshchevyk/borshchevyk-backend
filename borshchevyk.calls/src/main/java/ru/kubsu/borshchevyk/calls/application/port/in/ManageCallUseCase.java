@@ -3,6 +3,7 @@ package ru.kubsu.borshchevyk.calls.application.port.in;
 import ru.kubsu.borshchevyk.calls.application.dto.command.EndCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.command.InitiateCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.command.JoinCallCommand;
+import ru.kubsu.borshchevyk.calls.application.dto.command.LeaveCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.query.GetCallQuery;
 import ru.kubsu.borshchevyk.calls.domain.model.Call;
 
@@ -16,5 +17,6 @@ public interface ManageCallUseCase {
     Call initiateCall(InitiateCallCommand command);
     String joinCall(JoinCallCommand command);
     Call endCall(EndCallCommand command);
+    Call leaveCall(LeaveCallCommand command);
     Call getCall(GetCallQuery query);
 }
