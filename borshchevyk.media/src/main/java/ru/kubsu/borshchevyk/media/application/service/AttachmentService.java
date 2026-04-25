@@ -63,12 +63,10 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
         s3Port.uploadFile(s3Key, command.getInputStream(), command.getSizeBytes(), command.getContentType());
         attachment = attachmentPort.save(attachment);
 
-        // Assume bucket generates public URL or return a pre-signed 1 year URL (but usually it's just public bucket URL)
-        // Here we return a long-lived presigned URL for avatars (e.g. 365 days) or public endpoint
-        String downloadUrl = s3Port.generatePresignedGetUrl(s3Key, Duration.ofDays(7));
+        String localAvatarUrl = "/api/v1/media/avatars/" + attachment.getId().value();
 
         return AttachmentUrlResult.builder()
-                .url(downloadUrl)
+                .url(localAvatarUrl)
                 .build();
     }
 

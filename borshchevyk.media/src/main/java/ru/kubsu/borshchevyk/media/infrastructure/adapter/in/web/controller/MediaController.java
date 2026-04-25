@@ -61,7 +61,29 @@ public class MediaController {
                 .originalFilename(originalFilename)
                 .build();
 
-        return uploadAvatarUseCase.uploadAvatar(command);
+        AttachmentUrlResult result = uploadAvatarUseCase.uploadAvatar(command);
+        
+        String absoluteUrl = org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path(result.getUrl().substring("/api/v1/media".length())) // since ServletUriComponentsBuilder is relative to context path
+                .build()
+                .toUriString();
+                
+        return AttachmentUrlResult.builder().url(absoluteUrl).build();
+    }
+
+    @Operation(summary = "Get public avatar", description = "Redirects to a temporary S3 URL for displaying an avatar.")
+    @GetMapping("/avatars/{attachmentId}")
+    public void getAvatar(
+            @PathVariable UUID attachmentId,
+            jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+        
+        GetAttachmentUrlCommand command = GetAttachmentUrlCommand.builder()
+                .attachmentId(attachmentId)
+                .requesterId(null) // No requester needed for public avatars
+                .build();
+
+        AttachmentUrlResult result = getAttachmentUrlUseCase.getAttachmentUrl(command);
+        response.sendRedirect(result.getUrl());
     }
 
     @Operation(summary = "Get pre-signed URL for upload", description = "Generates a secure temporary link for the client to directly upload a file to S3 and returns attachment ID.")
