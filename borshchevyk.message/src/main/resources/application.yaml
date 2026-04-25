@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: borshchevyk-message
+    name: borshchevyk.message
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:borshchevyk_message}
     username: ${DB_USER:postgres}

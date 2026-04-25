@@ -1,0 +1,57 @@
+server:
+  port: ${CALLS_SERVICE_PORT:8087}
+  forward-headers-strategy: framework
+
+spring:
+  application:
+    name: borshchevyk.calls
+  datasource:
+    url: ${SPRING_DATASOURCE_URL_CALLS:jdbc:postgresql://localhost:5432/borshchevyk_calls}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+  boot:
+    admin:
+      client:
+        url: "http://admin-service:${ADMIN_SERVICE_PORT:8085}/admin"
+        username: ${ADMIN_USERNAME:admin}
+        password: ${ADMIN_PASSWORD:admin}
+        instance:
+          prefer-ip: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+  api-docs:
+    path: /v3/api-docs
+
+app:
+  livekit:
+    url: ${LIVEKIT_URL:http://livekit-server:7880}
+    api-key: ${LIVEKIT_API_KEY:devkey}
+    api-secret: ${LIVEKIT_API_SECRET:secret}
+  kafka:
+    topics:
+      call-events: call-events-topic
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "health,info,env,metrics,loggers,httpexchanges,logfile"
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  file:
+    name: logs/${spring.application.name}.log

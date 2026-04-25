@@ -137,6 +137,8 @@ springdoc:
         url: /v3/api-docs/sync
       - name: media-service
         url: /v3/api-docs/media
+      - name: calls-service
+        url: /v3/api-docs/calls
 
 jwt:
   secret: ${JWT_SECRET}
@@ -153,3 +155,12 @@ management:
 logging:
   file:
     name: logs/${spring.application.name}.log
+"
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  file:
+    name: logs/${spring.application.name}.log
+{spring.application.name}.log
