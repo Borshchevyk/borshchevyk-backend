@@ -47,12 +47,12 @@ public class UserJpaEntity {
     @Column(name = "bio")
     private String bio;
 
-    @Column(name = "avatar_url")
+    @Column(name = "avatar_url", length = 2048)
     private String avatarUrl;
 
     @ElementCollection(fetch = jakarta.persistence.FetchType.EAGER)
     @CollectionTable(name = "user_avatars", joinColumns = @jakarta.persistence.JoinColumn(name = "user_id"))
-    @Column(name = "avatar_url")
+    @Column(name = "avatar_url", length = 2048)
     @Builder.Default
     private java.util.List<String> avatars = new java.util.ArrayList<>();
 }

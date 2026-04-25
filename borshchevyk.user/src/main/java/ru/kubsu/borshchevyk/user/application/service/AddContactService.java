@@ -23,7 +23,13 @@ public class AddContactService implements AddContactUseCase {
         UserId ownerId = new UserId(UUID.fromString(command.ownerId()));
         UserId targetId = new UserId(UUID.fromString(command.targetUserId()));
         
+        if (contactPort.isContact(ownerId, targetId)) {
+            log.warn("Contact already exists for owner {} and target {}", ownerId, targetId);
+            throw new IllegalArgumentException("Contact already exists");
+        }
+        
         Contact contact = Contact.builder()
+            .id(UUID.randomUUID())
             .ownerId(ownerId)
             .contactUserId(targetId)
             .contactFirstName(command.firstName())

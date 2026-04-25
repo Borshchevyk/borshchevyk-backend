@@ -34,7 +34,11 @@ public class ContactAdapter implements ContactPort {
 
     @Override
     public void remove(Contact contact) {
-        repository.deleteById(contact.getId());
+        if (contact.getId() != null) {
+            repository.deleteById(contact.getId());
+        } else {
+            repository.deleteByOwnerIdAndContactUserId(contact.getOwnerId().getValue(), contact.getContactUserId().getValue());
+        }
     }
 
     @Override
