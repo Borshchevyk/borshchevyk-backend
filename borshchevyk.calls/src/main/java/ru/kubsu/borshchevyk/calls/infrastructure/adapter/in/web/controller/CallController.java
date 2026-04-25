@@ -13,8 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.kubsu.borshchevyk.calls.application.dto.command.EndCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.command.InitiateCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.command.JoinCallCommand;
+import ru.kubsu.borshchevyk.calls.application.dto.query.GetCallQuery;
 import ru.kubsu.borshchevyk.calls.application.port.in.ManageCallUseCase;
 import ru.kubsu.borshchevyk.calls.domain.model.Call;
 import ru.kubsu.borshchevyk.calls.domain.model.CallId;
@@ -96,5 +98,57 @@ public class CallController {
 
         String token = manageCallUseCase.joinCall(command);
         return ResponseEntity.ok(new JoinCallResponse(token));
+    }
+
+    @Operation(summary = "Get call details", description = "Retrieves information about a specific call.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Call retrieved successfully",
+                    content = @Content(schema = @Schema(implementation = CallResponse.class))),
+            @ApiResponse(responseCode = "400", description = "User is not a participant of this call", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Call not found", content = @Content)
+    })
+    @GetMapping("/{callId}")
+    public ResponseEntity<CallResponse> getCall(
+            @Parameter(description = "ID of the user making the request", required = true)
+            @RequestHeader("X-User-Id") UUID currentUserId,
+            @Parameter(description = "ID of the call to retrieve", required = true)
+            @PathVariable UUID callId) {
+
+        log.debug("User {} fetching call {}", currentUserId, callId);
+
+        GetCallQuery query = new GetCallQuery(
+                new CallId(callId),
+                new UserId(currentUserId)
+        );
+
+        Call call = manageCallUseCase.getCall(query);
+        return ResponseEntity.ok(callWebMapper.toResponse(call));
+    }
+
+    @Operation(summary = "End a call", description = "Terminates an active call.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Call ended successfully",
+                    content = @Content(schema = @Schema(implementation = CallResponse.class))),
+            @ApiResponse(responseCode = "400", description = "User is not a participant of this call", content = @Content),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content),
+            @ApiResponse(responseCode = "404", description = "Call not found", content = @Content)
+    })
+    @PostMapping("/{callId}/end")
+    public ResponseEntity<CallResponse> endCall(
+            @Parameter(description = "ID of the user making the request", required = true)
+            @RequestHeader("X-User-Id") UUID currentUserId,
+            @Parameter(description = "ID of the call to end", required = true)
+            @PathVariable UUID callId) {
+
+        log.debug("User {} attempting to end call {}", currentUserId, callId);
+
+        EndCallCommand command = new EndCallCommand(
+                new CallId(callId),
+                new UserId(currentUserId)
+        );
+
+        Call call = manageCallUseCase.endCall(command);
+        return ResponseEntity.ok(callWebMapper.toResponse(call));
     }
 }

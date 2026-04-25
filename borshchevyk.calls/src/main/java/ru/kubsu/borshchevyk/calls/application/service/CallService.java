@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kubsu.borshchevyk.calls.application.dto.command.EndCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.command.InitiateCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.command.JoinCallCommand;
+import ru.kubsu.borshchevyk.calls.application.dto.query.GetCallQuery;
 import ru.kubsu.borshchevyk.calls.application.port.in.ManageCallUseCase;
 import ru.kubsu.borshchevyk.calls.application.port.out.LiveKitPort;
 import ru.kubsu.borshchevyk.calls.application.port.out.LoadCallPort;
@@ -82,5 +84,40 @@ public class CallService implements ManageCallUseCase {
 
         // Generate token
         return liveKitPort.generateJoinToken(call.getRoomId(), command.userId(), true);
+    }
+
+    @Override
+    @Transactional
+    public Call endCall(EndCallCommand command) {
+        log.info("User {} ending call {}", command.userId(), command.callId());
+
+        Call call = loadCallPort.loadCall(command.callId())
+                .orElseThrow(() -> new CallNotFoundException("Call not found with id: " + command.callId().value()));
+
+        if (!call.getParticipants().contains(command.userId())) {
+            throw new IllegalArgumentException("User is not a participant of this call");
+        }
+
+        call.endCall();
+        Call savedCall = saveCallPort.saveCall(call);
+        
+        publishCallEventPort.publishCallEnded(savedCall);
+        
+        return savedCall;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Call getCall(GetCallQuery query) {
+        log.info("User {} fetching call {}", query.userId(), query.callId());
+
+        Call call = loadCallPort.loadCall(query.callId())
+                .orElseThrow(() -> new CallNotFoundException("Call not found with id: " + query.callId().value()));
+
+        if (!call.getParticipants().contains(query.userId())) {
+            throw new IllegalArgumentException("User is not a participant of this call");
+        }
+
+        return call;
     }
 }
