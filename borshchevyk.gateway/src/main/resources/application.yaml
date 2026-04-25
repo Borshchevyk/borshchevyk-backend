@@ -110,6 +110,20 @@ spring:
             - Path=/v3/api-docs/media
           filters:
             - RewritePath=/v3/api-docs/media, /v3/api-docs
+
+        - id: calls-service
+          uri: ${CALLS_SERVICE_URL}
+          predicates:
+            - Path=/api/v1/calls/**
+          filters:
+            - JwtAuthenticationFilter
+
+        - id: calls-service-swagger
+          uri: ${CALLS_SERVICE_URL}
+          predicates:
+            - Path=/v3/api-docs/calls
+          filters:
+            - RewritePath=/v3/api-docs/calls, /v3/api-docs
   boot:
     admin:
       client:
@@ -155,12 +169,3 @@ management:
 logging:
   file:
     name: logs/${spring.application.name}.log
-"
-  endpoint:
-    health:
-      show-details: always
-
-logging:
-  file:
-    name: logs/${spring.application.name}.log
-{spring.application.name}.log
