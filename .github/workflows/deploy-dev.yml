@@ -132,7 +132,3 @@ jobs:
             sudo docker compose pull
             sudo docker compose up -d
             sudo docker image prune -af
-din
-            sudo docker compose pull
-            sudo docker compose up -d
-            sudo docker image prune -af
