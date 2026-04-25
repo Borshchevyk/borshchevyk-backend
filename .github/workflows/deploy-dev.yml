@@ -47,6 +47,9 @@ jobs:
       - name: Build Admin Service
         run: mvn -f borshchevyk.admin/pom.xml clean package -DskipTests
 
+      - name: Build Calls Service
+        run: mvn -f borshchevyk.calls/pom.xml clean package -DskipTests
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -126,6 +129,10 @@ jobs:
             git pull
             echo "$DEV_ENV_FILE" > .env
             echo "$GH_TOKEN" | sudo docker login ghcr.io -u "$GH_ACTOR" --password-stdin
+            sudo docker compose pull
+            sudo docker compose up -d
+            sudo docker image prune -af
+din
             sudo docker compose pull
             sudo docker compose up -d
             sudo docker image prune -af
