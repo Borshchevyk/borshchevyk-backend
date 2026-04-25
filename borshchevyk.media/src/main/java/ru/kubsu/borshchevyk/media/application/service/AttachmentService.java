@@ -47,6 +47,7 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
         String s3Key = "avatars/" + command.getUploaderId() + "/" + UUID.randomUUID() + extensionPart;
 
         Attachment attachment = Attachment.builder()
+                .id(new AttachmentId(UUID.randomUUID()))
                 .uploaderId(command.getUploaderId())
                 .type(AttachmentType.AVATAR)
                 .s3Key(s3Key)
