@@ -46,6 +46,8 @@ public class NotificationDto {
         private String createdAt;
         private boolean isDeleted;
         private String status;
+        private String forwardedFromChatId;
+        private String forwardedFromUserId;
         private List<AttachmentDto> attachments;
 
         public static MessageDto from(Message message) {
@@ -68,6 +70,8 @@ public class NotificationDto {
                 message.getCreatedAt() != null ? message.getCreatedAt().toString() : null,
                 message.isDeleted(),
                 message.getStatus() != null ? message.getStatus().name() : null,
+                message.getForwardedFromChatId() != null ? message.getForwardedFromChatId().value().toString() : null,
+                message.getForwardedFromUserId() != null ? message.getForwardedFromUserId().value().toString() : null,
                 attachmentDtos
             );
         }
