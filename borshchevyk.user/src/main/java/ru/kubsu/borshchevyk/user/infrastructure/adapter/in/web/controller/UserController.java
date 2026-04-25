@@ -100,6 +100,22 @@ public class UserController {
         return ResponseEntity.ok(mapper.toUserProfileResponse(updatedUser));
     }
 
+    @Operation(summary = "Set main avatar", description = "Sets the main avatar from previously uploaded ones or newly uploaded.")
+    @ApiResponse(responseCode = "200", description = "Avatar set successfully")
+    @PutMapping("/me/avatar")
+    public ResponseEntity<UserProfileResponse> setAvatar(
+            @RequestBody ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.request.SetAvatarRequest request,
+            @RequestHeader("X-User-Id") String userId) {
+        
+        ru.kubsu.borshchevyk.user.application.dto.command.UpdateProfileCommand command = ru.kubsu.borshchevyk.user.application.dto.command.UpdateProfileCommand.builder()
+                .userId(userId)
+                .avatarUrl(request.avatarUrl())
+                .build();
+                
+        var updatedUser = updateProfileUseCase.updateProfile(command);
+        return ResponseEntity.ok(mapper.toUserProfileResponse(updatedUser));
+    }
+
     @Operation(summary = "Get my privacy settings")
     @ApiResponse(responseCode = "200", description = "Successful retrieval")
     @GetMapping("/me/privacy")

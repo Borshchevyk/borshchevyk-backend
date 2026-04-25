@@ -6,5 +6,6 @@ public enum AttachmentType {
     CIRCLE,
     VOICE,
     FILE,
-    STICKER
+    STICKER,
+    AVATAR
 }

@@ -18,6 +18,7 @@ import ru.kubsu.borshchevyk.media.domain.exception.AttachmentNotFoundException;
 import ru.kubsu.borshchevyk.media.domain.exception.ForbiddenActionException;
 import ru.kubsu.borshchevyk.media.domain.model.Attachment;
 import ru.kubsu.borshchevyk.media.domain.model.AttachmentStatus;
+import ru.kubsu.borshchevyk.media.domain.model.AttachmentType;
 import ru.kubsu.borshchevyk.media.domain.model.value.AttachmentId;
 
 import java.time.Duration;
@@ -26,13 +27,49 @@ import java.util.List;
 import java.util.UUID;
 import java.util.ArrayList;
 
+import ru.kubsu.borshchevyk.media.application.dto.command.UploadAvatarCommand;
+import ru.kubsu.borshchevyk.media.application.port.in.UploadAvatarUseCase;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploadUseCase, GetAttachmentUrlUseCase, ValidateAttachmentsUseCase, SoftDeleteUseCase {
+public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploadUseCase, GetAttachmentUrlUseCase, ValidateAttachmentsUseCase, SoftDeleteUseCase, UploadAvatarUseCase {
 
     private final AttachmentPort attachmentPort;
     private final S3Port s3Port;
+
+    @Override
+    @Transactional
+    public AttachmentUrlResult uploadAvatar(UploadAvatarCommand command) {
+        log.info("Uploading avatar directly for user {}", command.getUploaderId());
+
+        String extensionPart = (command.getExtension() != null && !command.getExtension().isEmpty()) ? "." + command.getExtension() : "";
+        String s3Key = "avatars/" + command.getUploaderId() + "/" + UUID.randomUUID() + extensionPart;
+
+        Attachment attachment = Attachment.builder()
+                .uploaderId(command.getUploaderId())
+                .type(AttachmentType.AVATAR)
+                .s3Key(s3Key)
+                .originalFilename(command.getOriginalFilename())
+                .extension(command.getExtension())
+                .contentType(command.getContentType())
+                .sizeBytes(command.getSizeBytes())
+                .status(AttachmentStatus.READY) // Avatar is ready immediately
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        s3Port.uploadFile(s3Key, command.getInputStream(), command.getSizeBytes(), command.getContentType());
+        attachment = attachmentPort.save(attachment);
+
+        // Assume bucket generates public URL or return a pre-signed 1 year URL (but usually it's just public bucket URL)
+        // Here we return a long-lived presigned URL for avatars (e.g. 365 days) or public endpoint
+        String downloadUrl = s3Port.generatePresignedGetUrl(s3Key, Duration.ofDays(7));
+
+        return AttachmentUrlResult.builder()
+                .url(downloadUrl)
+                .build();
+    }
 
     @Override
     @Transactional

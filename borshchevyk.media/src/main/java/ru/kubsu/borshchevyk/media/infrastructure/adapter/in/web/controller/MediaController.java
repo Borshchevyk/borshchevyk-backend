@@ -37,6 +37,32 @@ public class MediaController {
     private final ValidateAttachmentsUseCase validateAttachmentsUseCase;
     private final SoftDeleteUseCase softDeleteUseCase;
     private final PresentationMediaMapper presentationMediaMapper;
+    private final ru.kubsu.borshchevyk.media.application.port.in.UploadAvatarUseCase uploadAvatarUseCase;
+
+    @Operation(summary = "Upload user avatar", description = "Uploads a user avatar directly and returns its URL.")
+    @PostMapping(value = "/upload/avatar", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public AttachmentUrlResult uploadAvatar(
+            @RequestHeader(value = "X-User-Id") UUID userId,
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
+        
+        log.info("Uploading avatar for user {}", userId);
+        String originalFilename = file.getOriginalFilename();
+        String extension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+        }
+
+        ru.kubsu.borshchevyk.media.application.dto.command.UploadAvatarCommand command = ru.kubsu.borshchevyk.media.application.dto.command.UploadAvatarCommand.builder()
+                .uploaderId(userId)
+                .inputStream(file.getInputStream())
+                .contentType(file.getContentType())
+                .sizeBytes(file.getSize())
+                .extension(extension)
+                .originalFilename(originalFilename)
+                .build();
+
+        return uploadAvatarUseCase.uploadAvatar(command);
+    }
 
     @Operation(summary = "Get pre-signed URL for upload", description = "Generates a secure temporary link for the client to directly upload a file to S3 and returns attachment ID.")
     @PostMapping("/upload-url")
