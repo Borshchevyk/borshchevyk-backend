@@ -100,7 +100,7 @@ public class ChatController {
         if (request.initialMemberIds() != null) {
             for (UUID memberId : request.initialMemberIds()) {
                 messagingTemplate.convertAndSend("/topic/chat/" + chat.getId().value() + "/members",
-                        new ChatMemberEvent(chat.getId().value(), memberId, "JOIN"));
+                        new ChatMemberEvent(chatEnrichmentService.enrichChat(chat.getId().value(), userId), userEnrichmentService.enrichUser(memberId), "JOIN"));
                 
                 // Notify user personally that they are now in a new chat
                 realtimeNotificationPort.notifyChatEvent(
@@ -148,7 +148,7 @@ public class ChatController {
             @RequestHeader("X-User-Id") @Parameter(description = "ID of the authenticated user") UUID userId) {
         log.info("Request to get chats for user: {}", userId);
         List<Chat> chats = loadUserChatsUseCase.loadUserChats(new ru.kubsu.borshchevyk.message.domain.model.value.UserId(userId));
-        return presentationChatMapper.toResponseList(chats, userId);
+        return chatFacade.enrichChatResponses(chats, userId);
     }
 
     @Operation(summary = "Update member permissions", description = "Updates the permissions of a chat member.")
@@ -250,7 +250,7 @@ public class ChatController {
         
         // Notify existing members
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
-                new ChatMemberEvent(chatId, request.targetUserId(), "JOIN"));
+                new ChatMemberEvent(chatEnrichmentService.enrichChat(chatId, requesterId), userEnrichmentService.enrichUser(request.targetUserId()), "JOIN"));
         
         // Notify the invited user personally
         realtimeNotificationPort.notifyChatEvent(
@@ -282,7 +282,7 @@ public class ChatController {
         
         // Notify remaining members
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
-                new ChatMemberEvent(chatId, targetUserId, "LEAVE"));
+                new ChatMemberEvent(chatEnrichmentService.enrichChat(chatId, requesterId), userEnrichmentService.enrichUser(targetUserId), "LEAVE"));
         
         // Notify the kicked user personally
         realtimeNotificationPort.notifyChatEvent(
@@ -310,7 +310,7 @@ public class ChatController {
         
         // Notify remaining members
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
-                new ChatMemberEvent(chatId, requesterId, "LEAVE"));
+                new ChatMemberEvent(chatEnrichmentService.enrichChat(chatId, requesterId), userEnrichmentService.enrichUser(requesterId), "LEAVE"));
         
         // Notify the user personally (to sync other devices)
         realtimeNotificationPort.notifyChatEvent(
@@ -343,7 +343,7 @@ public class ChatController {
         log.info("Request to join chat by link from user {}", userId);
         Chat chat = joinChatByLinkUseCase.joinChatByLink(inviteCode, userId);
         messagingTemplate.convertAndSend("/topic/chat/" + chat.getId().value() + "/members",
-                new ChatMemberEvent(chat.getId().value(), userId, "JOIN"));
+                new ChatMemberEvent(chatEnrichmentService.enrichChat(chat.getId().value(), userId), userEnrichmentService.enrichUser(userId), "JOIN"));
         
         // Notify user personally
         realtimeNotificationPort.notifyChatEvent(
@@ -378,7 +378,7 @@ public class ChatController {
 
         // Notify active viewers
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/info",
-                new ChatInfoEvent(chatId, request.title(), request.description(), request.commentsEnabled()));
+                new ChatInfoEvent(chatEnrichmentService.enrichChat(chatId, requesterId), request.description(), request.commentsEnabled()));
 
         // Signal a refresh to all members in their personal queues
         Page<ChatMember> membersPage = loadChatMembersUseCase.loadChatMembers(chatId, requesterId, Pageable.unpaged());
@@ -409,10 +409,11 @@ public class ChatController {
 
         // Notify active viewers
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/settings",
-                new ChatSettingsEvent(chatId, request.allowedReactions()));
+                new ChatSettingsEvent(chatEnrichmentService.enrichChat(chatId, requesterId), request.allowedReactions()));
     }
 
     private final ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService userEnrichmentService;
+    private final ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatEnrichmentService chatEnrichmentService;
 
     @Operation(summary = "Get chat members", description = "Retrieves a paginated list of members for a given chat.")
     @ApiResponses(value = {
@@ -432,7 +433,7 @@ public class ChatController {
                 .map(m -> m.getUserId().value())
                 .toList();
         
-        java.util.Map<UUID, ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.EnrichedUserResponse> userMap = userEnrichmentService.enrichUsersToMap(userIds);
+        java.util.Map<UUID, ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto> userMap = userEnrichmentService.enrichUsersToMap(userIds);
 
         return membersPage.map(member -> {
             ChatMemberResponse basic = presentationChatMapper.toMemberResponse(member);

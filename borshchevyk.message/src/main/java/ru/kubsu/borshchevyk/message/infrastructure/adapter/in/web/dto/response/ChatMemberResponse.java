@@ -7,7 +7,7 @@ import ru.kubsu.borshchevyk.message.domain.model.chat.ChatRole;
 public record ChatMemberResponse(
         UUID chatId,
         UUID userId,
-        EnrichedUserResponse userDetails,
+        ShortUserDto userDetails,
         ChatRole role,
         LocalDateTime joinedAt,
         boolean canSendMessages,

@@ -81,7 +81,7 @@ public class MessageController {
             @RequestParam(defaultValue = "50") int size) {
         log.info("Request to get comments for message {} in chat {} by user {} (page: {}, size: {})", messageId, chatId, userId, page, size);
         List<Message> comments = loadMessageCommentsUseCase.loadMessageComments(chatId, messageId, userId, page, size);
-        return presentationMessageMapper.toResponseList(comments);
+        return presentationMessageMapper.toResponseList(comments, userId);
     }
 
     private final ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService userEnrichmentService;
@@ -91,7 +91,7 @@ public class MessageController {
             @ApiResponse(responseCode = "200", description = "List of readers retrieved successfully")
     })
     @GetMapping("/{messageId}/readers")
-    public List<ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.EnrichedUserResponse> getMessageReaders(
+    public List<ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto> getMessageReaders(
             @PathVariable UUID chatId,
             @PathVariable UUID messageId,
             @RequestHeader("X-User-Id") UUID userId) {
@@ -119,7 +119,7 @@ public class MessageController {
                 .reaction(reaction)
                 .build();
         addReactionUseCase.addReaction(command);
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/reactions", new ReactionEvent(messageId, userId, reaction, true));
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/reactions", new ReactionEvent(messageId, userEnrichmentService.enrichUser(userId), reaction, true));
     }
 
     @Operation(summary = "Remove reaction", description = "Removes a reaction from a message.")
@@ -141,7 +141,8 @@ public class MessageController {
                 .reaction(reaction)
                 .build();
         removeReactionUseCase.removeReaction(command);
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/reactions", new ReactionEvent(messageId, userId, reaction, false));
+        ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto user = userEnrichmentService.enrichUser(userId);
+        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/reactions", new ReactionEvent(messageId, user, reaction, false));
     }
 
     @Operation(summary = "Pin message", description = "Pins a message in the chat (max 5).")
@@ -194,7 +195,7 @@ public class MessageController {
             @RequestHeader("X-User-Id") UUID userId) {
         log.info("Request to get pinned messages in chat {} by user {}", chatId, userId);
         List<Message> messages = loadPinnedMessagesUseCase.loadPinnedMessages(chatId, userId);
-        return presentationMessageMapper.toResponseList(messages);
+        return presentationMessageMapper.toResponseList(messages, userId);
     }
 
     @Operation(summary = "Mark message as read", description = "Marks a specific message as read by the user.")
@@ -217,7 +218,8 @@ public class MessageController {
         readMessageUseCase.readMessage(command);
 
         // Broadcast to WS
-        ReadReceiptEvent event = new ReadReceiptEvent(userId, messageId);
+        ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto user = userEnrichmentService.enrichUser(userId);
+        ReadReceiptEvent event = new ReadReceiptEvent(user, messageId);
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/read", event);
     }
 
@@ -248,7 +250,7 @@ public class MessageController {
                 .build();
         
         Message message = sendMessageUseCase.sendMessage(command);
-        return presentationMessageMapper.toResponse(message);
+        return presentationMessageMapper.toResponse(message, userId);
     }
 
     @Operation(summary = "Load chat history", description = "Loads paginated chat history for a specific chat.")
@@ -263,7 +265,7 @@ public class MessageController {
             @RequestParam(defaultValue = "50") int size) {
         log.info("Request to load chat history for chat {} from user {} (page: {}, size: {})", chatId, userId, page, size);
         List<Message> messages = loadChatHistoryUseCase.loadChatHistory(chatId, userId, page, size);
-        return presentationMessageMapper.toResponseList(messages);
+        return presentationMessageMapper.toResponseList(messages, userId);
     }
 
     @Operation(summary = "Delete a message", description = "Deletes a specific message.")
@@ -310,6 +312,6 @@ public class MessageController {
                 .build();
 
         Message message = updateMessageUseCase.updateMessage(command);
-        return presentationMessageMapper.toResponse(message);
+        return presentationMessageMapper.toResponse(message, userId);
     }
 }

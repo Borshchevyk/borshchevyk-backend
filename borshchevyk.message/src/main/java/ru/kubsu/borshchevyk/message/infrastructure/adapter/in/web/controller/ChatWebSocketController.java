@@ -8,6 +8,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import ru.kubsu.borshchevyk.message.infrastructure.websocket.UserPrincipal;
 import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.TypingEvent;
+import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService;
+import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto;
 
 import java.util.UUID;
 
@@ -17,6 +19,7 @@ import java.util.UUID;
 public class ChatWebSocketController {
 
     private final SimpMessagingTemplate messagingTemplate;
+    private final UserEnrichmentService userEnrichmentService;
 
     @MessageMapping("/chat/{chatId}/typing")
     public void handleTyping(
@@ -27,7 +30,8 @@ public class ChatWebSocketController {
         UUID userId = UUID.fromString(principal.getName());
         log.debug("User {} is typing in chat {}: {}", userId, chatId, isTyping);
 
-        TypingEvent event = new TypingEvent(userId, isTyping);
+        ShortUserDto user = userEnrichmentService.enrichUser(userId);
+        TypingEvent event = new TypingEvent(user, isTyping);
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/typing", event);
     }
 }

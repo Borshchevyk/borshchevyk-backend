@@ -8,6 +8,13 @@ import org.springframework.stereotype.Component;
 import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
 import ru.kubsu.borshchevyk.message.domain.model.message.Message;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
+import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto;
+import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortChatDto;
+import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService;
+import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatEnrichmentService;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -16,11 +23,41 @@ public class RedisRealtimeNotificationAdapter implements RealtimeNotificationPor
 
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
+    private final UserEnrichmentService userEnrichmentService;
+    private final ChatEnrichmentService chatEnrichmentService;
 
     @Override
     public void notifyUser(UserId userId, Message message) {
         try {
-            NotificationDto.MessageDto messageDto = NotificationDto.MessageDto.from(message);
+            ShortUserDto author = message.getAuthorId() != null ? userEnrichmentService.enrichUser(message.getAuthorId().value()) : null;
+            ShortChatDto chat = message.getChatId() != null ? chatEnrichmentService.enrichChat(message.getChatId().value(), userId.value()) : null;
+            ShortChatDto fwChat = message.getForwardedFromChatId() != null ? chatEnrichmentService.enrichChat(message.getForwardedFromChatId().value(), userId.value()) : null;
+            ShortUserDto fwUser = message.getForwardedFromUserId() != null ? userEnrichmentService.enrichUser(message.getForwardedFromUserId().value()) : null;
+
+            List<NotificationDto.AttachmentDto> attachmentDtos = message.getAttachments() != null ?
+                    message.getAttachments().stream()
+                            .map(a -> new NotificationDto.AttachmentDto(
+                                    a.getId() != null ? a.getId().toString() : null, 
+                                    a.getType(),
+                                    a.getOriginalFilename(),
+                                    a.getExtension(),
+                                    a.getSizeBytes()
+                            ))
+                            .collect(Collectors.toList()) : null;
+
+            NotificationDto.MessageDto messageDto = new NotificationDto.MessageDto(
+                message.getId() != null ? message.getId().value().toString() : null,
+                chat,
+                author,
+                message.getText(),
+                message.getCreatedAt() != null ? message.getCreatedAt().toString() : null,
+                message.isDeleted(),
+                message.getStatus() != null ? message.getStatus().name() : null,
+                fwChat,
+                fwUser,
+                attachmentDtos
+            );
+
             NotificationDto notification = new NotificationDto(userId.value().toString(), messageDto, null);
             
             String json = objectMapper.writeValueAsString(notification);
@@ -34,7 +71,8 @@ public class RedisRealtimeNotificationAdapter implements RealtimeNotificationPor
     @Override
     public void notifyChatEvent(UserId userId, ru.kubsu.borshchevyk.message.domain.model.value.ChatId chatId, String action) {
         try {
-            NotificationDto.ChatEventDto eventDto = new NotificationDto.ChatEventDto(chatId.value().toString(), action);
+            ShortChatDto chat = chatEnrichmentService.enrichChat(chatId.value(), userId.value());
+            NotificationDto.ChatEventDto eventDto = new NotificationDto.ChatEventDto(chat, action);
             NotificationDto notification = new NotificationDto(userId.value().toString(), null, eventDto);
 
             String json = objectMapper.writeValueAsString(notification);

@@ -2,7 +2,7 @@ package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.EnrichedUserResponse;
+import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.out.grpc.UserGrpcClient;
 
 import java.util.List;
@@ -16,12 +16,12 @@ public class UserEnrichmentService {
 
     private final UserGrpcClient userGrpcClient;
 
-    public EnrichedUserResponse enrichUser(UUID userId) {
+    public ShortUserDto enrichUser(UUID userId) {
         try {
             ru.kubsu.borshchevyk.grpc.UserResponse response = userGrpcClient.getUserInfo(userId);
             return mapToEnriched(response);
         } catch (Exception e) {
-            return EnrichedUserResponse.builder()
+            return ShortUserDto.builder()
                     .id(userId)
                     .firstName("User")
                     .lastName(userId.toString().substring(0, 8))
@@ -30,7 +30,7 @@ public class UserEnrichmentService {
         }
     }
 
-    public List<EnrichedUserResponse> enrichUsers(List<UUID> userIds) {
+    public List<ShortUserDto> enrichUsers(List<UUID> userIds) {
         if (userIds == null || userIds.isEmpty()) {
             return List.of();
         }
@@ -41,7 +41,7 @@ public class UserEnrichmentService {
                     .collect(Collectors.toList());
         } catch (Exception e) {
             return userIds.stream()
-                    .map(id -> EnrichedUserResponse.builder()
+                    .map(id -> ShortUserDto.builder()
                             .id(id)
                             .firstName("User")
                             .lastName(id.toString().substring(0, 8))
@@ -50,13 +50,13 @@ public class UserEnrichmentService {
         }
     }
 
-    public Map<UUID, EnrichedUserResponse> enrichUsersToMap(List<UUID> userIds) {
+    public Map<UUID, ShortUserDto> enrichUsersToMap(List<UUID> userIds) {
         return enrichUsers(userIds).stream()
-                .collect(Collectors.toMap(EnrichedUserResponse::id, u -> u));
+                .collect(Collectors.toMap(ShortUserDto::id, u -> u));
     }
 
-    private EnrichedUserResponse mapToEnriched(ru.kubsu.borshchevyk.grpc.UserResponse response) {
-        return EnrichedUserResponse.builder()
+    private ShortUserDto mapToEnriched(ru.kubsu.borshchevyk.grpc.UserResponse response) {
+        return ShortUserDto.builder()
                 .id(UUID.fromString(response.getUserId()))
                 .firstName(response.getFirstName())
                 .lastName(response.getLastName())

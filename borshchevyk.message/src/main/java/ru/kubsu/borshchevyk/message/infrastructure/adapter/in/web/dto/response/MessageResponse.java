@@ -12,14 +12,10 @@ import java.util.UUID;
 public record MessageResponse(
         @Schema(description = "Unique identifier of the message")
         UUID id,
-        @Schema(description = "Unique identifier of the chat")
-        UUID chatId,
-        @Schema(description = "Unique identifier of the author")
-        UUID authorId,
-        @Schema(description = "Name of the author")
-        String authorName,
-        @Schema(description = "Avatar URL of the author")
-        String authorAvatarUrl,
+        @Schema(description = "Information about the chat")
+        ShortChatDto chat,
+        @Schema(description = "Information about the author")
+        ShortUserDto author,
         @Schema(description = "Text of the message")
         String text,
         @Schema(description = "Timestamp when the message was sent")
@@ -36,10 +32,10 @@ public record MessageResponse(
         LocalDateTime pinnedAt,
         @Schema(description = "User who pinned the message")
         UUID pinnedBy,
-        @Schema(description = "ID of the chat this message was forwarded from")
-        UUID forwardedFromChatId,
-        @Schema(description = "ID of the user this message was forwarded from")
-        UUID forwardedFromUserId,
+        @Schema(description = "Information about the chat this message was forwarded from")
+        ShortChatDto forwardedFromChat,
+        @Schema(description = "Information about the user this message was forwarded from")
+        ShortUserDto forwardedFromUser,
         @Schema(description = "ID of the parent message if this is a comment")
         UUID parentMessageId,
         @Schema(description = "Number of comments on this message")

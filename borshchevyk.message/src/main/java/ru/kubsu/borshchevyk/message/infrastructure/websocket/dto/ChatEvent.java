@@ -1,9 +1,9 @@
 package ru.kubsu.borshchevyk.message.infrastructure.websocket.dto;
 
-import java.util.UUID;
+import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortChatDto;
 
 public record ChatEvent(
-        UUID chatId,
+        ShortChatDto chat,
         String action
 ) {
 }
