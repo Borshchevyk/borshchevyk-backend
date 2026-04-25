@@ -31,7 +31,7 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
             
             UserResponse response = UserResponse.newBuilder()
                     .setUserId(user.getUserId().getValue().toString())
-                    .setFirstName(user.getFirstName())
+                    .setFirstName(user.getFirstName() != null ? user.getFirstName() : "")
                     .setLastName(user.getLastName() != null ? user.getLastName() : "")
                     .setTag(user.getTag().getValue())
                     .setAvatarUrl(user.getAvatarUrl() != null ? user.getAvatarUrl() : "")

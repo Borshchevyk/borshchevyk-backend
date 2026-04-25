@@ -49,6 +49,7 @@ public interface MessageRepository extends JpaRepository<MessageEntity, UUID> {
     @Query("SELECT COUNT(m) FROM MessageEntity m " +
            "WHERE m.chatId = :chatId " +
            "AND m.isDeleted = false " +
+           "AND m.authorId != :userId " +
            "AND m.id NOT IN (SELECT dm.messageId FROM DeletedMessageEntity dm WHERE dm.userId = :userId) " +
            "AND (cast(:historyClearedAt as timestamp) IS NULL OR m.createdAt > :historyClearedAt) " +
            "AND (cast(:lastReadAt as timestamp) IS NULL OR m.createdAt > :lastReadAt)")

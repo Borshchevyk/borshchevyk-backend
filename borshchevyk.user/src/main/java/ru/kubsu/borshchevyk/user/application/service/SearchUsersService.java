@@ -34,6 +34,9 @@ public class SearchUsersService implements SearchUsersUseCase {
 
         return users.stream()
                 .filter(user -> {
+                    if (requesterId != null && requesterId.equals(user.getUserId())) {
+                        return false;
+                    }
                     if (isEmailSearch) {
                         PrivacySettings settings = getPrivacySettings(user.getUserId());
                         if (settings.getSearchByEmailVisibility() != Visibility.EVERYONE) {

@@ -31,6 +31,8 @@ public class ChatFacade {
     private final ru.kubsu.borshchevyk.message.application.port.out.MessagePort messagePort;
     private final ru.kubsu.borshchevyk.message.infrastructure.adapter.out.grpc.UserGrpcClient userGrpcClient;
 
+    private final ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService userEnrichmentService;
+
     public ChatResponse enrichChatResponse(Chat chat, UUID requesterId) {
         ChatResponse response = presentationChatMapper.toResponse(chat, requesterId);
         enrichWithLastMessageAndUnreadCount(List.of(response), requesterId);
@@ -108,27 +110,19 @@ public class ChatFacade {
             return;
         }
 
-        Map<UUID, ru.kubsu.borshchevyk.grpc.UserResponse> userProfileMap = new HashMap<>();
-        try {
-            List<ru.kubsu.borshchevyk.grpc.UserResponse> userResponses = userGrpcClient.getUsersBatch(new ArrayList<>(partnerIds));
-            for (ru.kubsu.borshchevyk.grpc.UserResponse u : userResponses) {
-                userProfileMap.put(UUID.fromString(u.getUserId()), u);
-            }
-        } catch (Exception e) {
-            log.error("Failed to fetch user profiles batch via gRPC", e);
-        }
+        Map<UUID, ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto> userProfileMap = userEnrichmentService.enrichUsersToMap(new ArrayList<>(partnerIds));
 
         for (PrivateChatResponse response : privateChats) {
             UUID partnerId = chatPartnerMap.get(response.getId());
             if (partnerId != null) {
                 response.setPartnerId(partnerId);
-                ru.kubsu.borshchevyk.grpc.UserResponse userProfile = userProfileMap.get(partnerId);
+                ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto userProfile = userProfileMap.get(partnerId);
                 if (userProfile != null) {
-                    String name = (userProfile.getFirstName() + " " + userProfile.getLastName()).trim();
-                    if (name.isEmpty()) name = userProfile.getTag();
+                    String name = (userProfile.firstName() + " " + userProfile.lastName()).trim();
+                    if (name.isEmpty()) name = userProfile.tag();
                     response.setPartnerName(name);
-                    if (!userProfile.getAvatarUrl().isEmpty()) {
-                        response.setPartnerAvatarUrl(userProfile.getAvatarUrl());
+                    if (userProfile.avatarUrl() != null && !userProfile.avatarUrl().isEmpty()) {
+                        response.setPartnerAvatarUrl(userProfile.avatarUrl());
                     }
                 } else {
                     response.setPartnerName("Unknown User");

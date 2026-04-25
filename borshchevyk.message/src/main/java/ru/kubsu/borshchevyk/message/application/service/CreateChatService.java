@@ -106,6 +106,12 @@ public class CreateChatService implements CreateChatUseCase, CreatePrivateChatUs
                     .description(command.getDescription())
                     .createdAt(LocalDateTime.now())
                     .build();
+        } else if (command.getType() == ChatType.SAVED_MESSAGES) {
+            chat = ru.kubsu.borshchevyk.message.domain.model.chat.SavedMessages.builder()
+                    .id(newChatId)
+                    .type(command.getType())
+                    .createdAt(LocalDateTime.now())
+                    .build();
         } else {
              throw new IllegalArgumentException("Unsupported chat type for general creation: " + command.getType());
         }
