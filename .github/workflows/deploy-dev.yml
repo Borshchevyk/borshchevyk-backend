@@ -106,6 +106,13 @@ jobs:
           push: true
           tags: ${{ env.IMAGE_NAME_PREFIX }}/admin-service:latest
 
+      - name: Build and push Calls Service
+        uses: docker/build-push-action@v5
+        with:
+          context: ./borshchevyk.calls
+          push: true
+          tags: ${{ env.IMAGE_NAME_PREFIX }}/calls-service:latest
+
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest

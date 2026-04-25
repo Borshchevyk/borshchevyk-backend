@@ -29,6 +29,9 @@ jobs:
       - name: Build Auth Service
         run: mvn -f borshchevyk.auth/pom.xml clean package -DskipTests
 
+      - name: Build Calls Service
+        run: mvn -f borshchevyk.calls/pom.xml clean package -DskipTests
+
       - name: Build User Service
         run: mvn -f borshchevyk.user/pom.xml clean package -DskipTests
 
