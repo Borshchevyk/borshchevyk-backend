@@ -1,0 +1,49 @@
+package ru.kubsu.borshchevyk.calls.domain.model;
+
+import lombok.Builder;
+import lombok.Getter;
+
+import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+
+/**
+ * Aggregate Root representing a Call (Video/Audio conference).
+ *
+ * @author Gemini
+ * @since 2026-04-25
+ */
+@Getter
+@Builder(toBuilder = true)
+public class Call {
+    private final CallId id;
+    private final String roomId; // LiveKit room ID mapping
+    private final UserId initiatorId;
+    private CallStatus status;
+    private final Instant createdAt;
+    private Instant endedAt;
+
+    @Builder.Default
+    private final Set<UserId> participants = new HashSet<>();
+
+    public void addParticipant(UserId userId) {
+        this.participants.add(userId);
+    }
+
+    public void removeParticipant(UserId userId) {
+        this.participants.remove(userId);
+    }
+
+    public void markAsInProgress() {
+        if (this.status == CallStatus.INITIATED || this.status == CallStatus.RINGING) {
+            this.status = CallStatus.IN_PROGRESS;
+        }
+    }
+
+    public void endCall() {
+        if (this.status != CallStatus.ENDED) {
+            this.status = CallStatus.ENDED;
+            this.endedAt = Instant.now();
+        }
+    }
+}
