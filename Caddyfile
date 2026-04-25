@@ -6,3 +6,7 @@ http://{$DOMAIN_NAME}, https://{$DOMAIN_NAME} {
         reverse_proxy gateway-service:{$GATEWAY_INTERNAL_PORT:8080}
     }
 }
+
+http://livekit.{$DOMAIN_NAME}, https://livekit.{$DOMAIN_NAME} {
+    reverse_proxy livekit-server:7880
+}

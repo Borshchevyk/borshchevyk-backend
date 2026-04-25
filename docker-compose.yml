@@ -222,6 +222,7 @@ services:
     environment:
       - "LIVEKIT_KEYS=${LIVEKIT_API_KEY:-devkey}: ${LIVEKIT_API_SECRET:-secret}"
       - LIVEKIT_REDIS_ADDRESS=${SPRING_REDIS_HOST}:${SPRING_REDIS_PORT}
+      - "LIVEKIT_WEBHOOK_URLS=http://gateway-service:8080/api/v1/calls/webhook"
     depends_on:
       borshchevyk-redis:
         condition: service_healthy
