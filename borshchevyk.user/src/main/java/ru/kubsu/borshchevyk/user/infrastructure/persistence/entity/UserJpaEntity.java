@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.CollectionTable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -47,4 +49,10 @@ public class UserJpaEntity {
 
     @Column(name = "avatar_url")
     private String avatarUrl;
+
+    @ElementCollection(fetch = jakarta.persistence.FetchType.EAGER)
+    @CollectionTable(name = "user_avatars", joinColumns = @jakarta.persistence.JoinColumn(name = "user_id"))
+    @Column(name = "avatar_url")
+    @Builder.Default
+    private java.util.List<String> avatars = new java.util.ArrayList<>();
 }

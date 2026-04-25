@@ -16,5 +16,7 @@ public record UserProfileResponse(
     @Schema(description = "User's biography", example = "Software Engineer")
     String bio,
     @Schema(description = "URL to the user's avatar image", example = "https://example.com/avatar.jpg")
-    String avatarUrl
+    String avatarUrl,
+    @Schema(description = "List of user's avatar images")
+    java.util.List<String> avatars
 ) {}

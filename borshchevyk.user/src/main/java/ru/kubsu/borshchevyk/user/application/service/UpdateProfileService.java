@@ -29,7 +29,16 @@ public class UpdateProfileService implements UpdateProfileUseCase {
         if (command.firstName() != null) user.setFirstName(command.firstName());
         if (command.lastName() != null) user.setLastName(command.lastName());
         if (command.bio() != null) user.setBio(command.bio());
-        if (command.avatarUrl() != null) user.setAvatarUrl(command.avatarUrl());
+        if (command.avatarUrl() != null) {
+            String newAvatarUrl = command.avatarUrl();
+            user.setAvatarUrl(newAvatarUrl);
+            if (user.getAvatars() == null) {
+                user.setAvatars(new java.util.ArrayList<>());
+            }
+            if (!newAvatarUrl.isEmpty() && !user.getAvatars().contains(newAvatarUrl)) {
+                user.getAvatars().add(newAvatarUrl);
+            }
+        }
 
         saveUserPort.saveUser(user);
         return user;

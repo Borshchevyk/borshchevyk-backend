@@ -59,4 +59,10 @@ public class User {
      * URL to the user's avatar image.
      */
     private String avatarUrl;
+
+    /**
+     * List of user's past and current avatar images.
+     */
+    @Builder.Default
+    private java.util.List<String> avatars = new java.util.ArrayList<>();
 }

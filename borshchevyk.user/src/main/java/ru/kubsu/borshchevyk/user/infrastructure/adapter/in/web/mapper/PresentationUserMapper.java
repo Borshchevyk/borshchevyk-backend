@@ -17,6 +17,7 @@ public interface PresentationUserMapper {
     @Mapping(target = "userId", expression = "java(user.getUserId() != null && user.getUserId().getValue() != null ? user.getUserId().getValue().toString() : null)")
     @Mapping(target = "email", expression = "java(user.getEmail() != null ? user.getEmail().getValue() : null)")
     @Mapping(target = "tag", expression = "java(user.getTag() != null ? user.getTag().getValue() : null)")
+    @Mapping(target = "avatars", source = "avatars")
     UserProfileResponse toUserProfileResponse(User user);
 
     @Mapping(target = "userId", expression = "java(privacySettings.getUserId() != null && privacySettings.getUserId().getValue() != null ? privacySettings.getUserId().getValue().toString() : null)")

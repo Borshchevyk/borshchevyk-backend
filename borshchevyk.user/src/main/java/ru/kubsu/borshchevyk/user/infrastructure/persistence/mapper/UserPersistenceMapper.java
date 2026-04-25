@@ -34,6 +34,7 @@ public interface UserPersistenceMapper {
     @Mapping(target = "lastName", source = "lastName")
     @Mapping(target = "bio", source = "bio")
     @Mapping(target = "avatarUrl", source = "avatarUrl")
+    @Mapping(target = "avatars", source = "avatars")
     UserJpaEntity toEntity(User user);
 
     /**
@@ -49,6 +50,7 @@ public interface UserPersistenceMapper {
     @Mapping(target = "lastName", source = "lastName")
     @Mapping(target = "bio", source = "bio")
     @Mapping(target = "avatarUrl", source = "avatarUrl")
+    @Mapping(target = "avatars", source = "avatars")
     User toDomain(UserJpaEntity entity);
 
     /**
