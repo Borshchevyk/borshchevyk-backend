@@ -2,7 +2,7 @@ http://{$DOMAIN_NAME}, https://{$DOMAIN_NAME} {
     handle /admin* {
         reverse_proxy admin-service:{$ADMIN_SERVICE_PORT:8085}
     }
-    handle /livekit* {
+    handle /livekit/* {
         uri strip_prefix /livekit
         reverse_proxy livekit-server:7880
     }
