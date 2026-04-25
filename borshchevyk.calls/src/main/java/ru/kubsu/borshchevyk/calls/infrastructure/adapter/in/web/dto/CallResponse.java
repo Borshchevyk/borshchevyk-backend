@@ -1,6 +1,8 @@
 package ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.response.ShortUserDto;
+
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
@@ -19,8 +21,8 @@ public record CallResponse(
         @Schema(description = "LiveKit room ID mapping")
         String roomId,
         
-        @Schema(description = "ID of the user who initiated the call")
-        UUID initiatorId,
+        @Schema(description = "Short info of the user who initiated the call")
+        ShortUserDto initiator,
         
         @Schema(description = "Current status of the call")
         String status,
@@ -31,6 +33,6 @@ public record CallResponse(
         @Schema(description = "When the call ended, if applicable")
         Instant endedAt,
         
-        @Schema(description = "Set of participant user IDs")
-        Set<UUID> participants
+        @Schema(description = "Set of participant short info")
+        Set<ShortUserDto> participants
 ) {}

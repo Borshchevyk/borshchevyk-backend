@@ -3,11 +3,15 @@ package ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.kubsu.borshchevyk.calls.domain.model.Call;
 import ru.kubsu.borshchevyk.calls.domain.model.CallId;
 import ru.kubsu.borshchevyk.calls.domain.model.UserId;
 import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.CallResponse;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.response.ShortUserDto;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.facade.UserEnrichmentService;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -19,30 +23,41 @@ import java.util.stream.Collectors;
  * @since 2026-04-25
  */
 @Mapper(componentModel = "spring")
-public interface CallWebMapper {
+public abstract class CallWebMapper {
+
+    @Autowired
+    protected UserEnrichmentService userEnrichmentService;
 
     @Mapping(target = "id", source = "id", qualifiedByName = "mapCallId")
-    @Mapping(target = "initiatorId", source = "initiatorId", qualifiedByName = "mapUserId")
-    @Mapping(target = "participants", source = "participants", qualifiedByName = "mapUserIds")
-    CallResponse toResponse(Call call);
+    @Mapping(target = "initiator", expression = "java(getInitiatorInfo(call))")
+    @Mapping(target = "participants", expression = "java(getParticipantsInfo(call))")
+    public abstract CallResponse toResponse(Call call);
 
     @Named("mapCallId")
-    default UUID mapCallId(CallId id) {
+    protected UUID mapCallId(CallId id) {
         return id != null ? id.value() : null;
     }
 
-    @Named("mapUserId")
-    default UUID mapUserId(UserId id) {
-        return id != null ? id.value() : null;
-    }
-
-    @Named("mapUserIds")
-    default Set<UUID> mapUserIds(Set<UserId> userIds) {
-        if (userIds == null) {
+    protected ShortUserDto getInitiatorInfo(Call call) {
+        if (call.getInitiatorId() == null) {
             return null;
         }
-        return userIds.stream()
+        return userEnrichmentService.getUserInfo(call.getInitiatorId().value());
+    }
+
+    protected Set<ShortUserDto> getParticipantsInfo(Call call) {
+        if (call.getParticipants() == null || call.getParticipants().isEmpty()) {
+            return Set.of();
+        }
+        
+        java.util.List<UUID> userIds = call.getParticipants().stream()
                 .map(UserId::value)
+                .toList();
+                
+        Map<UUID, ShortUserDto> batchInfo = userEnrichmentService.getUsersBatch(userIds);
+        
+        return userIds.stream()
+                .map(batchInfo::get)
                 .collect(Collectors.toSet());
     }
 }

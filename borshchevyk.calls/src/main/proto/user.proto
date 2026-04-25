@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package ru.kubsu.borshchevyk.grpc;
+
+option java_multiple_files = true;
+option java_package = "ru.kubsu.borshchevyk.grpc";
+option java_outer_classname = "UserProto";
+
+service UserService {
+  rpc GetUserInfo (UserRequest) returns (UserResponse);
+  rpc GetUsersBatch (UsersBatchRequest) returns (UsersBatchResponse);
+  rpc SearchUsers (SearchUsersRequest) returns (UsersBatchResponse);
+}
+
+message SearchUsersRequest {
+  string query = 1;
+  string requesterId = 2;
+}
+
+message UserRequest {
+  string userId = 1;
+}
+
+message UserResponse {
+  string userId = 1;
+  string firstName = 2;
+  string lastName = 3;
+  string tag = 4;
+  string avatarUrl = 5;
+}
+
+message UsersBatchRequest {
+  repeated string userIds = 1;
+}
+
+message UsersBatchResponse {
+  repeated UserResponse users = 1;
+}
