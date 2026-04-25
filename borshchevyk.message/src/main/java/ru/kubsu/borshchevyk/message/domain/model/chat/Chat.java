@@ -22,6 +22,8 @@ public abstract class Chat {
     private LocalDateTime createdAt;
     private boolean isDeleted;
     @Builder.Default
+    private boolean isDeletable = true;
+    @Builder.Default
     private Set<String> allowedReactions = new HashSet<>(Set.of("👍", "👎", "❤️", "🔥", "😂", "😢"));
 
     public boolean canMemberSendMessage(ChatMember member, boolean isComment) {

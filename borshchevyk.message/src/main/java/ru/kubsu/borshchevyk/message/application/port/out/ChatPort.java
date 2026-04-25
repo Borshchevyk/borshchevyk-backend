@@ -13,4 +13,5 @@ public interface ChatPort {
     List<Chat> findByIdIn(List<ChatId> chatIds);
     Optional<Chat> findPrivateChatBetweenUsers(UserId userId1, UserId userId2);
     Optional<Chat> findByInviteCode(String inviteCode);
+    List<Chat> searchPublicChats(String query);
 }

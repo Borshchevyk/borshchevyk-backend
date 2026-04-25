@@ -24,4 +24,8 @@ public interface ChatRepository extends JpaRepository<ChatEntity, UUID> {
     Optional<ChatEntity> findPrivateChatBetweenUsers(@Param("userId1") UUID userId1, @Param("userId2") UUID userId2);
 
     Optional<ChatEntity> findByInviteCode(String inviteCode);
+
+    @Query("SELECT c FROM ChatEntity c WHERE TYPE(c) IN (GroupChatEntity, ChannelEntity) AND LOWER(TREAT(c AS GroupChatEntity).title) LIKE LOWER(CONCAT('%', :query, '%')) AND c.isDeleted = false " +
+           "OR TYPE(c) IN (GroupChatEntity, ChannelEntity) AND LOWER(TREAT(c AS ChannelEntity).title) LIKE LOWER(CONCAT('%', :query, '%')) AND c.isDeleted = false")
+    List<ChatEntity> searchPublicChats(@Param("query") String query);
 }

@@ -24,4 +24,5 @@ public class ChatMember {
     @Builder.Default private boolean canChangeInfo = true;
     private LocalDateTime historyClearedAt;
     private ru.kubsu.borshchevyk.message.domain.model.value.MessageId lastReadMessageId;
+    @Builder.Default private boolean isPinned = false;
 }

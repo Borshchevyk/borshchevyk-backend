@@ -60,6 +60,7 @@ public abstract class PresentationChatMapper {
                     .id(map(p.getId()))
                     .type(ChatType.PRIVATE)
                     .createdAt(p.getCreatedAt())
+                    .isDeletable(p.isDeletable())
                     .allowedReactions(p.getAllowedReactions())
                     .partnerId(partnerId)
                     .partnerName(partnerName)
@@ -71,6 +72,7 @@ public abstract class PresentationChatMapper {
                     .id(map(g.getId()))
                     .type(ChatType.GROUP)
                     .createdAt(g.getCreatedAt())
+                    .isDeletable(g.isDeletable())
                     .title(g.getTitle())
                     .description(g.getDescription())
                     .commentsEnabled(g.isCommentsEnabled())
@@ -81,6 +83,7 @@ public abstract class PresentationChatMapper {
                     .id(map(c.getId()))
                     .type(ChatType.CHANNEL)
                     .createdAt(c.getCreatedAt())
+                    .isDeletable(c.isDeletable())
                     .title(c.getTitle())
                     .description(c.getDescription())
                     .commentsEnabled(c.isCommentsEnabled())
@@ -91,6 +94,7 @@ public abstract class PresentationChatMapper {
                     .id(map(s.getId()))
                     .type(ChatType.SAVED_MESSAGES)
                     .createdAt(s.getCreatedAt())
+                    .isDeletable(s.isDeletable())
                     .allowedReactions(s.getAllowedReactions())
                     .build();
         }

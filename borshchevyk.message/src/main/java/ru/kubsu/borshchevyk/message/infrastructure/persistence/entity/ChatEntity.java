@@ -31,6 +31,10 @@ public abstract class ChatEntity {
     @Column(name = "is_deleted", nullable = false)
     private boolean isDeleted;
 
+    @Column(name = "is_deletable", nullable = false)
+    @Builder.Default
+    private boolean isDeletable = true;
+
     @Column(name = "invite_code")
     private String inviteCode;
 

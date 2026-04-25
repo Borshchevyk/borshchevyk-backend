@@ -67,11 +67,49 @@ public class ChatController {
     private final UpdateChatInfoUseCase updateChatInfoUseCase;
     private final LoadChatMembersUseCase loadChatMembersUseCase;
     private final ru.kubsu.borshchevyk.message.application.port.in.UpdateChatReactionsUseCase updateChatReactionsUseCase;
+    private final ru.kubsu.borshchevyk.message.application.port.in.SearchChatsUseCase searchChatsUseCase;
     private final PresentationChatMapper presentationChatMapper;
     private final ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatFacade chatFacade;
     private final SimpMessagingTemplate messagingTemplate;
 
     private final ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort realtimeNotificationPort;
+
+    private final ru.kubsu.borshchevyk.message.application.port.in.PinChatUseCase pinChatUseCase;
+    private final ru.kubsu.borshchevyk.message.application.port.in.UnpinChatUseCase unpinChatUseCase;
+
+    @Operation(summary = "Pin a chat", description = "Pins the chat for the requester")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Chat pinned successfully")
+    })
+    @PostMapping("/{chatId}/pin")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void pinChat(
+            @PathVariable UUID chatId,
+            @RequestHeader("X-User-Id") UUID userId) {
+        log.info("Request to pin chat {} from user: {}", chatId, userId);
+        ru.kubsu.borshchevyk.message.application.dto.command.PinChatCommand command = ru.kubsu.borshchevyk.message.application.dto.command.PinChatCommand.builder()
+                .chatId(chatId)
+                .requesterId(userId)
+                .build();
+        pinChatUseCase.pinChat(command);
+    }
+
+    @Operation(summary = "Unpin a chat", description = "Unpins the chat for the requester")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Chat unpinned successfully")
+    })
+    @DeleteMapping("/{chatId}/pin")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unpinChat(
+            @PathVariable UUID chatId,
+            @RequestHeader("X-User-Id") UUID userId) {
+        log.info("Request to unpin chat {} from user: {}", chatId, userId);
+        ru.kubsu.borshchevyk.message.application.dto.command.UnpinChatCommand command = ru.kubsu.borshchevyk.message.application.dto.command.UnpinChatCommand.builder()
+                .chatId(chatId)
+                .requesterId(userId)
+                .build();
+        unpinChatUseCase.unpinChat(command);
+    }
 
     @Operation(summary = "Create a new chat", description = "Creates a new chat with the given type, title, description, and initial members.")
     @ApiResponses(value = {

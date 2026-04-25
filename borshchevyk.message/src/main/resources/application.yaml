@@ -45,6 +45,8 @@ spring:
           prefer-ip: true
 
 grpc:
+  server:
+    port: ${MESSAGE_GRPC_PORT:9091}
   client:
     user-service:
       address: 'static://user-service:9090'

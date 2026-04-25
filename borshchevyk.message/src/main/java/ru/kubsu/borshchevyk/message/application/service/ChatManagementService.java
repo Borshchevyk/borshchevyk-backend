@@ -31,16 +31,50 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import ru.kubsu.borshchevyk.message.application.port.in.PinChatUseCase;
+import ru.kubsu.borshchevyk.message.application.port.in.UnpinChatUseCase;
+import ru.kubsu.borshchevyk.message.application.dto.command.PinChatCommand;
+import ru.kubsu.borshchevyk.message.application.dto.command.UnpinChatCommand;
 import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ChatManagementService implements ClearChatHistoryUseCase, DeleteChatUseCase, GenerateInviteLinkUseCase, JoinChatByLinkUseCase, UpdateChatInfoUseCase {
+public class ChatManagementService implements ClearChatHistoryUseCase, DeleteChatUseCase, GenerateInviteLinkUseCase, JoinChatByLinkUseCase, UpdateChatInfoUseCase, PinChatUseCase, UnpinChatUseCase {
 
     private final ChatPort chatPort;
     private final ChatMemberPort chatMemberPort;
     private final RealtimeNotificationPort realtimeNotificationPort;
+
+    @Override
+    @Transactional
+    public void pinChat(PinChatCommand command) {
+        log.info("Pinning chat {} for user {}", command.getChatId(), command.getRequesterId());
+        ChatId chatId = new ChatId(command.getChatId());
+        UserId requesterId = new UserId(command.getRequesterId());
+
+        ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
+                .orElseThrow(() -> new UserNotInChatException("Requester is not in the chat"));
+
+        requester.setPinned(true);
+        chatMemberPort.saveAll(List.of(requester));
+        realtimeNotificationPort.notifyChatEvent(requesterId, chatId, "PINNED");
+    }
+
+    @Override
+    @Transactional
+    public void unpinChat(UnpinChatCommand command) {
+        log.info("Unpinning chat {} for user {}", command.getChatId(), command.getRequesterId());
+        ChatId chatId = new ChatId(command.getChatId());
+        UserId requesterId = new UserId(command.getRequesterId());
+
+        ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
+                .orElseThrow(() -> new UserNotInChatException("Requester is not in the chat"));
+
+        requester.setPinned(false);
+        chatMemberPort.saveAll(List.of(requester));
+        realtimeNotificationPort.notifyChatEvent(requesterId, chatId, "UNPINNED");
+    }
 
     @Override
     @Transactional

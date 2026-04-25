@@ -52,7 +52,13 @@ public class ChatAdapter implements ChatPort {
 
     @Override
     public Optional<Chat> findByInviteCode(String inviteCode) {
-        return chatRepository.findByInviteCode(inviteCode)
-                .map(chatMapper::toDomain);
+        return chatRepository.findByInviteCode(inviteCode).map(chatMapper::toDomain);
     }
-}
+
+    @Override
+    public List<Chat> searchPublicChats(String query) {
+        return chatRepository.searchPublicChats(query).stream()
+                .map(chatMapper::toDomain)
+                .collect(Collectors.toList());
+    }
+    }

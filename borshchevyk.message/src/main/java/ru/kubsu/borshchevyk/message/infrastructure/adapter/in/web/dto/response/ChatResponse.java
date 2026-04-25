@@ -38,10 +38,14 @@ public abstract class ChatResponse {
     private ChatType type;
     @Schema(description = "Timestamp when the chat was created")
     private LocalDateTime createdAt;
-    @Schema(description = "List of allowed reactions in the chat")
+    @Schema(description = "Indicates whether the chat can be deleted")
+    private boolean isDeletable;
+    @Schema(description = "Set of allowed reactions in the chat")
     private Set<String> allowedReactions;
     @Schema(description = "The last message in the chat")
     private String lastMessage;
     @Schema(description = "Number of unread messages for the requester")
     private long unreadCount;
+    @Schema(description = "Indicates whether the chat is pinned by the requester")
+    private boolean isPinned;
 }

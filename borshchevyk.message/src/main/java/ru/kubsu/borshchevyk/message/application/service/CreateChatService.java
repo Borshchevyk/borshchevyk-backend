@@ -111,6 +111,7 @@ public class CreateChatService implements CreateChatUseCase, CreatePrivateChatUs
                     .id(newChatId)
                     .type(command.getType())
                     .createdAt(LocalDateTime.now())
+                    .isDeletable(false)
                     .build();
         } else {
              throw new IllegalArgumentException("Unsupported chat type for general creation: " + command.getType());

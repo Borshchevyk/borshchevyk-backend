@@ -40,6 +40,12 @@ app:
       user-updated: ${KAFKA_TOPIC_USER_UPDATED}
       user-deleted: ${KAFKA_TOPIC_USER_DELETED}
 
+grpc:
+  client:
+    message-service:
+      address: 'static://message-service:9091'
+      negotiation-type: plaintext
+
 jwt:
   secret: ${JWT_SECRET}
   access-expiration-ms: ${JWT_ACCESS_EXPIRATION_MS}

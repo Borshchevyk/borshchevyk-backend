@@ -81,6 +81,7 @@ public class ChatFacade {
                 
                 long unread = messagePort.countUnreadMessages(chatId, userId, historyClearedAt, lastReadAt);
                 response.setUnreadCount(unread);
+                response.setPinned(member.isPinned());
             });
         }
     }

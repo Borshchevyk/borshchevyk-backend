@@ -35,6 +35,7 @@ public class RegisterService implements RegisterUseCase {
     private final SaveAccountPort saveAccountPort;
     private final PasswordEncoderPort passwordEncoderPort;
     private final UserRegisteredEventPublisherPort userRegisteredEventPublisherPort;
+    private final ru.kubsu.borshchevyk.auth.infrastructure.adapter.out.grpc.ChatInternalGrpcClient chatInternalGrpcClient;
 
     /**
      * Registers a new user account.
@@ -77,6 +78,12 @@ public class RegisterService implements RegisterUseCase {
                 .firstName(command.firstName())
                 .lastName(command.lastName())
                 .build());
+
+        try {
+            chatInternalGrpcClient.createSavedMessages(accountId.value());
+        } catch (Exception e) {
+            log.error("Failed to create saved messages for user: {}", accountId.value(), e);
+        }
 
         log.info("Successfully registered new user with ID: {}", accountId.value());
         return RegisterResult.builder()

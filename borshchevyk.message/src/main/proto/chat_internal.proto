@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package ru.kubsu.borshchevyk.grpc;
+
+option java_multiple_files = true;
+option java_package = "ru.kubsu.borshchevyk.grpc";
+option java_outer_classname = "ChatInternalProto";
+
+service ChatInternalService {
+  rpc CreateSavedMessages (CreateSavedMessagesRequest) returns (CreateSavedMessagesResponse);
+}
+
+message CreateSavedMessagesRequest {
+  string userId = 1;
+}
+
+message CreateSavedMessagesResponse {
+  string chatId = 1;
+  bool success = 2;
+  string errorMessage = 3;
+}
