@@ -85,6 +85,9 @@ public class CallService implements ManageCallUseCase, HandleLiveKitWebhookUseCa
             throw new UserForbiddenException("User is not a participant of this call");
         }
 
+        // Notify other participants
+        publishCallEventPort.publishCallAccepted(call, command.userId());
+
         // Generate token
         return liveKitPort.generateJoinToken(call.getRoomId(), command.userId(), true);
     }
@@ -117,6 +120,7 @@ public class CallService implements ManageCallUseCase, HandleLiveKitWebhookUseCa
         Call call = loadCallPort.loadCall(command.callId())
                 .orElseThrow(() -> new CallNotFoundException("Call not found with id: " + command.callId().value()));
 
+        publishCallEventPort.publishCallRejected(call, command.userId());
         call.removeParticipant(command.userId());
         return saveCallPort.saveCall(call);
     }

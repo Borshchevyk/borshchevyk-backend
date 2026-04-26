@@ -39,6 +39,14 @@ public class RedisMessageSubscriber implements MessageListener {
                         notification.getChatEvent()
                 );
             }
+
+            if (notification.getCallEvent() != null) {
+                messagingTemplate.convertAndSendToUser(
+                        notification.getTargetUserId(),
+                        "/queue/calls",
+                        notification.getCallEvent()
+                );
+            }
         } catch (Exception e) {
             log.error("Failed to process message from Redis topic ws.messages", e);
         }

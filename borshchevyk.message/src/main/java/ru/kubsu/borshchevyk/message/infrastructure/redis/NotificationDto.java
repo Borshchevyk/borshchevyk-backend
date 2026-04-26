@@ -15,6 +15,7 @@ public class NotificationDto {
     private String targetUserId;
     private MessageDto message;
     private ChatEventDto chatEvent;
+    private CallEventDto callEvent;
 
     @Data
     @NoArgsConstructor
@@ -27,12 +28,23 @@ public class NotificationDto {
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    public static class CallEventDto {
+        private String callId;
+        private String eventType;
+        private ShortUserDto initiator;
+        private String timestamp;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class AttachmentDto {
         private String id;
         private String type;
         private String originalFilename;
         private String extension;
         private Long sizeBytes;
+        private Double duration;
     }
 
     @Data

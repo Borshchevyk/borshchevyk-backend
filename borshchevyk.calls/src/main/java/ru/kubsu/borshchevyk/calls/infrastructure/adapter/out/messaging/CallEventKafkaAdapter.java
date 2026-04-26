@@ -32,20 +32,32 @@ public class CallEventKafkaAdapter implements PublishCallEventPort {
     @Override
     public void publishCallInitiated(Call call) {
         log.info("Publishing CallInitiated event for call {}", call.getId().value());
-        sendEvent(call, "INITIATED");
+        sendEvent(call, "INITIATED", call.getInitiatorId().value());
     }
 
     @Override
     public void publishCallEnded(Call call) {
         log.info("Publishing CallEnded event for call {}", call.getId().value());
-        sendEvent(call, "ENDED");
+        sendEvent(call, "ENDED", call.getInitiatorId().value());
     }
 
-    private void sendEvent(Call call, String eventType) {
+    @Override
+    public void publishCallAccepted(Call call, UserId userId) {
+        log.info("Publishing CallAccepted event for call {} by user {}", call.getId().value(), userId.value());
+        sendEvent(call, "ACCEPTED", userId.value());
+    }
+
+    @Override
+    public void publishCallRejected(Call call, UserId userId) {
+        log.info("Publishing CallRejected event for call {} by user {}", call.getId().value(), userId.value());
+        sendEvent(call, "REJECTED", userId.value());
+    }
+
+    private void sendEvent(Call call, String eventType, UUID initiatorId) {
         CallEventMessage message = CallEventMessage.builder()
                 .callId(call.getId().value())
                 .eventType(eventType)
-                .initiatorId(call.getInitiatorId().value())
+                .initiatorId(initiatorId)
                 .timestamp(java.time.Instant.now())
                 .participants(call.getParticipants().stream()
                         .map(UserId::value)

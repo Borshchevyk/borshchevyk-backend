@@ -11,4 +11,6 @@ import ru.kubsu.borshchevyk.calls.domain.model.Call;
 public interface PublishCallEventPort {
     void publishCallInitiated(Call call);
     void publishCallEnded(Call call);
+    void publishCallAccepted(Call call, ru.kubsu.borshchevyk.calls.domain.model.UserId userId);
+    void publishCallRejected(Call call, ru.kubsu.borshchevyk.calls.domain.model.UserId userId);
 }
