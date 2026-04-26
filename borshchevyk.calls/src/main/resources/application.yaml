@@ -55,3 +55,9 @@ management:
 logging:
   file:
     name: logs/${spring.application.name}.log
+
+grpc:
+  client:
+    user-service:
+      address: 'static://user-service:9090'
+      negotiation-type: plaintext
