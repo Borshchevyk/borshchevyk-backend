@@ -65,13 +65,13 @@ public class SendMessageService implements SendMessageUseCase {
             }
             attachments = validAttachments.stream()
                     .map(m -> new ru.kubsu.borshchevyk.message.domain.model.message.MessageAttachment(
-                            m.getId(), 
+                            m.getId(),
                             m.getType(),
                             m.getOriginalFilename(),
                             m.getExtension(),
-                            m.getSizeBytes()
-                    ))
-                    .collect(Collectors.toList());
+                            m.getSizeBytes(),
+                            m.getDuration()
+                    ))                    .collect(Collectors.toList());
         }
 
         if (command.getParentMessageId() != null) {

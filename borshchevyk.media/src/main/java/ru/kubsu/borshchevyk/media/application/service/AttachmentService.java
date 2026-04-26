@@ -189,6 +189,7 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
                     .originalFilename(attachment.getOriginalFilename())
                     .extension(attachment.getExtension())
                     .sizeBytes(attachment.getSizeBytes())
+                    .duration(attachment.getDuration())
                     .build());
         }
 

@@ -41,7 +41,8 @@ public class RedisRealtimeNotificationAdapter implements RealtimeNotificationPor
                                     a.getType(),
                                     a.getOriginalFilename(),
                                     a.getExtension(),
-                                    a.getSizeBytes()
+                                    a.getSizeBytes(),
+                                    a.getDuration()
                             ))
                             .collect(Collectors.toList()) : null;
 

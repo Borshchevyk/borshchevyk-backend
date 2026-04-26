@@ -22,5 +22,6 @@ public class MessageCreatedEvent {
         private String originalFilename;
         private String extension;
         private Long sizeBytes;
+        private Double duration;
     }
 }

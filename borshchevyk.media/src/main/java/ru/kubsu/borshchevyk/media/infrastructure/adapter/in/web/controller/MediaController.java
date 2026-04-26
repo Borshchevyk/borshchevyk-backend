@@ -172,13 +172,13 @@ public class MediaController {
         if (result.getAttachments() != null) {
             metadataResponses = result.getAttachments().stream()
                     .map(m -> new ValidateAttachmentsResponse.AttachmentMetadataResponse(
-                            m.getId(), 
+                            m.getId(),
                             m.getType(),
                             m.getOriginalFilename(),
                             m.getExtension(),
-                            m.getSizeBytes()
-                    ))
-                    .toList();
+                            m.getSizeBytes(),
+                            m.getDuration()
+                    ))                    .toList();
         }
         
         return new ValidateAttachmentsResponse(result.isValid(), metadataResponses);
