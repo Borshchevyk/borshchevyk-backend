@@ -17,7 +17,8 @@ import java.util.UUID;
 public class CallEventMessage {
     private UUID callId;
     private String eventType; // INITIATED, ENDED
-    private UUID initiatorId;
+    private UUID actorId; // The user who triggered the event
+    private UUID initiatorId; // The user who created the call
     private Instant timestamp;
     private Set<UUID> participants;
 }

@@ -32,6 +32,7 @@ public class NotificationDto {
         private String callId;
         private String eventType;
         private ShortUserDto initiator;
+        private ShortUserDto actor;
         private String timestamp;
     }
 

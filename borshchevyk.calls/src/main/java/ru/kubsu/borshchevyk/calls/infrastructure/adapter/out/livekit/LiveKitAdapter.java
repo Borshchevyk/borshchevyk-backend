@@ -1,6 +1,8 @@
 package ru.kubsu.borshchevyk.calls.infrastructure.adapter.out.livekit;
 
 import io.livekit.server.AccessToken;
+import io.livekit.server.CanPublish;
+import io.livekit.server.CanSubscribe;
 import io.livekit.server.RoomJoin;
 import io.livekit.server.RoomName;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +34,7 @@ public class LiveKitAdapter implements LiveKitPort {
         AccessToken token = new AccessToken(apiKey, apiSecret);
         token.setName(userId.value().toString());
         token.setIdentity(userId.value().toString());
-        token.addGrants(new RoomJoin(true), new RoomName(roomId));
+        token.addGrants(new RoomJoin(true), new RoomName(roomId), new CanPublish(canPublish), new CanSubscribe(true));
         
         return token.toJwt();
     }

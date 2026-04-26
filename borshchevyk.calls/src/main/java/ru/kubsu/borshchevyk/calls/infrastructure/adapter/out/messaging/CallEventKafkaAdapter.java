@@ -53,11 +53,12 @@ public class CallEventKafkaAdapter implements PublishCallEventPort {
         sendEvent(call, "REJECTED", userId.value());
     }
 
-    private void sendEvent(Call call, String eventType, UUID initiatorId) {
+    private void sendEvent(Call call, String eventType, UUID actorId) {
         CallEventMessage message = CallEventMessage.builder()
                 .callId(call.getId().value())
                 .eventType(eventType)
-                .initiatorId(initiatorId)
+                .actorId(actorId)
+                .initiatorId(call.getInitiatorId().value())
                 .timestamp(java.time.Instant.now())
                 .participants(call.getParticipants().stream()
                         .map(UserId::value)
