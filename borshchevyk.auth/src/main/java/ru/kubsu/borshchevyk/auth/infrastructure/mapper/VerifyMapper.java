@@ -7,6 +7,9 @@ import ru.kubsu.borshchevyk.auth.domain.model.result.VerifyResult;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.VerifyRequest;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.response.VerifyResponse;
 
+import ru.kubsu.borshchevyk.auth.application.dto.command.RefreshCommand;
+import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.RefreshRequest;
+
 /**
  * MapStruct mapper for verification-related DTOs and results.
  *
@@ -29,7 +32,7 @@ public interface VerifyMapper {
      * @param request the request DTO
      * @return the command
      */
-    ru.kubsu.borshchevyk.auth.application.dto.command.RefreshCommand toCommand(ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.RefreshRequest request);
+    RefreshCommand toCommand(RefreshRequest request);
 
     /**
      * Maps result to response.

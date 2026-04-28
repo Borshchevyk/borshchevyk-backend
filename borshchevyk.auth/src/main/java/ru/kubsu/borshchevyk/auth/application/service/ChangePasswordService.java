@@ -35,22 +35,22 @@ public class ChangePasswordService implements ChangePasswordUseCase {
      */
     @Override
     public void changePassword(ChangePasswordCommand command) {
-        log.info("Attempting to change password for user with email: {}", command.getEmail());
+        log.info("Attempting to change password");
 
-        Account account = loadAccountByEmailPort.loadAccountByEmail(new Email(command.getEmail()))
+        Account account = loadAccountByEmailPort.loadAccountByEmail(new Email(command.email()))
                 .orElseThrow(() -> {
-                    log.warn("Change password failed: account with email {} not found", command.getEmail());
+                    log.warn("Change password failed: account not found");
                     return new InvalidCredentialsException();
                 });
 
-        if (!passwordEncoderPort.matches(command.getOldPassword(), account.getPasswordHash())) {
-            log.warn("Change password failed: old password mismatch for email {}", command.getEmail());
+        if (!passwordEncoderPort.matches(command.oldPassword(), account.getPasswordHash())) {
+            log.warn("Change password failed: old password mismatch");
             throw new InvalidCredentialsException();
         }
 
-        account.setPasswordHash(passwordEncoderPort.encode(command.getNewPassword()));
+        account.setPasswordHash(passwordEncoderPort.encode(command.newPassword()));
         saveAccountPort.saveAccount(account);
 
-        log.info("Successfully changed password for user with email: {}", command.getEmail());
+        log.info("Successfully changed password");
     }
 }

@@ -2,10 +2,10 @@ package ru.kubsu.borshchevyk.auth.infrastructure.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import ru.kubsu.borshchevyk.auth.domain.exception.AuthErrorResponse;
 import ru.kubsu.borshchevyk.auth.domain.exception.AuthServiceException;
 import ru.kubsu.borshchevyk.auth.domain.exception.IncorrectInputFormatException;
 import ru.kubsu.borshchevyk.auth.domain.exception.InvalidCredentialsException;
@@ -15,7 +15,8 @@ import ru.kubsu.borshchevyk.auth.domain.exception.AccountNotFoundException;
 import ru.kubsu.borshchevyk.auth.domain.exception.ChallengeExpiredException;
 import ru.kubsu.borshchevyk.auth.domain.exception.InvalidSignatureException;
 
-import java.time.LocalDateTime;
+import java.net.URI;
+import java.time.Instant;
 
 /**
  * Global exception handler for the authentication microservice.
@@ -27,123 +28,64 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * Handles {@link UserAlreadyExistsException}.
-     *
-     * @param ex the exception
-     * @return the error response
-     */
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<AuthErrorResponse> handleAlreadyExists(UserAlreadyExistsException ex) {
+    public ProblemDetail handleAlreadyExists(UserAlreadyExistsException ex) {
         log.warn("User already exists: {}", ex.getMessage());
-        return AuthErrorResponse.buildResponse(HttpStatus.CONFLICT, ex);
+        return createProblemDetail(HttpStatus.CONFLICT, "User Already Exists", ex.getMessage());
     }
 
-    /**
-     * Handles {@link InvalidCredentialsException}.
-     *
-     * @param ex the exception
-     * @return the error response
-     */
     @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<AuthErrorResponse> handleInvalidCredentials(InvalidCredentialsException ex) {
+    public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
         log.warn("Invalid credentials: {}", ex.getMessage());
-        return AuthErrorResponse.buildResponse(HttpStatus.UNAUTHORIZED, ex);
+        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Invalid Credentials", ex.getMessage());
     }
 
-    /**
-     * Handles {@link AccountNotFoundException}.
-     *
-     * @param ex the exception
-     * @return the error response
-     */
     @ExceptionHandler(AccountNotFoundException.class)
-    public ResponseEntity<AuthErrorResponse> handleAccountNotFound(AccountNotFoundException ex) {
+    public ProblemDetail handleAccountNotFound(AccountNotFoundException ex) {
         log.warn("Account not found: {}", ex.getMessage());
-        return AuthErrorResponse.buildResponse(HttpStatus.UNAUTHORIZED, ex);
+        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Account Not Found", ex.getMessage());
     }
 
-    /**
-     * Handles {@link ChallengeExpiredException}.
-     *
-     * @param ex the exception
-     * @return the error response
-     */
     @ExceptionHandler(ChallengeExpiredException.class)
-    public ResponseEntity<AuthErrorResponse> handleChallengeExpired(ChallengeExpiredException ex) {
+    public ProblemDetail handleChallengeExpired(ChallengeExpiredException ex) {
         log.warn("Challenge expired: {}", ex.getMessage());
-        return AuthErrorResponse.buildResponse(HttpStatus.UNAUTHORIZED, ex);
+        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Challenge Expired", ex.getMessage());
     }
 
-    /**
-     * Handles {@link InvalidSignatureException}.
-     *
-     * @param ex the exception
-     * @return the error response
-     */
     @ExceptionHandler(InvalidSignatureException.class)
-    public ResponseEntity<AuthErrorResponse> handleInvalidSignature(InvalidSignatureException ex) {
+    public ProblemDetail handleInvalidSignature(InvalidSignatureException ex) {
         log.warn("Invalid signature: {}", ex.getMessage());
-        return AuthErrorResponse.buildResponse(HttpStatus.UNAUTHORIZED, ex);
+        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Invalid Signature", ex.getMessage());
     }
 
-    /**
-     * Handles {@link IncorrectInputFormatException}.
-     *
-     * @param ex the exception
-     * @return the error response
-     */
     @ExceptionHandler(IncorrectInputFormatException.class)
-    public ResponseEntity<AuthErrorResponse> handleIncorrectInputFormat(IncorrectInputFormatException ex) {
+    public ProblemDetail handleIncorrectInputFormat(IncorrectInputFormatException ex) {
         log.warn("Incorrect input format: {}", ex.getMessage());
-        return AuthErrorResponse.buildResponse(HttpStatus.BAD_REQUEST, ex);
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "Incorrect Input Format", ex.getMessage());
     }
 
-    /**
-     * Handles {@link AuthServiceException}.
-     *
-     * @param ex the exception
-     * @return the error response
-     */
     @ExceptionHandler(AuthServiceException.class)
-    public ResponseEntity<AuthErrorResponse> handleAuthServiceException(AuthServiceException ex) {
+    public ProblemDetail handleAuthServiceException(AuthServiceException ex) {
         log.error("Auth service exception: {}", ex.getMessage());
-        return AuthErrorResponse.buildResponse(HttpStatus.BAD_REQUEST, ex);
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "Auth Service Error", ex.getMessage());
     }
 
-    /**
-     * Handles {@link MessagingSerializationException}.
-     *
-     * @param ex the exception
-     * @return the error response
-     */
     @ExceptionHandler(MessagingSerializationException.class)
-    public ResponseEntity<AuthErrorResponse> handleMessagingSerializationException(MessagingSerializationException ex) {
+    public ProblemDetail handleMessagingSerializationException(MessagingSerializationException ex) {
         log.error("Messaging serialization exception", ex);
-        AuthErrorResponse response = new AuthErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "INTERNAL_SERVER_ERROR",
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Serialization Error", ex.getMessage());
     }
 
-    /**
-     * Handles all other exceptions.
-     *
-     * @param ex the exception
-     * @return the error response
-     */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<AuthErrorResponse> handleGeneralException(Exception ex) {
+    public ProblemDetail handleGeneralException(Exception ex) {
         log.error("Unexpected error occurred", ex);
-        AuthErrorResponse response = new AuthErrorResponse(
-                LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "INTERNAL_SERVER_ERROR",
-                ex.getMessage()
-        );
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "An unexpected error occurred");
+    }
+
+    private ProblemDetail createProblemDetail(HttpStatus status, String title, String detail) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
+        problemDetail.setTitle(title);
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
     }
 }

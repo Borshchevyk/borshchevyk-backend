@@ -25,7 +25,7 @@ public class SaveAccountAdapter implements SaveAccountPort {
 
     @Override
     public void saveAccount(Account account) {
-        log.info("Saving account for user: {}", account.getEmail().getValue());
+        log.info("Saving account");
         AccountJpaEntity entity = accountMapper.toEntity(account);
         accountRepository.save(entity);
         log.info("Account saved successfully: {}", entity.getId());

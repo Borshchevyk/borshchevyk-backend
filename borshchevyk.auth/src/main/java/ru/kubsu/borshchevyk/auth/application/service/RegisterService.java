@@ -47,12 +47,12 @@ public class RegisterService implements RegisterUseCase {
     @Override
     @Transactional
     public RegisterResult register(RegisterCommand command) {
-        log.info("Attempting to register new user with email: {}", command.email());
+        log.info("Attempting to register new user");
         Email email = new Email(command.email());
         
         loadAccountByEmailPort.loadAccountByEmail(email)
                 .ifPresent(account -> {
-                    log.warn("Registration failed: account with email {} already exists", command.email());
+                    log.warn("Registration failed: account already exists");
                     throw new UserAlreadyExistsException(email.getValue());
                 });
 

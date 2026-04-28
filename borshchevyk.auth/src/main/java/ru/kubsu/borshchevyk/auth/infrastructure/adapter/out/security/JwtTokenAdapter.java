@@ -1,18 +1,23 @@
 package ru.kubsu.borshchevyk.auth.infrastructure.adapter.out.security;
 
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.kubsu.borshchevyk.auth.application.port.out.TokenGeneratorPort;
+import ru.kubsu.borshchevyk.auth.application.port.out.TokenParserPort;
+import ru.kubsu.borshchevyk.auth.domain.exception.InvalidCredentialsException;
 import ru.kubsu.borshchevyk.auth.domain.model.account.Account;
+import ru.kubsu.borshchevyk.auth.domain.model.value.AccountId;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Adapter for generating JWT tokens.
@@ -22,7 +27,7 @@ import java.util.Date;
  */
 @Slf4j
 @Component
-public class JwtTokenAdapter implements TokenGeneratorPort, ru.kubsu.borshchevyk.auth.application.port.out.TokenParserPort {
+public class JwtTokenAdapter implements TokenGeneratorPort, TokenParserPort {
 
     private final SecretKey secretKey;
     private final long accessTokenExpirationMs;
@@ -88,7 +93,7 @@ public class JwtTokenAdapter implements TokenGeneratorPort, ru.kubsu.borshchevyk
      * @return the extracted account ID
      */
     @Override
-    public ru.kubsu.borshchevyk.auth.domain.model.value.AccountId parseRefreshToken(String token) {
+    public AccountId parseRefreshToken(String token) {
         try {
             String subject = Jwts.parser()
                     .verifyWith(secretKey)
@@ -96,10 +101,10 @@ public class JwtTokenAdapter implements TokenGeneratorPort, ru.kubsu.borshchevyk
                     .parseSignedClaims(token)
                     .getPayload()
                     .getSubject();
-            return new ru.kubsu.borshchevyk.auth.domain.model.value.AccountId(java.util.UUID.fromString(subject));
-        } catch (io.jsonwebtoken.JwtException | IllegalArgumentException e) {
-            log.warn("Invalid refresh token: {}", e.getMessage());
-            throw new ru.kubsu.borshchevyk.auth.domain.exception.InvalidCredentialsException();
+            return new AccountId(UUID.fromString(subject));
+        } catch (JwtException | IllegalArgumentException e) {
+            log.warn("Invalid refresh token");
+            throw new InvalidCredentialsException();
         }
     }
 }

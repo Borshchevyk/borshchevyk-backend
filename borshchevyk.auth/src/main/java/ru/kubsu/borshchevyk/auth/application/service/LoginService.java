@@ -35,21 +35,21 @@ public class LoginService implements LoginUseCase {
      */
     @Override
     public LoginResult login(LoginCommand command) {
-        log.info("Attempting login for email: {}", command.email());
+        log.info("Attempting login");
         Email email = new Email(command.email());
 
         Account account = loadAccountByEmailPort.loadAccountByEmail(email)
                 .orElseThrow(() -> {
-                    log.warn("Login failed: account with email {} not found", command.email());
+                    log.warn("Login failed: account not found");
                     return new InvalidCredentialsException();
                 });
 
         if (!passwordEncoderPort.matches(command.passwordHash(), account.getPasswordHash())) {
-            log.warn("Login failed: password mismatch for email {}", command.email());
+            log.warn("Login failed: password mismatch");
             throw new InvalidCredentialsException();
         }
 
-        log.info("Successfully authenticated email: {}", command.email());
+        log.info("Successfully authenticated");
         return LoginResult.builder()
                 .userId(account.getAccountId().value())
                 .publicKey(account.getPublicKey())

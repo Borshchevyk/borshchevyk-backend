@@ -4,6 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Exception thrown when an account is not found.
+ *
+ * @author Aleksey Timko
+ * @since 2026-03-14
  */
 @Slf4j
 public class AccountNotFoundException extends AuthServiceException {
