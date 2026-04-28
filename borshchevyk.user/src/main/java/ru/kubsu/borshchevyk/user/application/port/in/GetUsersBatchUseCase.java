@@ -5,6 +5,12 @@ import ru.kubsu.borshchevyk.user.domain.model.user.User;
 
 import java.util.List;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public interface GetUsersBatchUseCase {
     List<User> getUsersBatch(GetUsersBatchCommand command);
 }
+

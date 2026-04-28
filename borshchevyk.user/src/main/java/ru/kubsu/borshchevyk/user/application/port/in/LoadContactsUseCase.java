@@ -4,6 +4,12 @@ import ru.kubsu.borshchevyk.user.application.dto.command.LoadContactsCommand;
 import ru.kubsu.borshchevyk.user.domain.model.contact.Contact;
 import java.util.List;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public interface LoadContactsUseCase {
     List<Contact> loadContacts(LoadContactsCommand command);
 }
+

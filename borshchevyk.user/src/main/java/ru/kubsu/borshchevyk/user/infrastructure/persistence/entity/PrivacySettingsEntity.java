@@ -14,12 +14,47 @@ import ru.kubsu.borshchevyk.user.domain.model.privacy.Visibility;
 
 import java.util.UUID;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Entity
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Table(name = "privacy_settings")
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Data
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @NoArgsConstructor
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @AllArgsConstructor
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public class PrivacySettingsEntity {
 
     @Id
@@ -42,3 +77,4 @@ public class PrivacySettingsEntity {
     @Column(name = "invite_to_chat_visibility", nullable = false)
     private Visibility inviteToChatVisibility;
 }
+

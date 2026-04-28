@@ -12,9 +12,29 @@ import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 
 import java.util.UUID;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Service
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @RequiredArgsConstructor
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public class PrivacyService implements UpdatePrivacySettingsUseCase, GetPrivacySettingsUseCase {
     private final PrivacySettingsPort privacySettingsPort;
 
@@ -39,3 +59,4 @@ public class PrivacyService implements UpdatePrivacySettingsUseCase, GetPrivacyS
         return privacySettingsPort.save(settings);
     }
 }
+

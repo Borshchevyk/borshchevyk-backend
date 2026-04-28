@@ -4,8 +4,23 @@ import lombok.Builder;
 import lombok.Data;
 import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Data
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public class PrivacySettings {
     private UserId userId;
     
@@ -21,3 +36,4 @@ public class PrivacySettings {
     @Builder.Default
     private Visibility inviteToChatVisibility = Visibility.EVERYONE;
 }
+

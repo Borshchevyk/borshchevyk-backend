@@ -3,6 +3,11 @@ package ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public record ContactResponse(
     @Schema(description = "Contact record ID", example = "110e8400-e29b-41d4-a716-446655440000")
     String id,
@@ -17,3 +22,4 @@ public record ContactResponse(
     @Schema(description = "Timestamp when the contact was added")
     LocalDateTime addedAt
 ) {}
+

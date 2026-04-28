@@ -12,9 +12,29 @@ import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Service
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @RequiredArgsConstructor
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public class AddContactService implements AddContactUseCase {
     private final ContactPort contactPort;
 
@@ -40,3 +60,4 @@ public class AddContactService implements AddContactUseCase {
         return contactPort.save(contact);
     }
 }
+

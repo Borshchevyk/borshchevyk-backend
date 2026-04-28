@@ -5,11 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.kubsu.borshchevyk.user.application.port.out.LoadUserPort;
 import ru.kubsu.borshchevyk.user.domain.model.user.User;
+import ru.kubsu.borshchevyk.user.domain.model.value.Tag;
 import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 import ru.kubsu.borshchevyk.user.infrastructure.persistence.mapper.UserPersistenceMapper;
 import ru.kubsu.borshchevyk.user.infrastructure.persistence.repository.UserSpringRepository;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Persistence adapter for loading user data from the database.
@@ -39,25 +43,25 @@ public class LoadUserAdapter implements LoadUserPort {
     }
 
     @Override
-    public Optional<User> loadUserByTag(ru.kubsu.borshchevyk.user.domain.model.value.Tag tag) {
+    public Optional<User> loadUserByTag(Tag tag) {
         return userRepository.findByTag(tag.getValue())
                 .map(userMapper::toDomain);
     }
 
     @Override
-    public java.util.List<User> searchUsers(String query) {
+    public List<User> searchUsers(String query) {
         return userRepository.search(query).stream()
                 .map(userMapper::toDomain)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     @Override
-    public java.util.List<User> loadUsersByIds(java.util.List<UserId> userIds) {
-        java.util.List<java.util.UUID> ids = userIds.stream()
+    public List<User> loadUsersByIds(List<UserId> userIds) {
+        List<UUID> ids = userIds.stream()
                 .map(UserId::getValue)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
         return userRepository.findAllById(ids).stream()
                 .map(userMapper::toDomain)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
     }
 }

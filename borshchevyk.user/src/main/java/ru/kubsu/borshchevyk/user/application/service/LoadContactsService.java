@@ -12,9 +12,29 @@ import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Service
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @RequiredArgsConstructor
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public class LoadContactsService implements LoadContactsUseCase {
     private final ContactPort contactPort;
 
@@ -24,3 +44,4 @@ public class LoadContactsService implements LoadContactsUseCase {
         return contactPort.loadByOwnerId(ownerId);
     }
 }
+

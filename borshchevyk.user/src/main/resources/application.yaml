@@ -19,7 +19,7 @@ spring:
       key-serializer: ${KAFKA_PRODUCER_KEY_SERIALIZER}
       value-serializer: ${KAFKA_PRODUCER_VALUE_SERIALIZER}
     consumer:
-      group-id: user-service-group
+      group-id: ${KAFKA_USER_GROUP_ID:user-service-group}
   boot:
     admin:
       client:
@@ -45,7 +45,7 @@ springdoc:
 
 grpc:
   server:
-    port: 9090
+    port: ${GRPC_SERVER_PORT:9090}
 
 management:
   endpoints:

@@ -12,12 +12,47 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Entity
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Table(name = "contacts")
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Data
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @NoArgsConstructor
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @AllArgsConstructor
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public class ContactEntity {
 
     @Id
@@ -39,3 +74,4 @@ public class ContactEntity {
     @Column(name = "added_at", nullable = false)
     private LocalDateTime addedAt;
 }
+

@@ -1,8 +1,10 @@
 package ru.kubsu.borshchevyk.user.application.port.out;
 
 import ru.kubsu.borshchevyk.user.domain.model.user.User;
+import ru.kubsu.borshchevyk.user.domain.model.value.Tag;
 import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -20,9 +22,9 @@ public interface LoadUserPort {
      */
     Optional<User> loadUserById(UserId userId);
     
-    Optional<User> loadUserByTag(ru.kubsu.borshchevyk.user.domain.model.value.Tag tag);
+    Optional<User> loadUserByTag(Tag tag);
     
-    java.util.List<User> searchUsers(String query);
+    List<User> searchUsers(String query);
     
-    java.util.List<User> loadUsersByIds(java.util.List<UserId> userIds);
+    List<User> loadUsersByIds(List<UserId> userIds);
 }

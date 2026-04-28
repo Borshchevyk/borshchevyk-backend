@@ -11,7 +11,17 @@ import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.request.Updat
 import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.response.UserProfileResponse;
 import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.response.PrivacySettingsResponse;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Mapper(componentModel = "spring")
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public interface PresentationUserMapper {
 
     @Mapping(target = "userId", expression = "java(user.getUserId() != null && user.getUserId().getValue() != null ? user.getUserId().getValue().toString() : null)")
@@ -37,3 +47,4 @@ public interface PresentationUserMapper {
     @Mapping(target = "inviteToChatVisibility", source = "request.inviteToChatVisibility")
     UpdatePrivacySettingsCommand toUpdatePrivacySettingsCommand(UpdatePrivacySettingsRequest request, String userId);
 }
+

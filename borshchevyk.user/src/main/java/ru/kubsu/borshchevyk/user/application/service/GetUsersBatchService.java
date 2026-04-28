@@ -17,9 +17,29 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Service
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @RequiredArgsConstructor
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public class GetUsersBatchService implements GetUsersBatchUseCase {
     private final LoadUserPort loadUserPort;
     private final PrivacySettingsPort privacySettingsPort;
@@ -61,3 +81,4 @@ public class GetUsersBatchService implements GetUsersBatchUseCase {
         return false;
     }
 }
+

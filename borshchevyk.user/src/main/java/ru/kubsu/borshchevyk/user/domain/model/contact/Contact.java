@@ -7,8 +7,23 @@ import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Data
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public class Contact {
     private UUID id;
     private UserId ownerId;
@@ -17,3 +32,4 @@ public class Contact {
     private String contactLastName;
     private LocalDateTime addedAt;
 }
+

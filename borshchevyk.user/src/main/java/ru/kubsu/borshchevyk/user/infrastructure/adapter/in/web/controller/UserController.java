@@ -30,10 +30,35 @@ import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.mapper.Presentati
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @RestController
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @RequestMapping("/api/v1/users")
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @RequiredArgsConstructor
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Tag(name = "User API", description = "Operations related to users and privacy")
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public class UserController {
 
     private final SearchUsersUseCase searchUsersUseCase;
@@ -122,3 +147,4 @@ public class UserController {
         return ResponseEntity.ok(mapper.toPrivacySettingsResponse(updatedSettings));
     }
 }
+

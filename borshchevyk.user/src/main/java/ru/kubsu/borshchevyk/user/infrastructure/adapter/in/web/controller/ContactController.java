@@ -19,10 +19,35 @@ import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.mapper.Presentati
 
 import java.util.List;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @RestController
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @RequestMapping("/api/v1/contacts")
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @RequiredArgsConstructor
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Tag(name = "Contact API", description = "Operations related to user contacts")
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public class ContactController {
 
     private final AddContactUseCase addContactUseCase;
@@ -68,3 +93,4 @@ public class ContactController {
         return ResponseEntity.noContent().build();
     }
 }
+

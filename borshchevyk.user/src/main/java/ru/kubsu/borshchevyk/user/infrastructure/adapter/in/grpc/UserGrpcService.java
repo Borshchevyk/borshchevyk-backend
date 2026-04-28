@@ -3,10 +3,17 @@ package ru.kubsu.borshchevyk.user.infrastructure.adapter.in.grpc;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
+import ru.kubsu.borshchevyk.grpc.SearchUsersRequest;
 import ru.kubsu.borshchevyk.grpc.UserRequest;
 import ru.kubsu.borshchevyk.grpc.UserResponse;
 import ru.kubsu.borshchevyk.grpc.UserServiceGrpc;
+import ru.kubsu.borshchevyk.grpc.UsersBatchRequest;
+import ru.kubsu.borshchevyk.grpc.UsersBatchResponse;
+import ru.kubsu.borshchevyk.user.application.dto.command.GetUsersBatchCommand;
+import ru.kubsu.borshchevyk.user.application.dto.command.SearchUsersCommand;
 import ru.kubsu.borshchevyk.user.application.port.in.GetUserProfileUseCase;
+import ru.kubsu.borshchevyk.user.application.port.in.GetUsersBatchUseCase;
+import ru.kubsu.borshchevyk.user.application.port.in.SearchUsersUseCase;
 import ru.kubsu.borshchevyk.user.application.dto.command.GetUserProfileCommand;
 import ru.kubsu.borshchevyk.user.domain.model.user.User;
 
@@ -14,26 +21,31 @@ import java.util.UUID;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * gRPC service for User operations.
+ *
+ * @author Aleksey Timko
+ * @since 2026-03-15
+ */
 @GrpcService
 @RequiredArgsConstructor
 public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
 
     private final GetUserProfileUseCase getUserProfileUseCase;
-
-    private final ru.kubsu.borshchevyk.user.application.port.in.GetUsersBatchUseCase getUsersBatchUseCase;
-    private final ru.kubsu.borshchevyk.user.application.port.in.SearchUsersUseCase searchUsersUseCase;
+    private final GetUsersBatchUseCase getUsersBatchUseCase;
+    private final SearchUsersUseCase searchUsersUseCase;
 
     @Override
-    public void searchUsers(ru.kubsu.borshchevyk.grpc.SearchUsersRequest request, StreamObserver<ru.kubsu.borshchevyk.grpc.UsersBatchResponse> responseObserver) {
+    public void searchUsers(SearchUsersRequest request, StreamObserver<UsersBatchResponse> responseObserver) {
         try {
             List<User> users = searchUsersUseCase.searchUsers(
-                    ru.kubsu.borshchevyk.user.application.dto.command.SearchUsersCommand.builder()
+                    SearchUsersCommand.builder()
                             .query(request.getQuery())
                             .requesterId(request.getRequesterId().isEmpty() ? null : request.getRequesterId())
                             .build()
             );
 
-            ru.kubsu.borshchevyk.grpc.UsersBatchResponse response = ru.kubsu.borshchevyk.grpc.UsersBatchResponse.newBuilder()
+            UsersBatchResponse response = UsersBatchResponse.newBuilder()
                     .addAllUsers(users.stream()
                             .map(user -> UserResponse.newBuilder()
                                     .setUserId(user.getUserId().getValue().toString())
@@ -79,19 +91,19 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
     }
 
     @Override
-    public void getUsersBatch(ru.kubsu.borshchevyk.grpc.UsersBatchRequest request, StreamObserver<ru.kubsu.borshchevyk.grpc.UsersBatchResponse> responseObserver) {
+    public void getUsersBatch(UsersBatchRequest request, StreamObserver<UsersBatchResponse> responseObserver) {
         try {
             List<UUID> uuids = request.getUserIdsList().stream()
                     .map(UUID::fromString)
                     .toList();
             
             List<User> users = getUsersBatchUseCase.getUsersBatch(
-                    ru.kubsu.borshchevyk.user.application.dto.command.GetUsersBatchCommand.builder()
+                    GetUsersBatchCommand.builder()
                             .userIds(uuids)
                             .build()
             );
 
-            ru.kubsu.borshchevyk.grpc.UsersBatchResponse response = ru.kubsu.borshchevyk.grpc.UsersBatchResponse.newBuilder()
+            UsersBatchResponse response = UsersBatchResponse.newBuilder()
                     .addAllUsers(users.stream()
                             .map(user -> UserResponse.newBuilder()
                                     .setUserId(user.getUserId().getValue().toString())

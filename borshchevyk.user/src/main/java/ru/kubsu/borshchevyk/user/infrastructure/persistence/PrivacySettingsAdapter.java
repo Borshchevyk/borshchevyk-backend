@@ -10,8 +10,23 @@ import ru.kubsu.borshchevyk.user.infrastructure.persistence.repository.PrivacySe
 
 import java.util.Optional;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Component
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @RequiredArgsConstructor
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public class PrivacySettingsAdapter implements PrivacySettingsPort {
 
     private final PrivacySettingsRepository repository;
@@ -49,3 +64,4 @@ public class PrivacySettingsAdapter implements PrivacySettingsPort {
                         .build());
     }
 }
+

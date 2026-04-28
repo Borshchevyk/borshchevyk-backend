@@ -11,8 +11,23 @@ import ru.kubsu.borshchevyk.user.infrastructure.persistence.repository.ContactRe
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Component
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @RequiredArgsConstructor
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public class ContactAdapter implements ContactPort {
 
     private final ContactRepository repository;
@@ -64,3 +79,4 @@ public class ContactAdapter implements ContactPort {
                 .build();
     }
 }
+

@@ -7,7 +7,17 @@ import ru.kubsu.borshchevyk.user.domain.model.contact.Contact;
 import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.request.AddContactRequest;
 import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.response.ContactResponse;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Mapper(componentModel = "spring")
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public interface PresentationContactMapper {
 
     @Mapping(target = "id", expression = "java(contact.getId() != null ? contact.getId().toString() : null)")
@@ -21,3 +31,4 @@ public interface PresentationContactMapper {
     @Mapping(target = "lastName", source = "request.lastName")
     AddContactCommand toAddContactCommand(AddContactRequest request, String ownerId);
 }
+

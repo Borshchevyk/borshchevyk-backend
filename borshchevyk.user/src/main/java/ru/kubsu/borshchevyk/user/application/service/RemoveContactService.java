@@ -11,9 +11,29 @@ import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 
 import java.util.UUID;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @Service
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @RequiredArgsConstructor
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 public class RemoveContactService implements RemoveContactUseCase {
     private final ContactPort contactPort;
 
@@ -30,3 +50,4 @@ public class RemoveContactService implements RemoveContactUseCase {
         contactPort.remove(contact);
     }
 }
+
