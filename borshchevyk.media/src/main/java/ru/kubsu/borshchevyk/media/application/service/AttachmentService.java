@@ -25,12 +25,14 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import java.util.ArrayList;
-
-import net.coobird.thumbnailator.Thumbnails;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import org.jcodec.api.FrameGrab;
+import org.jcodec.common.model.Picture;
+import org.jcodec.scale.AWTUtil;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 @Slf4j
 @Service
@@ -133,13 +135,18 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
             throw new IllegalStateException("Object not found in S3 bucket. Key: " + attachment.getS3Key());
         }
 
-        // Generate thumbnail for images
+        // Generate thumbnail for images and videos
         if (attachment.getType() == AttachmentType.IMAGE) {
             try {
-                generateAndUploadThumbnail(attachment);
+                generateAndUploadImageThumbnail(attachment);
             } catch (Exception e) {
-                log.error("Failed to generate thumbnail for attachment {}", attachment.getId().value(), e);
-                // We don't fail the whole upload if thumbnail fails, but we should probably log it
+                log.error("Failed to generate image thumbnail for attachment {}", attachment.getId().value(), e);
+            }
+        } else if (attachment.getType() == AttachmentType.VIDEO) {
+            try {
+                generateAndUploadVideoThumbnail(attachment);
+            } catch (Exception e) {
+                log.error("Failed to generate video thumbnail for attachment {}", attachment.getId().value(), e);
             }
         }
 
@@ -149,7 +156,7 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
         return attachmentPort.save(attachment);
     }
 
-    private void generateAndUploadThumbnail(Attachment attachment) throws Exception {
+    private void generateAndUploadImageThumbnail(Attachment attachment) throws Exception {
         log.info("Generating thumbnail for image attachment {}", attachment.getId().value());
         
         try (InputStream originalStream = s3Port.downloadFile(attachment.getS3Key())) {
@@ -161,20 +168,50 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
                     .outputFormat("jpg")
                     .toOutputStream(outputStream);
             
-            byte[] thumbnailData = outputStream.toByteArray();
-            String thumbnailKey = attachment.getS3Key().replace("attachments/", "thumbnails/");
-            if (thumbnailKey.contains(".")) {
-                thumbnailKey = thumbnailKey.substring(0, thumbnailKey.lastIndexOf(".")) + ".jpg";
-            } else {
-                thumbnailKey = thumbnailKey + ".jpg";
-            }
-            
-            s3Port.uploadFile(thumbnailKey, new ByteArrayInputStream(thumbnailData), thumbnailData.length, "image/jpeg");
-            
-            attachment.setThumbnailKey(thumbnailKey);
-            attachment.setThumbnailId(attachment.getId().value()); // Use main ID for thumbnail link
-            log.info("Thumbnail generated and uploaded to {}", thumbnailKey);
+            uploadThumbnailData(attachment, outputStream.toByteArray());
         }
+    }
+
+    private void generateAndUploadVideoThumbnail(Attachment attachment) throws Exception {
+        log.info("Generating thumbnail for video attachment {}", attachment.getId().value());
+        
+        Path tempFile = Files.createTempFile("video_thumb_", "_" + attachment.getId().value());
+        try {
+            try (InputStream is = s3Port.downloadFile(attachment.getS3Key())) {
+                Files.copy(is, tempFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            Picture picture = FrameGrab.getNativeFrame(tempFile.toFile(), 0);
+            if (picture != null) {
+                BufferedImage bufferedImage = AWTUtil.toBufferedImage(picture);
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                
+                Thumbnails.of(bufferedImage)
+                        .size(320, 320)
+                        .keepAspectRatio(true)
+                        .outputFormat("jpg")
+                        .toOutputStream(outputStream);
+                
+                uploadThumbnailData(attachment, outputStream.toByteArray());
+            }
+        } finally {
+            Files.deleteIfExists(tempFile);
+        }
+    }
+
+    private void uploadThumbnailData(Attachment attachment, byte[] thumbnailData) {
+        String thumbnailKey = attachment.getS3Key().replace("attachments/", "thumbnails/");
+        if (thumbnailKey.contains(".")) {
+            thumbnailKey = thumbnailKey.substring(0, thumbnailKey.lastIndexOf(".")) + ".jpg";
+        } else {
+            thumbnailKey = thumbnailKey + ".jpg";
+        }
+        
+        s3Port.uploadFile(thumbnailKey, new ByteArrayInputStream(thumbnailData), thumbnailData.length, "image/jpeg");
+        
+        attachment.setThumbnailKey(thumbnailKey);
+        attachment.setThumbnailId(attachment.getId().value());
+        log.info("Thumbnail generated and uploaded to {}", thumbnailKey);
     }
 
     @Override
