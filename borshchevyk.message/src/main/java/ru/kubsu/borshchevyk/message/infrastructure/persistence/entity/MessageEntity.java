@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
+import ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -50,9 +51,8 @@ public class MessageEntity {
     private MessageSource source;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
     @Builder.Default
-    private ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus status = ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus.RECEIVED_BY_SERVER;
+    private MessageStatus status = MessageStatus.RECEIVED_BY_SERVER;
 
     @Column(name = "pinned_at")
     private LocalDateTime pinnedAt;
