@@ -1,6 +1,7 @@
 package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatType;
 
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.UUID;
 
 @Schema(description = "Request to create a new chat")
 public record CreateChatRequest(
+        @NotNull(message = "Chat type is required")
         @Schema(description = "Type of the chat", example = "PRIVATE")
         ChatType type,
         @Schema(description = "Title of the chat (for GROUP chats)", example = "My awesome group")
