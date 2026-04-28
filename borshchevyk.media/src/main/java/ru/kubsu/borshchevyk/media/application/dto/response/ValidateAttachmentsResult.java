@@ -20,5 +20,6 @@ public class ValidateAttachmentsResult {
         String originalFilename;
         String extension;
         Long sizeBytes;
+        Double duration;
     }
 }

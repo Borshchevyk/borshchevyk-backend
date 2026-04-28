@@ -67,6 +67,7 @@ public class MessageController {
     private final UpdateMessageUseCase updateMessageUseCase;
     private final PresentationMessageMapper presentationMessageMapper;
     private final SimpMessagingTemplate messagingTemplate;
+    private final ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort realtimeNotificationPort;
 
     @Operation(summary = "Get message comments", description = "Retrieves paginated comments for a specific message.")
     @ApiResponses(value = {
@@ -221,6 +222,13 @@ public class MessageController {
         ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto user = userEnrichmentService.enrichUser(userId);
         ReadReceiptEvent event = new ReadReceiptEvent(user, messageId);
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/read", event);
+        
+        // Notify the global user channel to update unread counters in the chat list
+        realtimeNotificationPort.notifyChatEvent(
+                new ru.kubsu.borshchevyk.message.domain.model.value.UserId(userId),
+                new ru.kubsu.borshchevyk.message.domain.model.value.ChatId(chatId),
+                "READ"
+        );
     }
 
     @Operation(summary = "Send a message", description = "Sends a new message to a specific chat.")

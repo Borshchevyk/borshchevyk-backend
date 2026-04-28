@@ -19,6 +19,7 @@ public record MessageCreatedEvent(
             String type,
             String originalFilename,
             String extension,
-            Long sizeBytes
+            Long sizeBytes,
+            Double duration
     ) {}
 }

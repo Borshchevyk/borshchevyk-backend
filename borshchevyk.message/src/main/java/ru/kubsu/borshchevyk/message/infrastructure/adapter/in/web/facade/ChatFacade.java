@@ -53,6 +53,21 @@ public class ChatFacade {
                 .collect(Collectors.toList());
 
         enrichPrivateChatResponses(privateChatResponses, requesterId);
+
+        responses.sort((r1, r2) -> {
+            if (r1.isPinned() && !r2.isPinned()) return -1;
+            if (!r1.isPinned() && r2.isPinned()) return 1;
+
+            java.time.LocalDateTime t1 = r1.getLastMessageAt() != null ? r1.getLastMessageAt() : r1.getCreatedAt();
+            java.time.LocalDateTime t2 = r2.getLastMessageAt() != null ? r2.getLastMessageAt() : r2.getCreatedAt();
+
+            if (t1 == null && t2 == null) return 0;
+            if (t1 == null) return 1;
+            if (t2 == null) return -1;
+
+            return t2.compareTo(t1);
+        });
+
         return responses;
     }
 
@@ -69,6 +84,7 @@ public class ChatFacade {
                 // Last message
                 messagePort.getLastMessage(chatId, userId, historyClearedAt).ifPresent(msg -> {
                     response.setLastMessage(msg.getText());
+                    response.setLastMessageAt(msg.getCreatedAt());
                 });
 
                 // Unread count

@@ -16,11 +16,13 @@ public interface ChatMemberMapper {
     @Mapping(target = "chatId", source = "chatId")
     @Mapping(target = "userId", source = "userId")
     @Mapping(target = "lastReadMessageId", source = "lastReadMessageId.value")
+    @Mapping(target = "isPinned", source = "pinned")
     ChatMemberEntity toEntity(ChatMember domain);
 
     @Mapping(target = "chatId", source = "chatId")
     @Mapping(target = "userId", source = "userId")
     @Mapping(target = "lastReadMessageId", source = "lastReadMessageId")
+    @Mapping(target = "isPinned", source = "pinned")
     ChatMember toDomain(ChatMemberEntity entity);
 
     default UUID map(ChatId value) {

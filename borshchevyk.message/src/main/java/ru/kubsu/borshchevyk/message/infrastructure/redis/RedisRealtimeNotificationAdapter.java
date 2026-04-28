@@ -41,7 +41,8 @@ public class RedisRealtimeNotificationAdapter implements RealtimeNotificationPor
                                     a.getType(),
                                     a.getOriginalFilename(),
                                     a.getExtension(),
-                                    a.getSizeBytes()
+                                    a.getSizeBytes(),
+                                    a.getDuration()
                             ))
                             .collect(Collectors.toList()) : null;
 
@@ -58,7 +59,7 @@ public class RedisRealtimeNotificationAdapter implements RealtimeNotificationPor
                 attachmentDtos
             );
 
-            NotificationDto notification = new NotificationDto(userId.value().toString(), messageDto, null);
+            NotificationDto notification = new NotificationDto(userId.value().toString(), messageDto, null, null);
             
             String json = objectMapper.writeValueAsString(notification);
             redisTemplate.convertAndSend("ws.messages", json);
@@ -73,7 +74,7 @@ public class RedisRealtimeNotificationAdapter implements RealtimeNotificationPor
         try {
             ShortChatDto chat = chatEnrichmentService.enrichChat(chatId.value(), userId.value());
             NotificationDto.ChatEventDto eventDto = new NotificationDto.ChatEventDto(chat, action);
-            NotificationDto notification = new NotificationDto(userId.value().toString(), null, eventDto);
+            NotificationDto notification = new NotificationDto(userId.value().toString(), null, eventDto, null);
 
             String json = objectMapper.writeValueAsString(notification);
             redisTemplate.convertAndSend("ws.messages", json);

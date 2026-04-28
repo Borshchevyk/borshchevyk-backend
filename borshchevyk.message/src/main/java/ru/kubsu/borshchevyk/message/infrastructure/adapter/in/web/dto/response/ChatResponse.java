@@ -44,6 +44,8 @@ public abstract class ChatResponse {
     private Set<String> allowedReactions;
     @Schema(description = "The last message in the chat")
     private String lastMessage;
+    @Schema(description = "Timestamp of the last message")
+    private LocalDateTime lastMessageAt;
     @Schema(description = "Number of unread messages for the requester")
     private long unreadCount;
     @Schema(description = "Indicates whether the chat is pinned by the requester")

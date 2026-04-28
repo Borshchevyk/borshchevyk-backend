@@ -152,6 +152,30 @@ services:
       borshchevyk-postgres:
         condition: service_healthy
 
+  calls-service:
+    image: ${CALLS_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/calls-service:latest}
+    build:
+      context: ./borshchevyk.calls
+    restart: on-failure
+    ports:
+      - "${CALLS_SERVICE_PORT:-8087}:${CALLS_SERVICE_PORT:-8087}"
+    env_file:
+      - .env
+    environment:
+      - JAVA_TOOL_OPTIONS=-Xms64m -Xmx128m
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_CALLS:-jdbc:postgresql://borshchevyk-postgres:5432/borshchevyk_calls}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-postgres}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD:-postgres}
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=${SPRING_KAFKA_BOOTSTRAP_SERVERS:-kafka:29092}
+      - LIVEKIT_URL=${LIVEKIT_URL:-http://livekit-server:7880}
+      - LIVEKIT_API_KEY=${LIVEKIT_API_KEY:-devkey}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:-secret}
+    depends_on:
+      borshchevyk-postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+
   gateway-service:
     image: ${GATEWAY_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/gateway-service:latest}
     build:
@@ -166,6 +190,7 @@ services:
       - MESSAGE_SERVICE_URL=${MESSAGE_SERVICE_URL:-http://message-service:8083}
       - SYNC_SERVICE_URL=${SYNC_SERVICE_URL:-http://sync-service:8084}
       - MEDIA_SERVICE_URL=${MEDIA_SERVICE_URL:-http://media-service:8086}
+      - CALLS_SERVICE_URL=${CALLS_SERVICE_URL:-http://calls-service:8087}
       - SPRING_REDIS_HOST=${SPRING_REDIS_HOST:-borshchevyk-redis}
       - SPRING_REDIS_PORT=${SPRING_REDIS_PORT:-6379}
     depends_on:
@@ -173,6 +198,8 @@ services:
       - user-service
       - message-service
       - sync-service
+      - media-service
+      - calls-service
 
   admin-service:
     image: ${ADMIN_SERVICE_IMAGE:-ghcr.io/borshchevyk/borshchevyk-backend/admin-service:latest}
@@ -185,6 +212,20 @@ services:
       - JAVA_TOOL_OPTIONS=-Xms64m -Xmx128m
       - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+
+  livekit-server:
+    image: livekit/livekit-server:latest
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882/udp"
+    environment:
+      - "LIVEKIT_KEYS=${LIVEKIT_API_KEY:-devkey}: ${LIVEKIT_API_SECRET:-secret}"
+      - LIVEKIT_REDIS_ADDRESS=${SPRING_REDIS_HOST}:${SPRING_REDIS_PORT}
+      - "LIVEKIT_WEBHOOK_URLS=http://gateway-service:8080/api/v1/calls/webhook"
+    depends_on:
+      borshchevyk-redis:
+        condition: service_healthy
 
   caddy:
     image: caddy:2-alpine

@@ -46,7 +46,8 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
                                 a.getType(),
                                 a.getOriginalFilename(),
                                 a.getExtension(),
-                                a.getSizeBytes()
+                                a.getSizeBytes(),
+                                a.getDuration()
                         ))
                         .collect(Collectors.toList()) : null
         );

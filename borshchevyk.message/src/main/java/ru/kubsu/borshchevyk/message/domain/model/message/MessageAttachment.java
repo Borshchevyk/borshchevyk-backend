@@ -17,4 +17,5 @@ public class MessageAttachment {
     private String originalFilename;
     private String extension;
     private Long sizeBytes;
+    private Double duration;
 }

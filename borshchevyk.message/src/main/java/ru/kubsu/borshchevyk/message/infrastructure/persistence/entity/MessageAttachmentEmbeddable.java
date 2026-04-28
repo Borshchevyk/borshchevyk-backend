@@ -30,4 +30,7 @@ public class MessageAttachmentEmbeddable {
 
     @Column(name = "size_bytes")
     private Long sizeBytes;
+
+    @Column(name = "duration")
+    private Double duration;
 }

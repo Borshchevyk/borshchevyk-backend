@@ -23,7 +23,9 @@ public record ValidateAttachmentsResponse(
             @Schema(description = "Extension of the attachment")
             String extension,
             @Schema(description = "Size of the attachment in bytes")
-            Long sizeBytes
+            Long sizeBytes,
+            @Schema(description = "Duration of the attachment in seconds (for VOICE and CIRCLE)")
+            Double duration
     ) {
     }
 }
