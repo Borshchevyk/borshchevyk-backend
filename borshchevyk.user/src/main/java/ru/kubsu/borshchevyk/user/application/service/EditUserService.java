@@ -52,16 +52,17 @@ public class EditUserService implements EditUserUseCase {
                     return new UserNotFoundException();
                 });
 
+        boolean updated = false;
         if (command.email() != null && !command.email().isBlank()) {
-            log.debug("Updating email for user {}: {}", command.userId(), command.email());
+            log.debug("Updating email for user {}", command.userId());
             user.setEmail(new Email(command.email()));
+            updated = true;
         }
-
         if (command.tag() != null && !command.tag().isBlank()) {
-            log.debug("Updating tag for user {}: {}", command.userId(), command.tag());
+            log.debug("Updating tag for user {}", command.userId());
             user.setTag(new Tag(command.tag()));
+            updated = true;
         }
-
         saveUserPort.saveUser(user);
 
         userEventPublisherPort.publishUpdated(UserUpdatedEvent.builder()

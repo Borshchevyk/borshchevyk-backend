@@ -5,6 +5,11 @@ import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeReposi
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration for HttpExchange metrics.
+ * 
+ * @author Aleksey Timko
+ */
 @Configuration
 public class HttpExchangeConfig {
     @Bean

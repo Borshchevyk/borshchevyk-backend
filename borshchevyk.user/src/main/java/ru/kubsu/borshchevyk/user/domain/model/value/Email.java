@@ -26,7 +26,7 @@ public class Email {
      */
     public Email(String email) {
         if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
-            log.error("Invalid email format attempted: {}", email);
+            log.error("Invalid email format attempted");
             throw new IncorrectInputFormatException(IncorrectInputFormatException.InputFormat.EMAIL);
         }
         this.value = email;

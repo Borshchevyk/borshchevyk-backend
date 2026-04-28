@@ -26,7 +26,7 @@ public class Tag {
      */
     public Tag(String tag) {
         if (!tag.matches("^[a-zA-Z0-9_-]{3,16}$")) {
-            log.error("Invalid tag format attempted: {}", tag);
+            log.error("Invalid tag format attempted");
             throw new IncorrectInputFormatException(IncorrectInputFormatException.InputFormat.TAG);
         }
         this.value = tag;

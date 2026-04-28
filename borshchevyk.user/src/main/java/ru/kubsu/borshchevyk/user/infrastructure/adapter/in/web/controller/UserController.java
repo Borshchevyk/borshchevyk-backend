@@ -21,6 +21,8 @@ import ru.kubsu.borshchevyk.user.application.port.in.UpdateProfileUseCase;
 import ru.kubsu.borshchevyk.user.domain.exception.UserErrorResponse;
 import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.request.UpdatePrivacySettingsRequest;
 import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.request.UpdateProfileRequest;
+import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.request.SetAvatarRequest;
+import ru.kubsu.borshchevyk.user.application.dto.command.UpdateProfileCommand;
 import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.response.PrivacySettingsResponse;
 import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.response.UserProfileResponse;
 import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.mapper.PresentationUserMapper;
@@ -88,10 +90,10 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "Avatar set successfully")
     @PutMapping("/me/avatar")
     public ResponseEntity<UserProfileResponse> setAvatar(
-            @RequestBody ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.request.SetAvatarRequest request,
+            @RequestBody SetAvatarRequest request,
             @RequestHeader("X-User-Id") String userId) {
         
-        ru.kubsu.borshchevyk.user.application.dto.command.UpdateProfileCommand command = ru.kubsu.borshchevyk.user.application.dto.command.UpdateProfileCommand.builder()
+        UpdateProfileCommand command = UpdateProfileCommand.builder()
                 .userId(userId)
                 .avatarUrl(request.avatarUrl())
                 .build();
