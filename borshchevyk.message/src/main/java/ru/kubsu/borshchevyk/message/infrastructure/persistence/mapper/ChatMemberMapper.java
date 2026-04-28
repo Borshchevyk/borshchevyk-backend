@@ -16,12 +16,14 @@ public interface ChatMemberMapper {
     @Mapping(target = "chatId", source = "chatId")
     @Mapping(target = "userId", source = "userId")
     @Mapping(target = "lastReadMessageId", source = "lastReadMessageId.value")
+    @Mapping(target = "lastReadAt", source = "lastReadAt")
     @Mapping(target = "isPinned", source = "pinned")
     ChatMemberEntity toEntity(ChatMember domain);
 
     @Mapping(target = "chatId", source = "chatId")
     @Mapping(target = "userId", source = "userId")
     @Mapping(target = "lastReadMessageId", source = "lastReadMessageId")
+    @Mapping(target = "lastReadAt", source = "lastReadAt")
     @Mapping(target = "isPinned", source = "pinned")
     ChatMember toDomain(ChatMemberEntity entity);
 

@@ -56,6 +56,9 @@ public class ChatMemberEntity {
     @Column(name = "last_read_message_id")
     private java.util.UUID lastReadMessageId;
 
+    @Column(name = "last_read_at")
+    private LocalDateTime lastReadAt;
+
     @Column(name = "is_pinned", nullable = false)
     @Builder.Default
     private boolean isPinned = false;

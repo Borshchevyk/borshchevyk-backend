@@ -38,6 +38,7 @@ public class SendMessageService implements SendMessageUseCase {
     private final ChatMemberPort chatMemberPort;
     private final MessageEventPublisherPort messageEventPublisherPort;
     private final MediaPort mediaPort;
+    private final ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort realtimeNotificationPort;
 
     @Override
     @Transactional
@@ -104,6 +105,17 @@ public class SendMessageService implements SendMessageUseCase {
         List<String> memberIds = members.stream().map(m -> m.getUserId().value().toString()).collect(Collectors.toList());
 
         messageEventPublisherPort.publishMessageCreatedEvent(savedMessage, memberIds);
+
+        // Notify via realtimeNotificationPort to update unread counters on clients
+        for (String memberId : memberIds) {
+            if (!memberId.equals(authorId.value().toString())) {
+                realtimeNotificationPort.notifyChatEvent(
+                        new ru.kubsu.borshchevyk.message.domain.model.value.UserId(UUID.fromString(memberId)),
+                        chatId,
+                        "MESSAGE"
+                );
+            }
+        }
 
         log.info("Message sent successfully with ID: {}", savedMessage.getId().value());
         return savedMessage;
