@@ -46,6 +46,12 @@ import ru.kubsu.borshchevyk.message.application.port.in.UpdateMessageUseCase;
 import ru.kubsu.borshchevyk.message.application.dto.command.UpdateMessageCommand;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request.UpdateMessageRequest;
 
+/**
+ * Controller for managing messages in chats.
+ * Handles HTTP requests to send, read, update, pin, and react to messages.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/chats/{chatId}/messages")

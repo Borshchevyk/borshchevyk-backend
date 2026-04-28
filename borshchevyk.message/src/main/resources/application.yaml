@@ -49,7 +49,7 @@ grpc:
     port: ${MESSAGE_GRPC_PORT:9091}
   client:
     user-service:
-      address: 'static://user-service:9090'
+      address: 'static://${USER_GRPC_HOST:localhost}:${USER_GRPC_PORT:9090}'
       negotiation-type: plaintext
 
 app:

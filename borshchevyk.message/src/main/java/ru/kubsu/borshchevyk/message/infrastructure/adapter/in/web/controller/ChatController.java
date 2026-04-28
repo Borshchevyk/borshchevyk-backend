@@ -47,6 +47,12 @@ import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ChatInfoEvent;
 import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ChatSettingsEvent;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+/**
+ * Controller for managing chats, their settings, and members.
+ * Handles HTTP requests and performs real-time notifications via WebSockets and external services.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/chats")
