@@ -3,6 +3,7 @@ package ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.kubsu.borshchevyk.media.domain.exception.AttachmentNotFoundException;
@@ -10,6 +11,7 @@ import ru.kubsu.borshchevyk.media.domain.exception.ForbiddenActionException;
 import ru.kubsu.borshchevyk.media.domain.exception.InvalidAttachmentTypeException;
 
 import java.net.URI;
+import java.util.stream.Collectors;
 
 /**
  * Global exception handler for the media service.
@@ -63,6 +65,18 @@ public class GlobalExceptionHandler {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
         problemDetail.setTitle("Conflict");
         problemDetail.setType(URI.create("https://api.borshchevyk.kubsu.ru/errors/conflict"));
+        return problemDetail;
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String errorMessage = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        log.warn("Validation error: {}", errorMessage);
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, errorMessage);
+        problemDetail.setTitle("Validation Failed");
+        problemDetail.setType(URI.create("https://api.borshchevyk.kubsu.ru/errors/validation-failed"));
         return problemDetail;
     }
 

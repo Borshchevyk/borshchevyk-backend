@@ -104,7 +104,7 @@ public class MediaController {
     @PostMapping("/upload-url")
     public UploadUrlResult requestUploadUrl(
             @RequestHeader(value = "X-User-Id") UUID userId,
-            @RequestBody RequestUploadUrlRequest request) {
+            @jakarta.validation.Valid @RequestBody RequestUploadUrlRequest request) {
         
         log.info("Requesting upload URL for user {} type {}", userId, request.type());
 
@@ -187,7 +187,7 @@ public class MediaController {
     @PostMapping("/validate")
     public ValidateAttachmentsResponse validateAttachments(
             @RequestHeader(value = "X-User-Id") UUID userId,
-            @RequestBody ValidateAttachmentsRequest request) {
+            @jakarta.validation.Valid @RequestBody ValidateAttachmentsRequest request) {
         
         log.info("Validating attachments for user {}", userId);
 
@@ -201,15 +201,8 @@ public class MediaController {
         List<ValidateAttachmentsResponse.AttachmentMetadataResponse> metadataResponses = null;
         if (result.getAttachments() != null) {
             metadataResponses = result.getAttachments().stream()
-                    .map(m -> new ValidateAttachmentsResponse.AttachmentMetadataResponse(
-                            m.getId(),
-                            m.getType(),
-                            m.getOriginalFilename(),
-                            m.getExtension(),
-                            m.getSizeBytes(),
-                            m.getDuration(),
-                            m.getThumbnailId()
-                    ))                    .toList();
+                    .map(presentationMediaMapper::toMetadataResponse)
+                    .toList();
         }
         
         return new ValidateAttachmentsResponse(result.isValid(), metadataResponses);
