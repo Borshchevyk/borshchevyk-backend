@@ -71,7 +71,8 @@ public class SendMessageService implements SendMessageUseCase {
                             m.getOriginalFilename(),
                             m.getExtension(),
                             m.getSizeBytes(),
-                            m.getDuration()
+                            m.getDuration(),
+                            m.getThumbnailId()
                     ))                    .collect(Collectors.toList());
         }
 

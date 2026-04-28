@@ -56,6 +56,8 @@ public record MessageResponse(
             @Schema(description = "Size of the attachment in bytes")
             Long sizeBytes,
             @Schema(description = "Duration of the attachment in seconds (for VOICE and CIRCLE)")
-            Double duration
+            Double duration,
+            @Schema(description = "ID of the thumbnail attachment (optional)")
+            UUID thumbnailId
     ) {}
 }

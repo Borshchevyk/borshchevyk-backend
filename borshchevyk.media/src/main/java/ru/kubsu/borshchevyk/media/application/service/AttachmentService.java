@@ -27,13 +27,15 @@ import java.util.List;
 import java.util.UUID;
 import java.util.ArrayList;
 
-import ru.kubsu.borshchevyk.media.application.dto.command.UploadAvatarCommand;
-import ru.kubsu.borshchevyk.media.application.port.in.UploadAvatarUseCase;
+import net.coobird.thumbnailator.Thumbnails;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploadUseCase, GetAttachmentUrlUseCase, ValidateAttachmentsUseCase, SoftDeleteUseCase, UploadAvatarUseCase {
+public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploadUseCase, GetAttachmentUrlUseCase, GetThumbnailUrlUseCase, ValidateAttachmentsUseCase, SoftDeleteUseCase, UploadAvatarUseCase {
 
     private final AttachmentPort attachmentPort;
     private final S3Port s3Port;
@@ -131,10 +133,48 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
             throw new IllegalStateException("Object not found in S3 bucket. Key: " + attachment.getS3Key());
         }
 
+        // Generate thumbnail for images
+        if (attachment.getType() == AttachmentType.IMAGE) {
+            try {
+                generateAndUploadThumbnail(attachment);
+            } catch (Exception e) {
+                log.error("Failed to generate thumbnail for attachment {}", attachment.getId().value(), e);
+                // We don't fail the whole upload if thumbnail fails, but we should probably log it
+            }
+        }
+
         attachment.setStatus(AttachmentStatus.READY);
         attachment.setUpdatedAt(LocalDateTime.now());
         
         return attachmentPort.save(attachment);
+    }
+
+    private void generateAndUploadThumbnail(Attachment attachment) throws Exception {
+        log.info("Generating thumbnail for image attachment {}", attachment.getId().value());
+        
+        try (InputStream originalStream = s3Port.downloadFile(attachment.getS3Key())) {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            
+            Thumbnails.of(originalStream)
+                    .size(320, 320)
+                    .keepAspectRatio(true)
+                    .outputFormat("jpg")
+                    .toOutputStream(outputStream);
+            
+            byte[] thumbnailData = outputStream.toByteArray();
+            String thumbnailKey = attachment.getS3Key().replace("attachments/", "thumbnails/");
+            if (thumbnailKey.contains(".")) {
+                thumbnailKey = thumbnailKey.substring(0, thumbnailKey.lastIndexOf(".")) + ".jpg";
+            } else {
+                thumbnailKey = thumbnailKey + ".jpg";
+            }
+            
+            s3Port.uploadFile(thumbnailKey, new ByteArrayInputStream(thumbnailData), thumbnailData.length, "image/jpeg");
+            
+            attachment.setThumbnailKey(thumbnailKey);
+            attachment.setThumbnailId(attachment.getId().value()); // Use main ID for thumbnail link
+            log.info("Thumbnail generated and uploaded to {}", thumbnailKey);
+        }
     }
 
     @Override
@@ -150,6 +190,26 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
         }
 
         String downloadUrl = s3Port.generatePresignedGetUrl(attachment.getS3Key(), Duration.ofHours(1));
+
+        return AttachmentUrlResult.builder()
+                .url(downloadUrl)
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AttachmentUrlResult getThumbnailUrl(GetAttachmentUrlCommand command) {
+        log.info("Getting thumbnail URL for attachment {} by user {}", command.getAttachmentId(), command.getRequesterId());
+
+        Attachment attachment = attachmentPort.findById(new AttachmentId(command.getAttachmentId()))
+                .orElseThrow(() -> new AttachmentNotFoundException("Attachment not found"));
+
+        if (attachment.getThumbnailKey() == null || attachment.getThumbnailKey().isEmpty()) {
+            log.warn("Thumbnail not found for attachment {}, returning original URL as fallback", command.getAttachmentId());
+            return getAttachmentUrl(command);
+        }
+
+        String downloadUrl = s3Port.generatePresignedGetUrl(attachment.getThumbnailKey(), Duration.ofHours(1));
 
         return AttachmentUrlResult.builder()
                 .url(downloadUrl)
@@ -190,6 +250,7 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
                     .extension(attachment.getExtension())
                     .sizeBytes(attachment.getSizeBytes())
                     .duration(attachment.getDuration())
+                    .thumbnailId(attachment.getThumbnailId())
                     .build());
         }
 

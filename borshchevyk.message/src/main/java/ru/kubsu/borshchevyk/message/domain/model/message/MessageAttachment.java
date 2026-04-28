@@ -18,4 +18,5 @@ public class MessageAttachment {
     private String extension;
     private Long sizeBytes;
     private Double duration;
+    private UUID thumbnailId;
 }
