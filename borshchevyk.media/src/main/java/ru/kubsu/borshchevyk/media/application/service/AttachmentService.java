@@ -25,14 +25,21 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
-import org.jcodec.api.FrameGrab;
-import org.jcodec.common.model.Picture;
-import org.jcodec.scale.AWTUtil;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
+import java.util.ArrayList;
+import java.io.InputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.awt.image.BufferedImage;
+
+import ru.kubsu.borshchevyk.media.application.dto.command.UploadAvatarCommand;
+import net.coobird.thumbnailator.Thumbnails;
+import org.jcodec.api.FrameGrab;
+import org.jcodec.common.model.Picture;
+import org.jcodec.scale.AWTUtil;
+import org.jcodec.common.io.NIOUtils;
 
 @Slf4j
 @Service
@@ -136,7 +143,7 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
         }
 
         // Generate thumbnail for images and videos
-        if (attachment.getType() == AttachmentType.IMAGE) {
+        if (attachment.getType() == AttachmentType.PHOTO) {
             try {
                 generateAndUploadImageThumbnail(attachment);
             } catch (Exception e) {
@@ -181,7 +188,9 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
                 Files.copy(is, tempFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             }
 
-            Picture picture = FrameGrab.getNativeFrame(tempFile.toFile(), 0);
+            FrameGrab grab = FrameGrab.createFrameGrab(NIOUtils.readableChannel(tempFile.toFile()));
+            Picture picture = grab.getNativeFrame();
+            
             if (picture != null) {
                 BufferedImage bufferedImage = AWTUtil.toBufferedImage(picture);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
