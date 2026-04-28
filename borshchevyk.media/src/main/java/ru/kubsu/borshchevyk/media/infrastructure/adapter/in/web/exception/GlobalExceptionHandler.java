@@ -10,6 +10,8 @@ import ru.kubsu.borshchevyk.media.domain.exception.AttachmentNotFoundException;
 import ru.kubsu.borshchevyk.media.domain.exception.ForbiddenActionException;
 import ru.kubsu.borshchevyk.media.domain.exception.InvalidAttachmentTypeException;
 
+import ru.kubsu.borshchevyk.media.domain.exception.StorageException;
+
 import java.net.URI;
 import java.util.stream.Collectors;
 
@@ -22,6 +24,15 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(StorageException.class)
+    public ProblemDetail handleStorageException(StorageException ex) {
+        log.error("Storage error: {}", ex.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Storage operation failed");
+        problemDetail.setTitle("Storage Error");
+        problemDetail.setType(URI.create("https://api.borshchevyk.kubsu.ru/errors/internal-server-error"));
+        return problemDetail;
+    }
 
     @ExceptionHandler(AttachmentNotFoundException.class)
     public ProblemDetail handleAttachmentNotFound(AttachmentNotFoundException ex) {

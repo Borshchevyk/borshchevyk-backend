@@ -11,6 +11,11 @@ import ru.kubsu.borshchevyk.media.domain.model.AttachmentType;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * JPA Entity for storing attachment metadata in the database.
+ *
+ * @author Aleksey Timko
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

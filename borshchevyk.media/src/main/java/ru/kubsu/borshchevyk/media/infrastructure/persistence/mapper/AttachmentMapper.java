@@ -8,6 +8,11 @@ import ru.kubsu.borshchevyk.media.infrastructure.persistence.entity.AttachmentEn
 
 import java.util.UUID;
 
+/**
+ * Mapper for converting between Attachment domain model and AttachmentEntity.
+ *
+ * @author Aleksey Timko
+ */
 @Mapper(componentModel = "spring")
 public interface AttachmentMapper {
     @Mapping(target = "id.value", source = "id")

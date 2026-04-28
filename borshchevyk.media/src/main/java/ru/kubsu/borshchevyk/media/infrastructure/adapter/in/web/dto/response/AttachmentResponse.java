@@ -7,6 +7,11 @@ import ru.kubsu.borshchevyk.media.domain.model.AttachmentType;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Response containing full attachment metadata.
+ *
+ * @author Aleksey Timko
+ */
 @Schema(description = "Response containing full attachment metadata")
 public record AttachmentResponse(
         @Schema(description = "Unique ID of the attachment", example = "550e8400-e29b-41d4-a716-446655440000")
