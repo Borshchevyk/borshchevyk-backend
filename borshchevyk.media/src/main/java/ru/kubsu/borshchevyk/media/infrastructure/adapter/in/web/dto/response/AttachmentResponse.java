@@ -12,6 +12,7 @@ public record AttachmentResponse(
         AttachmentType type,
         String s3Key,
         String thumbnailKey,
+        UUID thumbnailId,
         String originalFilename,
         String extension,
         String contentType,

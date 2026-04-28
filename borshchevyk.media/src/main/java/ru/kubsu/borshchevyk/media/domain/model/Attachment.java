@@ -19,6 +19,7 @@ public class Attachment {
     private AttachmentType type;
     private String s3Key;
     private String thumbnailKey;
+    private UUID thumbnailId;
     private String originalFilename;
     private String extension;
     private String contentType;

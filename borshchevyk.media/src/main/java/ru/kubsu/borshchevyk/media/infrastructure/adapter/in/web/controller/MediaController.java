@@ -34,6 +34,7 @@ public class MediaController {
     private final RequestUploadUrlUseCase requestUploadUrlUseCase;
     private final CompleteUploadUseCase completeUploadUseCase;
     private final GetAttachmentUrlUseCase getAttachmentUrlUseCase;
+    private final GetThumbnailUrlUseCase getThumbnailUrlUseCase;
     private final ValidateAttachmentsUseCase validateAttachmentsUseCase;
     private final SoftDeleteUseCase softDeleteUseCase;
     private final PresentationMediaMapper presentationMediaMapper;
@@ -142,6 +143,22 @@ public class MediaController {
         return getAttachmentUrlUseCase.getAttachmentUrl(command);
     }
 
+    @Operation(summary = "Get pre-signed URL for thumbnail", description = "Generates a secure temporary link for the client to download a thumbnail image.")
+    @GetMapping("/{attachmentId}/thumbnail-url")
+    public AttachmentUrlResult getThumbnailUrl(
+            @PathVariable UUID attachmentId,
+            @RequestHeader(value = "X-User-Id") UUID userId) {
+
+        log.info("Getting thumbnail URL for attachment {} by user {}", attachmentId, userId);
+
+        GetAttachmentUrlCommand command = GetAttachmentUrlCommand.builder()
+                .attachmentId(attachmentId)
+                .requesterId(userId)
+                .build();
+
+        return getThumbnailUrlUseCase.getThumbnailUrl(command);
+    }
+
     @Operation(summary = "Soft delete attachment", description = "Marks an attachment as DELETED. The file is not removed from S3 for history purposes.")
     @DeleteMapping("/{attachmentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -177,7 +194,8 @@ public class MediaController {
                             m.getOriginalFilename(),
                             m.getExtension(),
                             m.getSizeBytes(),
-                            m.getDuration()
+                            m.getDuration(),
+                            m.getThumbnailId()
                     ))                    .toList();
         }
         
