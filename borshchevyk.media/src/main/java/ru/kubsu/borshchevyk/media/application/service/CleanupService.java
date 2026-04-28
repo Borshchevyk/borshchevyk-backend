@@ -13,6 +13,11 @@ import ru.kubsu.borshchevyk.media.domain.model.AttachmentStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Service responsible for cleaning up abandoned and stale attachments.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

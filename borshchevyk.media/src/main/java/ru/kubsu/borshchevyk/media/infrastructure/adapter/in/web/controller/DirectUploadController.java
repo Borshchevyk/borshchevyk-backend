@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.kubsu.borshchevyk.media.application.dto.command.UploadDirectAttachmentCommand;
@@ -18,6 +19,11 @@ import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.mapper.Presentat
 import java.io.IOException;
 import java.util.UUID;
 
+/**
+ * Controller for handling direct file uploads, like voice messages and circles.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/media/upload")
@@ -29,7 +35,7 @@ public class DirectUploadController {
     private final PresentationMediaMapper presentationMediaMapper;
 
     @Operation(summary = "Upload voice message", description = "Directly uploads a voice message and returns its metadata.")
-    @PostMapping(value = "/voice", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/voice", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public AttachmentResponse uploadVoice(
             @RequestHeader(value = "X-User-Id") UUID userId,
@@ -41,7 +47,7 @@ public class DirectUploadController {
     }
 
     @Operation(summary = "Upload circle video note", description = "Directly uploads a circle video note and returns its metadata.")
-    @PostMapping(value = "/circle", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/circle", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public AttachmentResponse uploadCircle(
             @RequestHeader(value = "X-User-Id") UUID userId,

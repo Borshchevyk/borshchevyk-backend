@@ -17,6 +17,11 @@ import ru.kubsu.borshchevyk.media.domain.model.value.AttachmentId;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Service for direct upload of specific attachment types (e.g., voices, circles).
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

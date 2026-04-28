@@ -5,10 +5,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import jakarta.servlet.http.HttpServletResponse;
 import ru.kubsu.borshchevyk.media.application.dto.command.CompleteUploadCommand;
 import ru.kubsu.borshchevyk.media.application.dto.command.GetAttachmentUrlCommand;
 import ru.kubsu.borshchevyk.media.application.dto.command.RequestUploadUrlCommand;
+import ru.kubsu.borshchevyk.media.application.dto.command.UploadAvatarCommand;
 import ru.kubsu.borshchevyk.media.application.dto.command.ValidateAttachmentsCommand;
 import ru.kubsu.borshchevyk.media.application.dto.response.AttachmentUrlResult;
 import ru.kubsu.borshchevyk.media.application.dto.response.UploadUrlResult;
@@ -21,9 +26,16 @@ import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.dto.response.Att
 import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.dto.response.ValidateAttachmentsResponse;
 import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.mapper.PresentationMediaMapper;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * REST controller for managing media files and attachments.
+ * Provides endpoints for uploading, downloading, deleting, and validating attachments.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/media")
@@ -38,13 +50,13 @@ public class MediaController {
     private final ValidateAttachmentsUseCase validateAttachmentsUseCase;
     private final SoftDeleteUseCase softDeleteUseCase;
     private final PresentationMediaMapper presentationMediaMapper;
-    private final ru.kubsu.borshchevyk.media.application.port.in.UploadAvatarUseCase uploadAvatarUseCase;
+    private final UploadAvatarUseCase uploadAvatarUseCase;
 
     @Operation(summary = "Upload user avatar", description = "Uploads a user avatar directly and returns its URL.")
-    @PostMapping(value = "/upload/avatar", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/upload/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public AttachmentUrlResult uploadAvatar(
             @RequestHeader(value = "X-User-Id") UUID userId,
-            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
+            @RequestParam("file") MultipartFile file) throws IOException {
         
         log.info("Uploading avatar for user {}", userId);
         String originalFilename = file.getOriginalFilename();
@@ -53,7 +65,7 @@ public class MediaController {
             extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
         }
 
-        ru.kubsu.borshchevyk.media.application.dto.command.UploadAvatarCommand command = ru.kubsu.borshchevyk.media.application.dto.command.UploadAvatarCommand.builder()
+        UploadAvatarCommand command = UploadAvatarCommand.builder()
                 .uploaderId(userId)
                 .inputStream(file.getInputStream())
                 .contentType(file.getContentType())
@@ -64,10 +76,11 @@ public class MediaController {
 
         AttachmentUrlResult result = uploadAvatarUseCase.uploadAvatar(command);
         
-        String absoluteUrl = org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath()
+        String absoluteUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(result.getUrl().substring("/api/v1/media".length())) // since ServletUriComponentsBuilder is relative to context path
                 .build()
                 .toUriString();
+
                 
         return AttachmentUrlResult.builder().url(absoluteUrl).build();
     }
@@ -76,7 +89,7 @@ public class MediaController {
     @GetMapping("/avatars/{attachmentId}")
     public void getAvatar(
             @PathVariable UUID attachmentId,
-            jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+            HttpServletResponse response) throws IOException {
         
         GetAttachmentUrlCommand command = GetAttachmentUrlCommand.builder()
                 .attachmentId(attachmentId)

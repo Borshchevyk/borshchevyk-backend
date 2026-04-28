@@ -41,6 +41,12 @@ import org.jcodec.common.model.Picture;
 import org.jcodec.scale.AWTUtil;
 import org.jcodec.common.io.NIOUtils;
 
+/**
+ * Service implementing various use cases for managing attachments and media files.
+ * Handles uploading, downloading, validation, and generation of thumbnails.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

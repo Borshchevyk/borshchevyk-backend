@@ -2,56 +2,76 @@ package ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.kubsu.borshchevyk.media.domain.exception.AttachmentNotFoundException;
+import ru.kubsu.borshchevyk.media.domain.exception.ForbiddenActionException;
 import ru.kubsu.borshchevyk.media.domain.exception.InvalidAttachmentTypeException;
 
-import java.time.LocalDateTime;
-import java.util.Map;
+import java.net.URI;
 
+/**
+ * Global exception handler for the media service.
+ * Translates domain exceptions into RFC 7807 ProblemDetail responses.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AttachmentNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleAttachmentNotFound(AttachmentNotFoundException ex) {
+    public ProblemDetail handleAttachmentNotFound(AttachmentNotFoundException ex) {
         log.warn("Attachment not found: {}", ex.getMessage());
-        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problemDetail.setTitle("Attachment Not Found");
+        problemDetail.setType(URI.create("https://api.borshchevyk.kubsu.ru/errors/not-found"));
+        return problemDetail;
     }
 
     @ExceptionHandler(InvalidAttachmentTypeException.class)
-    public ResponseEntity<Map<String, Object>> handleInvalidAttachmentType(InvalidAttachmentTypeException ex) {
+    public ProblemDetail handleInvalidAttachmentType(InvalidAttachmentTypeException ex) {
         log.warn("Invalid attachment type: {}", ex.getMessage());
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problemDetail.setTitle("Invalid Attachment Type");
+        problemDetail.setType(URI.create("https://api.borshchevyk.kubsu.ru/errors/bad-request"));
+        return problemDetail;
+    }
+
+    @ExceptionHandler(ForbiddenActionException.class)
+    public ProblemDetail handleForbiddenAction(ForbiddenActionException ex) {
+        log.warn("Forbidden action: {}", ex.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
+        problemDetail.setTitle("Forbidden Action");
+        problemDetail.setType(URI.create("https://api.borshchevyk.kubsu.ru/errors/forbidden"));
+        return problemDetail;
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+    public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {
         log.warn("Illegal argument: {}", ex.getMessage());
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setType(URI.create("https://api.borshchevyk.kubsu.ru/errors/bad-request"));
+        return problemDetail;
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalState(IllegalStateException ex) {
+    public ProblemDetail handleIllegalState(IllegalStateException ex) {
         log.warn("Illegal state: {}", ex.getMessage());
-        return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problemDetail.setTitle("Conflict");
+        problemDetail.setType(URI.create("https://api.borshchevyk.kubsu.ru/errors/conflict"));
+        return problemDetail;
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex) {
+    public ProblemDetail handleGeneralException(Exception ex) {
         log.error("Internal server error", ex);
-        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
-    }
-
-    private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpStatus status, String message) {
-        Map<String, Object> body = Map.of(
-                "timestamp", LocalDateTime.now(),
-                "status", status.value(),
-                "error", status.getReasonPhrase(),
-                "message", message
-        );
-        return new ResponseEntity<>(body, status);
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
+        problemDetail.setTitle("Internal Server Error");
+        problemDetail.setType(URI.create("https://api.borshchevyk.kubsu.ru/errors/internal-server-error"));
+        return problemDetail;
     }
 }
