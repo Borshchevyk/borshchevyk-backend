@@ -21,5 +21,6 @@ public class ValidateAttachmentsResult {
         String extension;
         Long sizeBytes;
         Double duration;
+        UUID thumbnailId;
     }
 }

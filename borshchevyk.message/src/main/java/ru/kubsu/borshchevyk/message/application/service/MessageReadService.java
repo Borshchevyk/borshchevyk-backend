@@ -58,6 +58,7 @@ public class MessageReadService implements ReadMessageUseCase, LoadMessageReader
         }
 
         requester.setLastReadMessageId(messageId);
+        requester.setLastReadAt(message.getCreatedAt());
         chatMemberPort.saveAll(List.of(requester));
 
         // Update message status to READ if someone other than author reads it
