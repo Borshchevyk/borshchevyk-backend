@@ -27,3 +27,9 @@ logging:
     org.springframework.web.servlet.DispatcherServlet: DEBUG
   file:
     name: logs/${spring.application.name}.log
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
