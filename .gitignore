@@ -37,7 +37,7 @@ build/
 
 ### VS Code ###
 .vscode/
-/.gemini/
+**/.gemini/
 /borshchevyk-api-controller.skill
 /borshchevyk-hexagonal-service.skill
 /borshchevyk-kafka-adapter.skill
