@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.kubsu.borshchevyk.calls.domain.exception.CallEndedException;
 import ru.kubsu.borshchevyk.calls.domain.exception.CallNotFoundException;
+import ru.kubsu.borshchevyk.calls.domain.exception.DomainValidationException;
 import ru.kubsu.borshchevyk.calls.domain.exception.UserForbiddenException;
 
 import java.net.URI;
@@ -53,22 +54,12 @@ public class GlobalExceptionHandler {
         return problemDetail;
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {
+    @ExceptionHandler(DomainValidationException.class)
+    public ProblemDetail handleDomainValidation(DomainValidationException ex) {
         log.warn("Bad request: {}", ex.getMessage());
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
         problemDetail.setTitle("Bad Request");
         problemDetail.setType(URI.create("https://borshchevyk.ru/errors/bad-request"));
-        problemDetail.setProperty("timestamp", Instant.now());
-        return problemDetail;
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    public ProblemDetail handleIllegalState(IllegalStateException ex) {
-        log.warn("Conflict/Illegal state: {}", ex.getMessage());
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
-        problemDetail.setTitle("Conflict");
-        problemDetail.setType(URI.create("https://borshchevyk.ru/errors/conflict"));
         problemDetail.setProperty("timestamp", Instant.now());
         return problemDetail;
     }
