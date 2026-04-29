@@ -1,13 +1,12 @@
 package ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.calls.application.port.in.HandleLiveKitWebhookUseCase;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.LiveKitWebhookEventDto;
 
 /**
  * Controller for receiving webhooks from the LiveKit server.
@@ -24,31 +23,38 @@ import ru.kubsu.borshchevyk.calls.application.port.in.HandleLiveKitWebhookUseCas
 public class LiveKitWebhookController {
 
     private final HandleLiveKitWebhookUseCase handleLiveKitWebhookUseCase;
-    private final ObjectMapper objectMapper;
 
     @PostMapping
     public ResponseEntity<Void> receiveWebhook(
             @RequestHeader(value = "Authorization", required = false) String authHeader,
-            @RequestBody String payload) {
+            @RequestBody LiveKitWebhookEventDto payload) {
             
         try {
-            JsonNode root = objectMapper.readTree(payload);
-            String eventType = root.path("event").asText();
-            JsonNode roomNode = root.path("room");
-            String roomId = roomNode.path("name").asText();
-            String participantIdentity = root.path("participant").path("identity").asText();
+            String eventType = payload.event();
+            String roomId = payload.room() != null ? payload.room().name() : null;
+            String participantIdentity = payload.participant() != null ? payload.participant().identity() : null;
 
             log.info("Received LiveKit webhook: event={}, room={}", eventType, roomId);
 
+            if (eventType == null) {
+                return ResponseEntity.badRequest().build();
+            }
+
             switch (eventType) {
                 case "room_finished":
-                    handleLiveKitWebhookUseCase.handleRoomFinished(roomId);
+                    if (roomId != null) {
+                        handleLiveKitWebhookUseCase.handleRoomFinished(roomId);
+                    }
                     break;
                 case "participant_joined":
-                    handleLiveKitWebhookUseCase.handleParticipantJoined(roomId, participantIdentity);
+                    if (roomId != null && participantIdentity != null) {
+                        handleLiveKitWebhookUseCase.handleParticipantJoined(roomId, participantIdentity);
+                    }
                     break;
                 case "participant_left":
-                    handleLiveKitWebhookUseCase.handleParticipantLeft(roomId, participantIdentity);
+                    if (roomId != null && participantIdentity != null) {
+                        handleLiveKitWebhookUseCase.handleParticipantLeft(roomId, participantIdentity);
+                    }
                     break;
                 default:
                     log.debug("Ignored webhook event: {}", eventType);

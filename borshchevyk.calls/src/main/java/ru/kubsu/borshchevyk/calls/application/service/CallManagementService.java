@@ -9,7 +9,6 @@ import ru.kubsu.borshchevyk.calls.application.dto.command.InitiateCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.command.JoinCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.command.LeaveCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.query.GetCallQuery;
-import ru.kubsu.borshchevyk.calls.application.port.in.HandleLiveKitWebhookUseCase;
 import ru.kubsu.borshchevyk.calls.application.port.in.ManageCallUseCase;
 import ru.kubsu.borshchevyk.calls.application.port.out.LiveKitPort;
 import ru.kubsu.borshchevyk.calls.application.port.out.LoadCallPort;
@@ -34,7 +33,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CallService implements ManageCallUseCase, HandleLiveKitWebhookUseCase {
+public class CallManagementService implements ManageCallUseCase {
 
     private final SaveCallPort saveCallPort;
     private final LoadCallPort loadCallPort;
@@ -139,35 +138,5 @@ public class CallService implements ManageCallUseCase, HandleLiveKitWebhookUseCa
         }
 
         return call;
-    }
-
-    @Override
-    @Transactional
-    public void handleRoomFinished(String roomId) {
-        loadCallPort.loadCallByRoomId(roomId).ifPresent(call -> {
-            if (call.getStatus() != CallStatus.ENDED) {
-                call.endCall();
-                saveCallPort.saveCall(call);
-                publishCallEventPort.publishCallEnded(call);
-                log.info("Call {} ended via LiveKit webhook", call.getId().value());
-            }
-        });
-    }
-
-    @Override
-    @Transactional
-    public void handleParticipantJoined(String roomId, String participantIdentity) {
-        loadCallPort.loadCallByRoomId(roomId).ifPresent(call -> {
-            call.markAsInProgress();
-            saveCallPort.saveCall(call);
-            log.info("Call {} marked as IN_PROGRESS due to participant {} joining", call.getId().value(), participantIdentity);
-        });
-    }
-
-    @Override
-    @Transactional
-    public void handleParticipantLeft(String roomId, String participantIdentity) {
-        log.info("Participant {} left room {} via LiveKit webhook", participantIdentity, roomId);
-        // Business logic can be added here if needed
     }
 }
