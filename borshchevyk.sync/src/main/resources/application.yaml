@@ -16,7 +16,7 @@ spring:
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
-      group-id: sync-service-group
+      group-id: ${SPRING_KAFKA_CONSUMER_GROUP_ID:sync-service-group}
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -32,10 +32,10 @@ spring:
 app:
   kafka:
     topics:
-      user-registered: user-registered-events
-      user-updated: user-updated-events
-      message-created: message-created-events
-      message-deleted: message-deleted-events
+      user-registered: ${KAFKA_TOPIC_USER_REGISTERED:user-registered-events}
+      user-updated: ${KAFKA_TOPIC_USER_UPDATED:user-updated-events}
+      message-created: ${KAFKA_TOPIC_MESSAGE_CREATED:message-created-events}
+      message-deleted: ${KAFKA_TOPIC_MESSAGE_DELETED:message-deleted-events}
 
 springdoc:
   swagger-ui:

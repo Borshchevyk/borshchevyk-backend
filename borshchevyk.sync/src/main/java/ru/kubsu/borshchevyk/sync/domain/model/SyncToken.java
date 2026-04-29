@@ -4,6 +4,11 @@ import lombok.Value;
 
 import java.util.Base64;
 
+/**
+ * Domain model representing a synchronization token used for pagination and state tracking.
+ *
+ * @author Aleksey Timko
+ */
 @Value
 public class SyncToken {
     String value;

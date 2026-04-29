@@ -7,6 +7,11 @@ import ru.kubsu.borshchevyk.sync.infrastructure.adapter.out.persistence.entity.S
 
 import java.util.List;
 
+/**
+ * Mapper for converting between SyncEvent domain model and SyncEventEntity.
+ *
+ * @author Aleksey Timko
+ */
 @Mapper(componentModel = "spring")
 public interface SyncEventMapper {
 

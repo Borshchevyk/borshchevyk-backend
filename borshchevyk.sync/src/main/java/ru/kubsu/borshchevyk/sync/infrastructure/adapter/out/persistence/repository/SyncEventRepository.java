@@ -9,6 +9,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Repository for managing sync events in the database.
+ *
+ * @author Aleksey Timko
+ */
 @Repository
 public interface SyncEventRepository extends JpaRepository<SyncEventEntity, UUID> {
     

@@ -2,11 +2,15 @@ package ru.kubsu.borshchevyk.sync.infrastructure.adapter.out.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * JPA entity representing a synchronization event.
+ *
+ * @author Aleksey Timko
+ */
 @Entity
 @Table(name = "sync_events", indexes = {
     @Index(name = "idx_target_user_sequence", columnList = "target_user_id, sequence_number")
@@ -19,8 +23,7 @@ import java.util.UUID;
 public class SyncEventEntity {
 
     @Id
-    @GeneratedValue(generator = "UUID")
-    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(name = "target_user_id", nullable = false)

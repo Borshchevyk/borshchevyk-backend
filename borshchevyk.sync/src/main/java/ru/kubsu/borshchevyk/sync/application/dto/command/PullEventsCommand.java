@@ -1,18 +1,18 @@
 package ru.kubsu.borshchevyk.sync.application.dto.command;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-@Data
+/**
+ * Command to pull events for synchronization.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PullEventsCommand {
-    private UUID requesterId;
-    private String syncToken;
-    private int limit;
+public record PullEventsCommand(
+        UUID requesterId,
+        String syncToken,
+        int limit
+) {
 }

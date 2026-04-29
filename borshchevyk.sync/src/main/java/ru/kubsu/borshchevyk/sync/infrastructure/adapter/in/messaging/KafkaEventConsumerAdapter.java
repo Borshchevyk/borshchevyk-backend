@@ -13,6 +13,11 @@ import ru.kubsu.borshchevyk.sync.infrastructure.adapter.in.messaging.dto.UserReg
 
 import java.util.UUID;
 
+/**
+ * Adapter for consuming events from Kafka.
+ *
+ * @author Aleksey Timko
+ */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -27,7 +32,7 @@ public class KafkaEventConsumerAdapter {
         try {
             String payload = objectMapper.writeValueAsString(event);
             processIncomingEventUseCase.process(
-                    UUID.fromString(event.getUserId()),
+                    UUID.fromString(event.userId()),
                     EventType.USER_REGISTERED,
                     payload
             );
@@ -41,8 +46,8 @@ public class KafkaEventConsumerAdapter {
         log.info("Received MessageCreatedEvent: {}", event);
         try {
             String payload = objectMapper.writeValueAsString(event);
-            if (event.getTargetUserIds() != null) {
-                for (String targetId : event.getTargetUserIds()) {
+            if (event.targetUserIds() != null) {
+                for (String targetId : event.targetUserIds()) {
                     processIncomingEventUseCase.process(
                             UUID.fromString(targetId),
                             EventType.MESSAGE_CREATED,
