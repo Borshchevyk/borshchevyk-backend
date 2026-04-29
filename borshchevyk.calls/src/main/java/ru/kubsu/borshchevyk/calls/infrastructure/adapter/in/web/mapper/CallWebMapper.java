@@ -11,6 +11,7 @@ import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.CallResponse
 import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.response.ShortUserDto;
 import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.facade.UserEnrichmentService;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -50,7 +51,7 @@ public abstract class CallWebMapper {
             return Set.of();
         }
         
-        java.util.List<UUID> userIds = call.getParticipants().stream()
+        List<UUID> userIds = call.getParticipants().stream()
                 .map(UserId::value)
                 .toList();
                 

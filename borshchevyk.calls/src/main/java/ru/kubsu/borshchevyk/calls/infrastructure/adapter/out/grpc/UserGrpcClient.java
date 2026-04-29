@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.kubsu.borshchevyk.grpc.UserRequest;
 import ru.kubsu.borshchevyk.grpc.UserResponse;
 import ru.kubsu.borshchevyk.grpc.UserServiceGrpc;
+import ru.kubsu.borshchevyk.grpc.UsersBatchRequest;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +32,7 @@ public class UserGrpcClient {
     }
 
     public List<UserResponse> getUsersBatch(List<UUID> userIds) {
-        ru.kubsu.borshchevyk.grpc.UsersBatchRequest request = ru.kubsu.borshchevyk.grpc.UsersBatchRequest.newBuilder()
+        UsersBatchRequest request = UsersBatchRequest.newBuilder()
                 .addAllUserIds(userIds.stream().map(UUID::toString).toList())
                 .build();
         return userServiceStub.getUsersBatch(request).getUsersList();

@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.response.ShortUserDto;
 import ru.kubsu.borshchevyk.calls.infrastructure.adapter.out.grpc.UserGrpcClient;
+import ru.kubsu.borshchevyk.grpc.UserResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,7 @@ public class UserEnrichmentService {
 
     public ShortUserDto getUserInfo(UUID userId) {
         try {
-            ru.kubsu.borshchevyk.grpc.UserResponse response = userGrpcClient.getUserInfo(userId);
+            UserResponse response = userGrpcClient.getUserInfo(userId);
             return mapToEnriched(response);
         } catch (Exception e) {
             log.error("Failed to fetch short user info for user {}: {}", userId, e.getMessage());
@@ -39,7 +40,7 @@ public class UserEnrichmentService {
             if (userIds.isEmpty()) {
                 return Map.of();
             }
-            List<ru.kubsu.borshchevyk.grpc.UserResponse> responses = userGrpcClient.getUsersBatch(userIds);
+            List<UserResponse> responses = userGrpcClient.getUsersBatch(userIds);
             return responses.stream()
                     .map(this::mapToEnriched)
                     .collect(Collectors.toMap(ShortUserDto::id, dto -> dto));
@@ -52,7 +53,7 @@ public class UserEnrichmentService {
         }
     }
 
-    private ShortUserDto mapToEnriched(ru.kubsu.borshchevyk.grpc.UserResponse response) {
+    private ShortUserDto mapToEnriched(UserResponse response) {
         return ShortUserDto.builder()
                 .id(UUID.fromString(response.getUserId()))
                 .firstName(response.getFirstName())

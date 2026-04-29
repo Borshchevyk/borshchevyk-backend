@@ -15,24 +15,24 @@ import java.util.UUID;
  */
 @Schema(description = "Response object representing a Call")
 public record CallResponse(
-        @Schema(description = "Unique call ID", example = "123e4567-e89b-12d3-a456-426614174000")
+        @Schema(description = "Unique call ID", example = "123e4567-e89b-12d3-a456-426614174000", requiredMode = Schema.RequiredMode.REQUIRED)
         UUID id,
         
-        @Schema(description = "LiveKit room ID mapping", example = "room-123e4567-e89b-12d3-a456-426614174000")
+        @Schema(description = "LiveKit room ID mapping", example = "room-123e4567-e89b-12d3-a456-426614174000", requiredMode = Schema.RequiredMode.REQUIRED)
         String roomId,
         
-        @Schema(description = "Short info of the user who initiated the call")
+        @Schema(description = "Short info of the user who initiated the call", requiredMode = Schema.RequiredMode.REQUIRED)
         ShortUserDto initiator,
         
-        @Schema(description = "Current status of the call", example = "IN_PROGRESS")
+        @Schema(description = "Current status of the call", example = "IN_PROGRESS", requiredMode = Schema.RequiredMode.REQUIRED)
         String status,
         
-        @Schema(description = "When the call was created", example = "2026-04-25T10:15:30.00Z")
+        @Schema(description = "When the call was created", example = "2026-04-25T10:15:30.00Z", requiredMode = Schema.RequiredMode.REQUIRED)
         Instant createdAt,
         
-        @Schema(description = "When the call ended, if applicable", example = "2026-04-25T10:45:30.00Z")
+        @Schema(description = "When the call ended, if applicable", example = "2026-04-25T10:45:30.00Z", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         Instant endedAt,
         
-        @Schema(description = "Set of participant short info")
+        @Schema(description = "Set of participant short info", requiredMode = Schema.RequiredMode.REQUIRED)
         Set<ShortUserDto> participants
 ) {}
