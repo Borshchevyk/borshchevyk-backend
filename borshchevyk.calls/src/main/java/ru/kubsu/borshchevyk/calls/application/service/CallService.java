@@ -15,6 +15,7 @@ import ru.kubsu.borshchevyk.calls.application.port.out.LiveKitPort;
 import ru.kubsu.borshchevyk.calls.application.port.out.LoadCallPort;
 import ru.kubsu.borshchevyk.calls.application.port.out.PublishCallEventPort;
 import ru.kubsu.borshchevyk.calls.application.port.out.SaveCallPort;
+import ru.kubsu.borshchevyk.calls.domain.exception.CallEndedException;
 import ru.kubsu.borshchevyk.calls.domain.exception.CallNotFoundException;
 import ru.kubsu.borshchevyk.calls.domain.exception.UserForbiddenException;
 import ru.kubsu.borshchevyk.calls.domain.model.Call;
@@ -77,7 +78,7 @@ public class CallService implements ManageCallUseCase, HandleLiveKitWebhookUseCa
                 .orElseThrow(() -> new CallNotFoundException("Call not found with id: " + command.callId().value()));
 
         if (call.getStatus() == CallStatus.ENDED) {
-            throw new ru.kubsu.borshchevyk.calls.domain.exception.CallEndedException("Cannot join an ended call");
+            throw new CallEndedException("Cannot join an ended call");
         }
         
         // Only allow participants to join (or we can auto-add them, depending on business rules)
