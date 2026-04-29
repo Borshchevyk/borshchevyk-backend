@@ -4,7 +4,7 @@ import ru.kubsu.borshchevyk.user.domain.event.UserDeletedEvent;
 import ru.kubsu.borshchevyk.user.domain.event.UserUpdatedEvent;
 
 /**
- * Port for publishing user-related domain events.
+ * Outbound port for publishing user-related domain events to the message broker.
  *
  * @author Aleksey Timko
  * @since 2026-03-15

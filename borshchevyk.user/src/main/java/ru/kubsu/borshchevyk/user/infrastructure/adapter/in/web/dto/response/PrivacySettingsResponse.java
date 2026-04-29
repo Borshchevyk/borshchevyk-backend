@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import ru.kubsu.borshchevyk.user.domain.model.privacy.Visibility;
 
 /**
- * Class documentation.
+ * Data Transfer Object representing a user's privacy settings response in the presentation layer.
  *
  * @author Aleksey Timko
  */
@@ -20,4 +20,3 @@ public record PrivacySettingsResponse(
     @Schema(description = "Visibility for inviting to chat", example = "CONTACTS")
     Visibility inviteToChatVisibility
 ) {}
-

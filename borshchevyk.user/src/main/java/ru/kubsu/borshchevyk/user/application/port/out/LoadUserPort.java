@@ -22,9 +22,27 @@ public interface LoadUserPort {
      */
     Optional<User> loadUserById(UserId userId);
     
+    /**
+     * Loads a user by their tag.
+     *
+     * @param tag the tag of the user to load
+     * @return an Optional containing the user if found, or empty otherwise
+     */
     Optional<User> loadUserByTag(Tag tag);
     
+    /**
+     * Searches for users using a query string.
+     *
+     * @param query the search query
+     * @return a list of matching users
+     */
     List<User> searchUsers(String query);
     
+    /**
+     * Loads a batch of users by their identifiers.
+     *
+     * @param userIds the list of user identifiers
+     * @return a list of loaded users
+     */
     List<User> loadUsersByIds(List<UserId> userIds);
 }

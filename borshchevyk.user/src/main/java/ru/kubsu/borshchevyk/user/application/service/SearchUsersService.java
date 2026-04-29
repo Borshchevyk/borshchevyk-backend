@@ -18,28 +18,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Class documentation.
+ * Service for searching users.
  *
  * @author Aleksey Timko
  */
 @Slf4j
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @Service
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @RequiredArgsConstructor
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 public class SearchUsersService implements SearchUsersUseCase {
     private final LoadUserPort loadUserPort;
     private final PrivacySettingsPort privacySettingsPort;

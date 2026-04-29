@@ -43,11 +43,16 @@ class SearchUsersServiceTest {
     @BeforeEach
     void setUp() {
         userId = new UserId(UUID.randomUUID());
-        testUser = User.builder()
-                .userId(userId)
-                .email(new Email("test@example.com"))
-                .tag(new Tag("test_user"))
-                .build();
+        testUser = new User(
+                userId,
+                new Email("test@example.com"),
+                new Tag("test_user"),
+                "First",
+                "Last",
+                null,
+                null,
+                List.of()
+        );
     }
 
     @Test

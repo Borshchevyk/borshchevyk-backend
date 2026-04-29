@@ -18,28 +18,13 @@ import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 import java.util.UUID;
 
 /**
- * Class documentation.
+ * Service for retrieving user profiles with privacy settings applied.
  *
  * @author Aleksey Timko
  */
 @Slf4j
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @Service
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @RequiredArgsConstructor
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 public class GetUserProfileService implements GetUserProfileUseCase {
     private final LoadUserPort loadUserPort;
     private final PrivacySettingsPort privacySettingsPort;

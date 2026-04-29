@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 
 /**
- * Class documentation.
+ * Request DTO for adding a new contact.
  *
  * @author Aleksey Timko
  */
@@ -18,4 +18,3 @@ public record AddContactRequest(
     @Schema(description = "Last name of the contact", example = "Ivanov")
     String lastName
 ) {}
-

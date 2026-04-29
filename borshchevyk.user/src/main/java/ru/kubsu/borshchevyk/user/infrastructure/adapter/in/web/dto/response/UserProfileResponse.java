@@ -4,7 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 /**
- * Class documentation.
+ * Data Transfer Object representing a user profile response in the presentation layer.
+ * Contains public user information returned to clients.
  *
  * @author Aleksey Timko
  */
@@ -26,4 +27,3 @@ public record UserProfileResponse(
     @Schema(description = "List of user's avatar images")
     List<String> avatars
 ) {}
-

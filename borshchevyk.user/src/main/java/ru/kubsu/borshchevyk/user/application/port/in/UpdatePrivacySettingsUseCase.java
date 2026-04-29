@@ -4,11 +4,18 @@ import ru.kubsu.borshchevyk.user.application.dto.command.UpdatePrivacySettingsCo
 import ru.kubsu.borshchevyk.user.domain.model.privacy.PrivacySettings;
 
 /**
- * Class documentation.
+ * UseCase for updating a user's privacy settings.
  *
  * @author Aleksey Timko
  */
 public interface UpdatePrivacySettingsUseCase {
+    
+    /**
+     * Updates privacy settings based on the provided command.
+     *
+     * @param command the command containing new privacy settings
+     * @return the updated privacy settings
+     */
     PrivacySettings updatePrivacySettings(UpdatePrivacySettingsCommand command);
 }
 

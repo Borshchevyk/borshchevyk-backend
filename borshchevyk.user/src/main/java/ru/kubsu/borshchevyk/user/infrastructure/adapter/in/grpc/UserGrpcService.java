@@ -2,6 +2,7 @@ package ru.kubsu.borshchevyk.user.infrastructure.adapter.in.grpc;
 
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
 import ru.kubsu.borshchevyk.grpc.SearchUsersRequest;
 import ru.kubsu.borshchevyk.grpc.UserRequest;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
  * @author Aleksey Timko
  * @since 2026-03-15
  */
+@Slf4j
 @GrpcService
 @RequiredArgsConstructor
 public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
@@ -37,6 +39,7 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
 
     @Override
     public void searchUsers(SearchUsersRequest request, StreamObserver<UsersBatchResponse> responseObserver) {
+        log.info("Received gRPC request to search users with query: [{}]", request.getQuery());
         try {
             List<User> users = searchUsersUseCase.searchUsers(
                     SearchUsersCommand.builder()
@@ -59,7 +62,9 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+            log.info("Successfully processed gRPC request to search users with query: [{}]", request.getQuery());
         } catch (Exception e) {
+            log.error("Failed to search users via gRPC with query: [{}]", request.getQuery(), e);
             responseObserver.onError(io.grpc.Status.INTERNAL
                     .withDescription("Failed to search users: " + e.getMessage())
                     .asRuntimeException());
@@ -68,6 +73,7 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
 
     @Override
     public void getUserInfo(UserRequest request, StreamObserver<UserResponse> responseObserver) {
+        log.info("Received gRPC request to get user info for userId/tag: [{}]", request.getUserId());
         try {
             User user = getUserProfileUseCase.getUserProfile(GetUserProfileCommand.builder()
                     .targetUserIdOrTag(request.getUserId())
@@ -83,7 +89,9 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
             
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+            log.info("Successfully processed gRPC request to get user info for userId/tag: [{}]", request.getUserId());
         } catch (Exception e) {
+            log.error("Failed to get user info via gRPC for userId/tag: [{}]", request.getUserId(), e);
             responseObserver.onError(io.grpc.Status.NOT_FOUND
                     .withDescription("User not found: " + request.getUserId())
                     .asRuntimeException());
@@ -92,6 +100,7 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
 
     @Override
     public void getUsersBatch(UsersBatchRequest request, StreamObserver<UsersBatchResponse> responseObserver) {
+        log.info("Received gRPC request to get users batch of size: [{}]", request.getUserIdsCount());
         try {
             List<UUID> uuids = request.getUserIdsList().stream()
                     .map(UUID::fromString)
@@ -107,7 +116,7 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
                     .addAllUsers(users.stream()
                             .map(user -> UserResponse.newBuilder()
                                     .setUserId(user.getUserId().getValue().toString())
-                                    .setFirstName(user.getFirstName())
+                                    .setFirstName(user.getFirstName() != null ? user.getFirstName() : "")
                                     .setLastName(user.getLastName() != null ? user.getLastName() : "")
                                     .setTag(user.getTag().getValue())
                                     .setAvatarUrl(user.getAvatarUrl() != null ? user.getAvatarUrl() : "")
@@ -117,7 +126,9 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
 
             responseObserver.onNext(response);
             responseObserver.onCompleted();
+            log.info("Successfully processed gRPC request to get users batch of size: [{}]", request.getUserIdsCount());
         } catch (Exception e) {
+            log.error("Failed to fetch users batch via gRPC of size: [{}]", request.getUserIdsCount(), e);
             responseObserver.onError(io.grpc.Status.INTERNAL
                     .withDescription("Failed to fetch users batch: " + e.getMessage())
                     .asRuntimeException());

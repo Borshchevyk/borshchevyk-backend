@@ -4,7 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
 /**
- * Class documentation.
+ * Data Transfer Object representing a user contact response in the presentation layer.
+ * Contains information about a contact in a user's contact list.
  *
  * @author Aleksey Timko
  */
@@ -22,4 +23,3 @@ public record ContactResponse(
     @Schema(description = "Timestamp when the contact was added")
     LocalDateTime addedAt
 ) {}
-

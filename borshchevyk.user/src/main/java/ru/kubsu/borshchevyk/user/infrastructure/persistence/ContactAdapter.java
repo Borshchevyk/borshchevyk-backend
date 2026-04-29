@@ -1,6 +1,7 @@
 package ru.kubsu.borshchevyk.user.infrastructure.persistence;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.kubsu.borshchevyk.user.application.port.out.ContactPort;
 import ru.kubsu.borshchevyk.user.domain.model.contact.Contact;
@@ -12,28 +13,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Class documentation.
+ * Persistence adapter for managing user contacts in the database.
  *
  * @author Aleksey Timko
  */
+@Slf4j
 @Component
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @RequiredArgsConstructor
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 public class ContactAdapter implements ContactPort {
 
     private final ContactRepository repository;
 
     @Override
     public Contact save(Contact contact) {
+        log.debug("Saving contact for owner ID: {} and contact user ID: {}", contact.getOwnerId().getValue(), contact.getContactUserId().getValue());
         ContactEntity entity = ContactEntity.builder()
                 .id(contact.getId())
                 .ownerId(contact.getOwnerId().getValue())
@@ -44,20 +37,24 @@ public class ContactAdapter implements ContactPort {
                 .build();
 
         ContactEntity saved = repository.save(entity);
+        log.info("Successfully saved contact for owner ID: {}", contact.getOwnerId().getValue());
         return mapToDomain(saved);
     }
 
     @Override
     public void remove(Contact contact) {
+        log.debug("Removing contact for owner ID: {}", contact.getOwnerId().getValue());
         if (contact.getId() != null) {
             repository.deleteById(contact.getId());
         } else {
             repository.deleteByOwnerIdAndContactUserId(contact.getOwnerId().getValue(), contact.getContactUserId().getValue());
         }
+        log.info("Successfully removed contact for owner ID: {}", contact.getOwnerId().getValue());
     }
 
     @Override
     public List<Contact> loadByOwnerId(UserId ownerId) {
+        log.debug("Loading contacts for owner ID: {}", ownerId.getValue());
         return repository.findByOwnerId(ownerId.getValue()).stream()
                 .map(this::mapToDomain)
                 .collect(Collectors.toList());
@@ -65,6 +62,7 @@ public class ContactAdapter implements ContactPort {
 
     @Override
     public boolean isContact(UserId ownerId, UserId contactUserId) {
+        log.debug("Checking if user {} is contact of owner {}", contactUserId.getValue(), ownerId.getValue());
         return repository.existsByOwnerIdAndContactUserId(ownerId.getValue(), contactUserId.getValue());
     }
 
@@ -79,4 +77,3 @@ public class ContactAdapter implements ContactPort {
                 .build();
     }
 }
-

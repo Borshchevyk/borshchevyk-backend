@@ -13,28 +13,13 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Class documentation.
+ * Service for loading user contacts.
  *
  * @author Aleksey Timko
  */
 @Slf4j
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @Service
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @RequiredArgsConstructor
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 public class LoadContactsService implements LoadContactsUseCase {
     private final ContactPort contactPort;
 

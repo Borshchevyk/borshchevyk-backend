@@ -42,21 +42,42 @@ public class LoadUserAdapter implements LoadUserPort {
                 .map(userMapper::toDomain);
     }
 
+    /**
+     * Loads a user by their unique tag from the database.
+     *
+     * @param tag the unique tag of the user
+     * @return an Optional containing the user if found, or empty otherwise
+     */
     @Override
     public Optional<User> loadUserByTag(Tag tag) {
+        log.debug("Loading user with tag: {}", tag.getValue());
         return userRepository.findByTag(tag.getValue())
                 .map(userMapper::toDomain);
     }
 
+    /**
+     * Searches for users based on a string query.
+     *
+     * @param query the search query
+     * @return a list of users matching the query
+     */
     @Override
     public List<User> searchUsers(String query) {
+        log.debug("Searching users with query: {}", query);
         return userRepository.search(query).stream()
                 .map(userMapper::toDomain)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Loads a list of users by their unique identifiers from the database.
+     *
+     * @param userIds the list of unique identifiers of the users
+     * @return a list of users
+     */
     @Override
     public List<User> loadUsersByIds(List<UserId> userIds) {
+        log.debug("Loading {} users by IDs", userIds.size());
         List<UUID> ids = userIds.stream()
                 .map(UserId::getValue)
                 .collect(Collectors.toList());

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.user.application.dto.command.GetUserProfileCommand;
@@ -31,34 +32,15 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Class documentation.
+ * REST controller for user profiles and privacy settings operations.
  *
  * @author Aleksey Timko
  */
+@Slf4j
 @RestController
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @RequestMapping("/api/v1/users")
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @RequiredArgsConstructor
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @Tag(name = "User API", description = "Operations related to users and privacy")
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 public class UserController {
 
     private final SearchUsersUseCase searchUsersUseCase;
@@ -75,11 +57,13 @@ public class UserController {
     public ResponseEntity<List<UserProfileResponse>> getUsersBatch(
             @RequestBody List<UUID> userIds,
             @RequestHeader(value = "X-User-Id", required = false) String requesterId) {
+        log.info("Fetching users batch of size: [{}] for requester: [{}]", userIds.size(), requesterId);
         var command = GetUsersBatchCommand.builder()
                 .userIds(userIds)
                 .requesterId(requesterId)
                 .build();
         var users = getUsersBatchUseCase.getUsersBatch(command);
+        log.info("Successfully fetched users batch of size: [{}]", users.size());
         return ResponseEntity.ok(users.stream()
                 .map(mapper::toUserProfileResponse)
                 .toList());
@@ -92,11 +76,13 @@ public class UserController {
     public ResponseEntity<UserProfileResponse> getUserProfile(
             @PathVariable String userIdOrTag,
             @RequestHeader(value = "X-User-Id", required = false) String requesterId) {
+        log.info("Fetching user profile for target: [{}] by requester: [{}]", userIdOrTag, requesterId);
         var command = GetUserProfileCommand.builder()
                 .targetUserIdOrTag(userIdOrTag)
                 .requesterId(requesterId)
                 .build();
         var user = getUserProfileUseCase.getUserProfile(command);
+        log.info("Successfully fetched user profile for target: [{}]", userIdOrTag);
         return ResponseEntity.ok(mapper.toUserProfileResponse(user));
     }
 
@@ -106,8 +92,10 @@ public class UserController {
     public ResponseEntity<UserProfileResponse> updateProfile(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody @Valid UpdateProfileRequest request) {
+        log.info("Updating profile for userId: [{}]", userId);
         var command = mapper.toUpdateProfileCommand(request, userId);
         var updatedUser = updateProfileUseCase.updateProfile(command);
+        log.info("Successfully updated profile for userId: [{}]", userId);
         return ResponseEntity.ok(mapper.toUserProfileResponse(updatedUser));
     }
 
@@ -117,13 +105,14 @@ public class UserController {
     public ResponseEntity<UserProfileResponse> setAvatar(
             @RequestBody SetAvatarRequest request,
             @RequestHeader("X-User-Id") String userId) {
-        
+        log.info("Setting avatar for userId: [{}]", userId);
         UpdateProfileCommand command = UpdateProfileCommand.builder()
                 .userId(userId)
                 .avatarUrl(request.avatarUrl())
                 .build();
                 
         var updatedUser = updateProfileUseCase.updateProfile(command);
+        log.info("Successfully set avatar for userId: [{}]", userId);
         return ResponseEntity.ok(mapper.toUserProfileResponse(updatedUser));
     }
 
@@ -132,7 +121,9 @@ public class UserController {
     @GetMapping("/me/privacy")
     public ResponseEntity<PrivacySettingsResponse> getPrivacySettings(
             @RequestHeader("X-User-Id") String userId) {
+        log.info("Fetching privacy settings for userId: [{}]", userId);
         var settings = getPrivacySettingsUseCase.getPrivacySettings(userId);
+        log.info("Successfully fetched privacy settings for userId: [{}]", userId);
         return ResponseEntity.ok(mapper.toPrivacySettingsResponse(settings));
     }
 
@@ -142,9 +133,10 @@ public class UserController {
     public ResponseEntity<PrivacySettingsResponse> updatePrivacySettings(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody @Valid UpdatePrivacySettingsRequest request) {
+        log.info("Updating privacy settings for userId: [{}]", userId);
         var command = mapper.toUpdatePrivacySettingsCommand(request, userId);
         var updatedSettings = updatePrivacySettingsUseCase.updatePrivacySettings(command);
+        log.info("Successfully updated privacy settings for userId: [{}]", userId);
         return ResponseEntity.ok(mapper.toPrivacySettingsResponse(updatedSettings));
     }
 }
-

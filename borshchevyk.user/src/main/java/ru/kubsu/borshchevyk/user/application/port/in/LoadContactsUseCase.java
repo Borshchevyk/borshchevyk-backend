@@ -5,11 +5,18 @@ import ru.kubsu.borshchevyk.user.domain.model.contact.Contact;
 import java.util.List;
 
 /**
- * Class documentation.
+ * Port for loading a user's contacts.
  *
  * @author Aleksey Timko
  */
 public interface LoadContactsUseCase {
+
+    /**
+     * Loads the contacts for a user.
+     *
+     * @param command the command containing information for loading contacts
+     * @return a list of the user's contacts
+     */
     List<Contact> loadContacts(LoadContactsCommand command);
 }
 

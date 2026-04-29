@@ -13,28 +13,13 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * Class documentation.
+ * Service for adding user contacts.
  *
  * @author Aleksey Timko
  */
 @Slf4j
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @Service
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @RequiredArgsConstructor
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 public class AddContactService implements AddContactUseCase {
     private final ContactPort contactPort;
 

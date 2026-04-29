@@ -6,11 +6,18 @@ import ru.kubsu.borshchevyk.user.domain.model.user.User;
 import java.util.List;
 
 /**
- * Class documentation.
+ * Port for retrieving a batch of users.
  *
  * @author Aleksey Timko
  */
 public interface GetUsersBatchUseCase {
+
+    /**
+     * Retrieves a batch of users based on the specified criteria.
+     *
+     * @param command the command containing criteria for fetching the batch
+     * @return a list of users matching the criteria
+     */
     List<User> getUsersBatch(GetUsersBatchCommand command);
 }
 

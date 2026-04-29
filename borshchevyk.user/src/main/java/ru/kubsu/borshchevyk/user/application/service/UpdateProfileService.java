@@ -14,28 +14,13 @@ import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 import java.util.UUID;
 
 /**
- * Class documentation.
+ * Service for updating user profiles.
  *
  * @author Aleksey Timko
  */
 @Slf4j
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @Service
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @RequiredArgsConstructor
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 public class UpdateProfileService implements UpdateProfileUseCase {
     private final LoadUserPort loadUserPort;
     private final SaveUserPort saveUserPort;

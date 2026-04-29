@@ -12,7 +12,7 @@ import java.net.URI;
 import java.time.Instant;
 
 /**
- * Class documentation.
+ * Global exception handler for the User service, providing standardized RFC 7807 error responses.
  *
  * @author Aleksey Timko
  */
@@ -22,46 +22,49 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ProblemDetail> handleAlreadyExists(UserAlreadyExistsException ex) {
-        log.warn("User already exists: {}", ex.getMessage());
-        return createProblemDetail(HttpStatus.CONFLICT, "User Already Exists", ex.getMessage(), ex.getCode().name());
+        log.warn("User conflict: {}", ex.getMessage());
+        return createProblemDetail(HttpStatus.CONFLICT, "User Already Exists", ex);
     }
 
     @ExceptionHandler(IncorrectInputFormatException.class)
     public ResponseEntity<ProblemDetail> handleIncorrectFormat(IncorrectInputFormatException ex) {
-        log.warn("Incorrect input format: {}", ex.getMessage());
-        return createProblemDetail(HttpStatus.BAD_REQUEST, "Incorrect Input Format", ex.getMessage(), ex.getCode().name());
+        log.warn("Input error: {}", ex.getMessage());
+        return createProblemDetail(HttpStatus.BAD_REQUEST, "Incorrect Input Format", ex);
     }
 
     @ExceptionHandler(UserForbiddenException.class)
     public ResponseEntity<ProblemDetail> handleForbidden(UserForbiddenException ex) {
-        log.warn("User forbidden action: {}", ex.getMessage());
-        return createProblemDetail(HttpStatus.FORBIDDEN, "Forbidden", ex.getMessage(), ex.getCode().name());
+        log.warn("Access denied: {}", ex.getMessage());
+        return createProblemDetail(HttpStatus.FORBIDDEN, "Forbidden", ex);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ProblemDetail> handleNotFound(UserNotFoundException ex) {
         log.warn("User not found: {}", ex.getMessage());
-        return createProblemDetail(HttpStatus.NOT_FOUND, "User Not Found", ex.getMessage(), ex.getCode().name());
+        return createProblemDetail(HttpStatus.NOT_FOUND, "User Not Found", ex);
     }
 
     @ExceptionHandler(UserServiceException.class)
     public ResponseEntity<ProblemDetail> handleUserServiceException(UserServiceException ex) {
-        log.error("User service exception: {}", ex.getMessage());
-        return createProblemDetail(HttpStatus.BAD_REQUEST, "User Service Error", ex.getMessage(), ex.getCode().name());
+        log.error("Internal service error: {}", ex.getMessage());
+        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "User Service Error", ex);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleGeneralException(Exception ex) {
         log.error("Unexpected error occurred", ex);
-        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", ex.getMessage(), "INTERNAL_SERVER_ERROR");
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred.");
+        problemDetail.setTitle("Internal Server Error");
+        problemDetail.setProperty("errorCode", "INTERNAL_SERVER_ERROR");
+        problemDetail.setProperty("timestamp", Instant.now());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
     }
 
-    private ResponseEntity<ProblemDetail> createProblemDetail(HttpStatus status, String title, String detail, String errorCode) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
+    private ResponseEntity<ProblemDetail> createProblemDetail(HttpStatus status, String title, UserServiceException ex) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, ex.getMessage());
         problemDetail.setTitle(title);
-        problemDetail.setProperty("errorCode", errorCode);
+        problemDetail.setProperty("errorCode", ex.getCode().name());
         problemDetail.setProperty("timestamp", Instant.now());
-        problemDetail.setType(URI.create("about:blank"));
         return ResponseEntity.status(status).body(problemDetail);
     }
 }

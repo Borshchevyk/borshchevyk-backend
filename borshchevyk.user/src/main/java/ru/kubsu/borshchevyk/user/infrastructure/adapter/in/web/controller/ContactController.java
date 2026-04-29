@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,34 +21,15 @@ import ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.mapper.Presentati
 import java.util.List;
 
 /**
- * Class documentation.
+ * REST controller for managing user contacts.
  *
  * @author Aleksey Timko
  */
+@Slf4j
 @RestController
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @RequestMapping("/api/v1/contacts")
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @RequiredArgsConstructor
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 @Tag(name = "Contact API", description = "Operations related to user contacts")
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 public class ContactController {
 
     private final AddContactUseCase addContactUseCase;
@@ -60,8 +42,10 @@ public class ContactController {
     @GetMapping
     public ResponseEntity<List<ContactResponse>> getContacts(
             @RequestHeader("X-User-Id") String ownerId) {
+        log.info("Loading contacts for ownerId: [{}]", ownerId);
         var command = LoadContactsCommand.builder().ownerId(ownerId).build();
         var contacts = loadContactsUseCase.loadContacts(command);
+        log.info("Successfully loaded {} contacts for ownerId: [{}]", contacts.size(), ownerId);
         return ResponseEntity.ok(contacts.stream()
                 .map(mapper::toContactResponse)
                 .toList());
@@ -73,8 +57,10 @@ public class ContactController {
     public ResponseEntity<ContactResponse> addContact(
             @RequestHeader("X-User-Id") String ownerId,
             @RequestBody @Valid AddContactRequest request) {
+        log.info("Adding contact for ownerId: [{}]", ownerId);
         var command = mapper.toAddContactCommand(request, ownerId);
         var contact = addContactUseCase.addContact(command);
+        log.info("Successfully added contact for ownerId: [{}]", ownerId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(mapper.toContactResponse(contact));
     }
@@ -85,12 +71,13 @@ public class ContactController {
     public ResponseEntity<Void> deleteContact(
             @RequestHeader("X-User-Id") String ownerId,
             @PathVariable String contactUserId) {
+        log.info("Deleting contact [{}] for ownerId: [{}]", contactUserId, ownerId);
         var command = RemoveContactCommand.builder()
                 .ownerId(ownerId)
                 .targetUserId(contactUserId)
                 .build();
         removeContactUseCase.removeContact(command);
+        log.info("Successfully deleted contact [{}] for ownerId: [{}]", contactUserId, ownerId);
         return ResponseEntity.noContent().build();
     }
 }
-

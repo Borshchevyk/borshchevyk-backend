@@ -1,7 +1,7 @@
 package ru.kubsu.borshchevyk.user.domain.model.value;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import ru.kubsu.borshchevyk.user.domain.exception.IncorrectInputFormatException;
 
 /**
@@ -10,8 +10,8 @@ import ru.kubsu.borshchevyk.user.domain.exception.IncorrectInputFormatException;
  * @author Aleksey Timko
  * @since 2026-03-15
  */
-@Slf4j
 @Getter
+@EqualsAndHashCode
 public class Tag {
     /**
      * The raw string value of the tag.
@@ -26,7 +26,6 @@ public class Tag {
      */
     public Tag(String tag) {
         if (!tag.matches("^[a-zA-Z0-9_-]{3,16}$")) {
-            log.error("Invalid tag format attempted");
             throw new IncorrectInputFormatException(IncorrectInputFormatException.InputFormat.TAG);
         }
         this.value = tag;

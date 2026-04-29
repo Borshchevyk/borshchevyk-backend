@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import ru.kubsu.borshchevyk.user.domain.model.privacy.Visibility;
 
 /**
- * Class documentation.
+ * Request DTO for updating the user's privacy settings.
  *
  * @author Aleksey Timko
  */
@@ -18,4 +18,3 @@ public record UpdatePrivacySettingsRequest(
     @Schema(description = "Visibility for inviting to chat", example = "CONTACTS")
     Visibility inviteToChatVisibility
 ) {}
-
