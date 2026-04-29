@@ -5,6 +5,12 @@ import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeReposi
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Configuration for HTTP request/response metrics repository.
+ * Exposes all HTTP exchanges to the Spring Boot Admin Panel.
+ *
+ * @author Aleksey Timko
+ */
 @Configuration
 public class HttpExchangeConfig {
     @Bean

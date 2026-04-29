@@ -3,6 +3,7 @@ package ru.kubsu.borshchevyk.gateway;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.autoconfigure.LifecycleMvcEndpointAutoConfiguration;
 
 /**
  * Main entry point for the API Gateway application.
@@ -12,7 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 2026-03-14
  */
 @Slf4j
-@SpringBootApplication(exclude = {org.springframework.cloud.autoconfigure.LifecycleMvcEndpointAutoConfiguration.class})
+@SpringBootApplication(exclude = {LifecycleMvcEndpointAutoConfiguration.class})
 public class Application {
 
     /**

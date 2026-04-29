@@ -168,7 +168,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health,info,env,metrics,loggers,httpexchanges,logfile"
+        include: "*"
   endpoint:
     health:
       show-details: always
