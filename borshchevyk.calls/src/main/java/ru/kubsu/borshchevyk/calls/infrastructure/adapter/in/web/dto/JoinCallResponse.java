@@ -10,6 +10,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @Schema(description = "Response object containing access token to join a call")
 public record JoinCallResponse(
-        @Schema(description = "LiveKit JWT Access Token to join the WebRTC room")
+        @Schema(description = "LiveKit JWT Access Token to join the WebRTC room", example = "eyJhbGciOiJIUzI1NiIsInR5cCI...")
         String token
 ) {}

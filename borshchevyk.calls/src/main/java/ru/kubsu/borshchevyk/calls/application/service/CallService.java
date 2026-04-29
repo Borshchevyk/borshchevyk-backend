@@ -77,7 +77,7 @@ public class CallService implements ManageCallUseCase, HandleLiveKitWebhookUseCa
                 .orElseThrow(() -> new CallNotFoundException("Call not found with id: " + command.callId().value()));
 
         if (call.getStatus() == CallStatus.ENDED) {
-            throw new IllegalStateException("Cannot join an ended call");
+            throw new ru.kubsu.borshchevyk.calls.domain.exception.CallEndedException("Cannot join an ended call");
         }
         
         // Only allow participants to join (or we can auto-add them, depending on business rules)

@@ -15,22 +15,22 @@ import java.util.UUID;
  */
 @Schema(description = "Response object representing a Call")
 public record CallResponse(
-        @Schema(description = "Unique call ID")
+        @Schema(description = "Unique call ID", example = "123e4567-e89b-12d3-a456-426614174000")
         UUID id,
         
-        @Schema(description = "LiveKit room ID mapping")
+        @Schema(description = "LiveKit room ID mapping", example = "room-123e4567-e89b-12d3-a456-426614174000")
         String roomId,
         
         @Schema(description = "Short info of the user who initiated the call")
         ShortUserDto initiator,
         
-        @Schema(description = "Current status of the call")
+        @Schema(description = "Current status of the call", example = "IN_PROGRESS")
         String status,
         
-        @Schema(description = "When the call was created")
+        @Schema(description = "When the call was created", example = "2026-04-25T10:15:30.00Z")
         Instant createdAt,
         
-        @Schema(description = "When the call ended, if applicable")
+        @Schema(description = "When the call ended, if applicable", example = "2026-04-25T10:45:30.00Z")
         Instant endedAt,
         
         @Schema(description = "Set of participant short info")

@@ -2,12 +2,16 @@ package ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.kubsu.borshchevyk.calls.domain.exception.CallEndedException;
 import ru.kubsu.borshchevyk.calls.domain.exception.CallNotFoundException;
 import ru.kubsu.borshchevyk.calls.domain.exception.UserForbiddenException;
+
+import java.net.URI;
+import java.time.Instant;
 
 /**
  * Global exception handler for the REST layer.
@@ -20,45 +24,73 @@ import ru.kubsu.borshchevyk.calls.domain.exception.UserForbiddenException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CallNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleCallNotFound(CallNotFoundException ex) {
+    public ProblemDetail handleCallNotFound(CallNotFoundException ex) {
         log.warn("Call not found: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse("NOT_FOUND", ex.getMessage()));
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
+        problemDetail.setTitle("Call Not Found");
+        problemDetail.setType(URI.create("https://borshchevyk.ru/errors/call-not-found"));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
     }
 
     @ExceptionHandler(UserForbiddenException.class)
-    public ResponseEntity<ErrorResponse> handleUserForbidden(UserForbiddenException ex) {
+    public ProblemDetail handleUserForbidden(UserForbiddenException ex) {
         log.warn("User forbidden: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ErrorResponse("FORBIDDEN", ex.getMessage()));
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.getMessage());
+        problemDetail.setTitle("User Forbidden");
+        problemDetail.setType(URI.create("https://borshchevyk.ru/errors/user-forbidden"));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
+    }
+
+    @ExceptionHandler(CallEndedException.class)
+    public ProblemDetail handleCallEnded(CallEndedException ex) {
+        log.warn("Conflict/Call ended: {}", ex.getMessage());
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problemDetail.setTitle("Call Already Ended");
+        problemDetail.setType(URI.create("https://borshchevyk.ru/errors/call-ended"));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+    public ProblemDetail handleIllegalArgument(IllegalArgumentException ex) {
         log.warn("Bad request: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("BAD_REQUEST", ex.getMessage()));
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setType(URI.create("https://borshchevyk.ru/errors/bad-request"));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
     }
 
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex) {
+    public ProblemDetail handleIllegalState(IllegalStateException ex) {
         log.warn("Conflict/Illegal state: {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(new ErrorResponse("CONFLICT", ex.getMessage()));
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+        problemDetail.setTitle("Conflict");
+        problemDetail.setType(URI.create("https://borshchevyk.ru/errors/conflict"));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ProblemDetail handleValidationExceptions(MethodArgumentNotValidException ex) {
         String message = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
         log.warn("Validation error: {}", message);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse("VALIDATION_ERROR", message));
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, message != null ? message : "Validation failed");
+        problemDetail.setTitle("Validation Error");
+        problemDetail.setType(URI.create("https://borshchevyk.ru/errors/validation-error"));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
+    public ProblemDetail handleGenericException(Exception ex) {
         log.error("Unhandled exception: ", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("INTERNAL_SERVER_ERROR", "An unexpected error occurred"));
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
+        problemDetail.setTitle("Internal Server Error");
+        problemDetail.setType(URI.create("https://borshchevyk.ru/errors/internal-server-error"));
+        problemDetail.setProperty("timestamp", Instant.now());
+        return problemDetail;
     }
 }
