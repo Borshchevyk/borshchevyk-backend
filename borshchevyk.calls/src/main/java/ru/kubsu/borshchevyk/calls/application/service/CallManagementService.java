@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import ru.kubsu.borshchevyk.calls.application.dto.command.EndCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.command.InitiateCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.command.JoinCallCommand;
@@ -31,6 +32,7 @@ import java.util.UUID;
  * @since 2026-04-25
  */
 @Service
+@Validated
 @RequiredArgsConstructor
 @Slf4j
 public class CallManagementService implements ManageCallUseCase {

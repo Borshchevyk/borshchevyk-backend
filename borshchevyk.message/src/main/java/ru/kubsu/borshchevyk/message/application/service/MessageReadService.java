@@ -25,6 +25,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * MessageReadService implementation.
+ *
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -38,11 +44,11 @@ public class MessageReadService implements ReadMessageUseCase, LoadMessageReader
     @Override
     @Transactional
     public void readMessage(ReadMessageCommand command) {
-        log.info("Reading message {} in chat {} by user {}", command.getMessageId(), command.getChatId(), command.getRequesterId());
+        log.info("Reading message {} in chat {} by user {}", command.messageId(), command.chatId(), command.requesterId());
         
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
-        MessageId messageId = new MessageId(command.getMessageId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
+        MessageId messageId = new MessageId(command.messageId());
 
         Chat chat = chatPort.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException("Chat not found"));

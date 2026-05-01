@@ -15,6 +15,10 @@ import ru.kubsu.borshchevyk.message.domain.model.message.MessageAttachment;
 import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageReactionEmbeddable;
 import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageAttachmentEmbeddable;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Mapper(componentModel = "spring")
 public interface MessageMapper {
 

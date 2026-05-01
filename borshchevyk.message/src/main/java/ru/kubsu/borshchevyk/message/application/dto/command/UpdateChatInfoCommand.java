@@ -1,16 +1,19 @@
 package ru.kubsu.borshchevyk.message.application.dto.command;
 
 import lombok.Builder;
-import lombok.Data;
-
 import java.util.UUID;
 
-@Data
+/**
+ * Command to update chat info.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class UpdateChatInfoCommand {
-    private UUID chatId;
-    private UUID requesterId;
-    private String title;
-    private String description;
-    private Boolean commentsEnabled;
+public record UpdateChatInfoCommand(
+    UUID chatId,
+    UUID requesterId,
+    String title,
+    String description,
+    Boolean commentsEnabled
+) {
 }

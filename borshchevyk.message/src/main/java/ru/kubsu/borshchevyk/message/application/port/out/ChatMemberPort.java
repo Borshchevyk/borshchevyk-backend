@@ -6,9 +6,15 @@ import ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Output port for managing chat members in the persistence layer.
+ *
+ * @author Aleksey Timko
+ */
 public interface ChatMemberPort {
     ChatMember save(ChatMember member);
     void saveAll(List<ChatMember> members);
@@ -16,6 +22,6 @@ public interface ChatMemberPort {
     List<ChatMember> findByChatId(ChatId chatId);
     Page<ChatMember> findByChatId(ChatId chatId, Pageable pageable);
     List<ChatMember> findByUserId(UserId userId);
-    List<UserId> findReadersOfMessage(ChatId chatId, java.time.LocalDateTime messageCreatedAt);
+    List<UserId> findReadersOfMessage(ChatId chatId, LocalDateTime messageCreatedAt);
     void delete(ChatMember member);
 }

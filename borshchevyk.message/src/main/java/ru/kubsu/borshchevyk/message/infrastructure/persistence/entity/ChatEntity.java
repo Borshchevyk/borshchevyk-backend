@@ -19,7 +19,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public abstract class ChatEntity {
+public /**
+ * @author Aleksey Timko
+ */
+abstract class ChatEntity {
 
     @Id
     @Column(name = "id")

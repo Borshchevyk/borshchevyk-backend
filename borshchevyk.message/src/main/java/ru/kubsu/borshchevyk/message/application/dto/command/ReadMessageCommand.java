@@ -1,14 +1,17 @@
 package ru.kubsu.borshchevyk.message.application.dto.command;
 
 import lombok.Builder;
-import lombok.Data;
-
 import java.util.UUID;
 
-@Data
+/**
+ * Command to mark a message as read.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class ReadMessageCommand {
-    private UUID chatId;
-    private UUID messageId;
-    private UUID requesterId;
+public record ReadMessageCommand(
+    UUID chatId,
+    UUID messageId,
+    UUID requesterId
+) {
 }

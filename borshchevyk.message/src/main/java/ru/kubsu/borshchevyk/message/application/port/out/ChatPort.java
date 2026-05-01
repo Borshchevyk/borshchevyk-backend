@@ -7,6 +7,11 @@ import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Output port for managing chats in the persistence layer.
+ *
+ * @author Aleksey Timko
+ */
 public interface ChatPort {
     Chat save(Chat chat);
     Optional<Chat> findById(ChatId chatId);

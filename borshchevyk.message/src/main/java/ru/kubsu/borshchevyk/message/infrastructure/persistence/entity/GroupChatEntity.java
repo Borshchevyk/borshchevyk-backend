@@ -10,6 +10,10 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.Builder;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Entity
 @DiscriminatorValue("GROUP")
 @Getter

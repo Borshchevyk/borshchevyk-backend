@@ -1,14 +1,11 @@
 package ru.kubsu.borshchevyk.auth.domain.exception;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * Exception thrown when attempting to register a user with an already existing email.
  *
  * @author Aleksey Timko
  * @since 2026-03-14
  */
-@Slf4j
 public class UserAlreadyExistsException extends AuthServiceException {
     /**
      * Constructs the exception with the email that already exists.

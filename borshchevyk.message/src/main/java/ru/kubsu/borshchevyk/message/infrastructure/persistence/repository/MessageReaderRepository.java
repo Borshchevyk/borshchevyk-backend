@@ -8,6 +8,10 @@ import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageRea
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Repository
 public interface MessageReaderRepository extends JpaRepository<MessageReaderEntity, MessageReaderId> {
     List<MessageReaderEntity> findByMessageId(UUID messageId);

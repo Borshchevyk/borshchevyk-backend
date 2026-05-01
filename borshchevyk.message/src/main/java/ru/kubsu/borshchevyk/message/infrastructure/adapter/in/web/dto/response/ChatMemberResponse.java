@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatRole;
 
+/**
+ * @author Aleksey Timko
+ */
 public record ChatMemberResponse(
         UUID chatId,
         UUID userId,

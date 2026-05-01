@@ -1,15 +1,18 @@
 package ru.kubsu.borshchevyk.message.application.dto.command;
 
 import lombok.Builder;
-import lombok.Data;
-
 import java.util.UUID;
 
-@Data
+/**
+ * Command to remove a reaction from a message.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class RemoveReactionCommand {
-    private UUID chatId;
-    private UUID messageId;
-    private UUID requesterId;
-    private String reaction;
+public record RemoveReactionCommand(
+    UUID chatId,
+    UUID messageId,
+    UUID requesterId,
+    String reaction
+) {
 }

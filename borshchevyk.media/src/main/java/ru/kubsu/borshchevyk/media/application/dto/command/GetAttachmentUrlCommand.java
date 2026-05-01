@@ -1,13 +1,17 @@
 package ru.kubsu.borshchevyk.media.application.dto.command;
 
 import lombok.Builder;
-import lombok.Value;
 
 import java.util.UUID;
 
-@Value
+/**
+ * Command to request the URL of an existing attachment.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class GetAttachmentUrlCommand {
-    UUID requesterId;
-    UUID attachmentId;
+public record GetAttachmentUrlCommand(
+        UUID requesterId,
+        UUID attachmentId
+) {
 }

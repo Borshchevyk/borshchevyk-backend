@@ -1,14 +1,11 @@
 package ru.kubsu.borshchevyk.auth.domain.exception;
 
-import lombok.extern.slf4j.Slf4j;
-
 /**
  * Exception thrown when the format of an input (email or tag) is invalid.
  *
  * @author Aleksey Timko
  * @since 2026-03-14
  */
-@Slf4j
 public class IncorrectInputFormatException extends AuthServiceException {
     /**
      * Constructs the exception based on the specific input type that failed validation.

@@ -15,6 +15,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

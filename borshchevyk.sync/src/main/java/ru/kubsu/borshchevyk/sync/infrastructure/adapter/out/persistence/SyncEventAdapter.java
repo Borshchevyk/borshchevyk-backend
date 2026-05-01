@@ -18,6 +18,7 @@ import java.util.UUID;
  * Persistence adapter for Sync Events.
  *
  * @author Aleksey Timko
+ * @since 2026-03-01
  */
 @Slf4j
 @Component
@@ -30,12 +31,19 @@ public class SyncEventAdapter implements SyncEventPort {
     @Override
     @Transactional
     public void save(SyncEvent event) {
-        log.debug("Saving sync event for target user: {}", event.getTargetUserId());
-        Long latestSeq = getLatestSequence(event.getTargetUserId());
-        event.setSequenceNumber(latestSeq + 1);
-        SyncEventEntity entity = mapper.toEntity(event);
+        log.debug("Saving sync event for target user: {}", event.targetUserId());
+        Long latestSeq = getLatestSequence(event.targetUserId());
+        SyncEvent eventWithSeq = new SyncEvent(
+                event.eventId(),
+                event.targetUserId(),
+                latestSeq + 1,
+                event.eventType(),
+                event.payload(),
+                event.createdAt()
+        );
+        SyncEventEntity entity = mapper.toEntity(eventWithSeq);
         repository.save(entity);
-        log.debug("Saved sync event with sequence number: {}", event.getSequenceNumber());
+        log.debug("Saved sync event with sequence number: {}", eventWithSeq.sequenceNumber());
     }
 
     @Override

@@ -8,6 +8,10 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @JsonTypeName("GROUP")
 @Schema(description = "Group Chat response")
 @Data

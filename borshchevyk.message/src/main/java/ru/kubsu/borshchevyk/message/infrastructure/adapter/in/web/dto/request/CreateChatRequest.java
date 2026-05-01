@@ -7,6 +7,10 @@ import ru.kubsu.borshchevyk.message.domain.model.chat.ChatType;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Schema(description = "Request to create a new chat")
 public record CreateChatRequest(
         @NotNull(message = "Chat type is required")

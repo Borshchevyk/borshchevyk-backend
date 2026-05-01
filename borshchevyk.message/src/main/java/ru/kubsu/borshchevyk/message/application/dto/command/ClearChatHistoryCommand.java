@@ -1,14 +1,17 @@
 package ru.kubsu.borshchevyk.message.application.dto.command;
 
 import lombok.Builder;
-import lombok.Data;
-
 import java.util.UUID;
 
-@Data
+/**
+ * Command to clear the history of a chat.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class ClearChatHistoryCommand {
-    private final UUID chatId;
-    private final UUID requesterId;
-    private final boolean forAll;
+public record ClearChatHistoryCommand(
+    UUID chatId,
+    UUID requesterId,
+    boolean forAll
+) {
 }

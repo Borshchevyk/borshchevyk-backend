@@ -7,6 +7,10 @@ import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.DeletedMes
 
 import java.util.UUID;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Repository
 public interface DeletedMessageRepository extends JpaRepository<DeletedMessageEntity, DeletedMessageId> {
     boolean existsByMessageIdAndUserId(UUID messageId, UUID userId);

@@ -1,14 +1,17 @@
 package ru.kubsu.borshchevyk.message.application.dto.command;
 
 import lombok.Builder;
-import lombok.Data;
-
 import java.util.UUID;
 
-@Data
+/**
+ * Command to invite a user to a chat.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class InviteUserCommand {
-    private UUID chatId;
-    private UUID requesterId;
-    private UUID targetUserId;
+public record InviteUserCommand(
+    UUID chatId,
+    UUID requesterId,
+    UUID targetUserId
+) {
 }

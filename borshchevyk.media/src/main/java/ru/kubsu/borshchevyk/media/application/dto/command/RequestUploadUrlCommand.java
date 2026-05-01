@@ -1,21 +1,25 @@
 package ru.kubsu.borshchevyk.media.application.dto.command;
 
 import lombok.Builder;
-import lombok.Data;
 import ru.kubsu.borshchevyk.media.domain.model.AttachmentType;
 
 import java.util.UUID;
 
-@Data
+/**
+ * Command to request an upload URL (e.g., pre-signed S3 URL) for an attachment.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class RequestUploadUrlCommand {
-    private UUID uploaderId;
-    private AttachmentType type;
-    private String contentType;
-    private String originalFilename;
-    private String extension;
-    private Long sizeBytes;
-    private Integer width;
-    private Integer height;
-    private Double duration;
+public record RequestUploadUrlCommand(
+        UUID uploaderId,
+        AttachmentType type,
+        String contentType,
+        String originalFilename,
+        String extension,
+        Long sizeBytes,
+        Integer width,
+        Integer height,
+        Double duration
+) {
 }

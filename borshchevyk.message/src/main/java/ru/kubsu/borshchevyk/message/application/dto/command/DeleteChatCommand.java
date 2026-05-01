@@ -1,13 +1,16 @@
 package ru.kubsu.borshchevyk.message.application.dto.command;
 
 import lombok.Builder;
-import lombok.Data;
-
 import java.util.UUID;
 
-@Data
+/**
+ * Command to delete a chat.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class DeleteChatCommand {
-    private final UUID chatId;
-    private final UUID requesterId;
+public record DeleteChatCommand(
+    UUID chatId,
+    UUID requesterId
+) {
 }

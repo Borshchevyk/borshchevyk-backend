@@ -17,6 +17,10 @@ import java.util.UUID;
         @Index(name = "idx_message_chat_parent", columnList = "chat_id, parent_message_id, created_at ASC"),
         @Index(name = "idx_message_chat_pinned", columnList = "chat_id, pinned_at DESC")
 })
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Getter
 @Setter
 @NoArgsConstructor

@@ -10,6 +10,12 @@ import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
 
 import java.util.List;
 
+/**
+ * SearchChatsService implementation.
+ *
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

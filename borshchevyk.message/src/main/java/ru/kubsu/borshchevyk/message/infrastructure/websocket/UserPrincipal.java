@@ -2,6 +2,9 @@ package ru.kubsu.borshchevyk.message.infrastructure.websocket;
 
 import java.security.Principal;
 
+/**
+ * @author Aleksey Timko
+ */
 public class UserPrincipal implements Principal {
     private final String userId;
 

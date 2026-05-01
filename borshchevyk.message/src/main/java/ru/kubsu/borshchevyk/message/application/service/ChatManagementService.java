@@ -37,6 +37,12 @@ import ru.kubsu.borshchevyk.message.application.dto.command.PinChatCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.UnpinChatCommand;
 import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
 
+/**
+ * ChatManagementService implementation.
+ *
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -49,9 +55,9 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
     @Override
     @Transactional
     public void pinChat(PinChatCommand command) {
-        log.info("Pinning chat {} for user {}", command.getChatId(), command.getRequesterId());
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
+        log.info("Pinning chat {} for user {}", command.chatId(), command.requesterId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
 
         ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
                 .orElseThrow(() -> new UserNotInChatException("Requester is not in the chat"));
@@ -64,9 +70,9 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
     @Override
     @Transactional
     public void unpinChat(UnpinChatCommand command) {
-        log.info("Unpinning chat {} for user {}", command.getChatId(), command.getRequesterId());
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
+        log.info("Unpinning chat {} for user {}", command.chatId(), command.requesterId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
 
         ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
                 .orElseThrow(() -> new UserNotInChatException("Requester is not in the chat"));
@@ -79,18 +85,18 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
     @Override
     @Transactional
     public void clearChatHistory(ClearChatHistoryCommand command) {
-        log.info("Clearing chat history for chat: {} by user: {}", command.getChatId(), command.getRequesterId());
+        log.info("Clearing chat history for chat: {} by user: {}", command.chatId(), command.requesterId());
 
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
 
         Chat chat = chatPort.findById(chatId)
-                .orElseThrow(() -> new ChatNotFoundException("Chat not found with id: " + command.getChatId()));
+                .orElseThrow(() -> new ChatNotFoundException("Chat not found with id: " + command.chatId()));
 
         ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
                 .orElseThrow(() -> new UserNotInChatException("Requester is not in the chat"));
 
-        if (!command.isForAll()) {
+        if (!command.forAll()) {
             requester.setHistoryClearedAt(LocalDateTime.now());
             chatMemberPort.saveAll(List.of(requester));
             realtimeNotificationPort.notifyChatEvent(requesterId, chatId, "HISTORY_CLEARED");
@@ -111,13 +117,13 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
     @Override
     @Transactional
     public void deleteChat(DeleteChatCommand command) {
-        log.info("Deleting chat: {} by user: {}", command.getChatId(), command.getRequesterId());
+        log.info("Deleting chat: {} by user: {}", command.chatId(), command.requesterId());
 
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
 
         Chat chat = chatPort.findById(chatId)
-                .orElseThrow(() -> new ChatNotFoundException("Chat not found with id: " + command.getChatId()));
+                .orElseThrow(() -> new ChatNotFoundException("Chat not found with id: " + command.chatId()));
 
         ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
                 .orElseThrow(() -> new UserNotInChatException("Requester is not in the chat"));
@@ -195,6 +201,7 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
                 .userId(userId)
                 .role(ChatRole.MEMBER)
                 .joinedAt(LocalDateTime.now())
+                .lastReadAt(LocalDateTime.now())
                 .build();
 
         chatMemberPort.saveAll(List.of(newMember));
@@ -204,9 +211,9 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
     @Override
     @Transactional
     public void updateChatInfo(UpdateChatInfoCommand command) {
-        log.info("Updating chat info for chat {} by user {}", command.getChatId(), command.getRequesterId());
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
+        log.info("Updating chat info for chat {} by user {}", command.chatId(), command.requesterId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
 
         Chat chat = chatPort.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException("Chat not found"));
@@ -223,24 +230,24 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
         }
 
         if (chat instanceof GroupChat groupChat) {
-            if (command.getTitle() != null && !command.getTitle().isBlank()) {
-                groupChat.setTitle(command.getTitle());
+            if (command.title() != null && !command.title().isBlank()) {
+                groupChat.setTitle(command.title());
             }
-            if (command.getDescription() != null) {
-                groupChat.setDescription(command.getDescription());
+            if (command.description() != null) {
+                groupChat.setDescription(command.description());
             }
-            if (command.getCommentsEnabled() != null) {
-                groupChat.setCommentsEnabled(command.getCommentsEnabled());
+            if (command.commentsEnabled() != null) {
+                groupChat.setCommentsEnabled(command.commentsEnabled());
             }
         } else if (chat instanceof Channel channel) {
-            if (command.getTitle() != null && !command.getTitle().isBlank()) {
-                channel.setTitle(command.getTitle());
+            if (command.title() != null && !command.title().isBlank()) {
+                channel.setTitle(command.title());
             }
-            if (command.getDescription() != null) {
-                channel.setDescription(command.getDescription());
+            if (command.description() != null) {
+                channel.setDescription(command.description());
             }
-            if (command.getCommentsEnabled() != null) {
-                channel.setCommentsEnabled(command.getCommentsEnabled());
+            if (command.commentsEnabled() != null) {
+                channel.setCommentsEnabled(command.commentsEnabled());
             }
         }
 

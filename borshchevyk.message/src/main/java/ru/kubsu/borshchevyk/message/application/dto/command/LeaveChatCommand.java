@@ -1,13 +1,16 @@
 package ru.kubsu.borshchevyk.message.application.dto.command;
 
 import lombok.Builder;
-import lombok.Data;
-
 import java.util.UUID;
 
-@Data
+/**
+ * Command to leave a chat.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class LeaveChatCommand {
-    private UUID chatId;
-    private UUID requesterId;
+public record LeaveChatCommand(
+    UUID chatId,
+    UUID requesterId
+) {
 }

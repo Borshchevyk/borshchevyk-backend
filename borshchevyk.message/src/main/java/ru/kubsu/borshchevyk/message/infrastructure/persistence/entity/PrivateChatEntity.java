@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Entity
 @DiscriminatorValue("PRIVATE")
 @Getter

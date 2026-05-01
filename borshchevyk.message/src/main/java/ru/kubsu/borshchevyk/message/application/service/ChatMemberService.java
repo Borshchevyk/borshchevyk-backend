@@ -32,6 +32,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * ChatMemberService implementation.
+ *
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -43,11 +49,11 @@ public class ChatMemberService implements UpdateMemberPermissionsUseCase, Invite
     @Override
     @Transactional
     public void updatePermissions(UpdatePermissionsCommand command) {
-        log.info("Updating permissions for user {} in chat {}", command.getTargetUserId(), command.getChatId());
+        log.info("Updating permissions for user {} in chat {}", command.targetUserId(), command.chatId());
 
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
-        UserId targetUserId = new UserId(command.getTargetUserId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
+        UserId targetUserId = new UserId(command.targetUserId());
 
         ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
                 .orElseThrow(() -> new UserNotInChatException("Requester is not in the chat"));
@@ -63,24 +69,24 @@ public class ChatMemberService implements UpdateMemberPermissionsUseCase, Invite
             if (target.getRole() == ChatRole.OWNER || target.getRole() == ChatRole.ADMIN) {
                 throw new ForbiddenActionException("ADMIN can only change permissions of MEMBERs");
             }
-            if (command.getCanSendMessages() != null && command.getCanSendMessages() && !requester.isCanSendMessages()) {
+            if (command.canSendMessages() != null && command.canSendMessages() && !requester.isCanSendMessages()) {
                 throw new ForbiddenActionException("ADMIN cannot grant canSendMessages permission if they don't have it");
             }
-            if (command.getCanDeleteMessages() != null && command.getCanDeleteMessages() && !requester.isCanDeleteMessages()) {
+            if (command.canDeleteMessages() != null && command.canDeleteMessages() && !requester.isCanDeleteMessages()) {
                 throw new ForbiddenActionException("ADMIN cannot grant canDeleteMessages permission if they don't have it");
             }
-            if (command.getCanInviteUsers() != null && command.getCanInviteUsers() && !requester.isCanInviteUsers()) {
+            if (command.canInviteUsers() != null && command.canInviteUsers() && !requester.isCanInviteUsers()) {
                 throw new ForbiddenActionException("ADMIN cannot grant canInviteUsers permission if they don't have it");
             }
-            if (command.getCanChangeInfo() != null && command.getCanChangeInfo() && !requester.isCanChangeInfo()) {
+            if (command.canChangeInfo() != null && command.canChangeInfo() && !requester.isCanChangeInfo()) {
                 throw new ForbiddenActionException("ADMIN cannot grant canChangeInfo permission if they don't have it");
             }
         }
 
-        if (command.getCanSendMessages() != null) target.setCanSendMessages(command.getCanSendMessages());
-        if (command.getCanDeleteMessages() != null) target.setCanDeleteMessages(command.getCanDeleteMessages());
-        if (command.getCanInviteUsers() != null) target.setCanInviteUsers(command.getCanInviteUsers());
-        if (command.getCanChangeInfo() != null) target.setCanChangeInfo(command.getCanChangeInfo());
+        if (command.canSendMessages() != null) target.setCanSendMessages(command.canSendMessages());
+        if (command.canDeleteMessages() != null) target.setCanDeleteMessages(command.canDeleteMessages());
+        if (command.canInviteUsers() != null) target.setCanInviteUsers(command.canInviteUsers());
+        if (command.canChangeInfo() != null) target.setCanChangeInfo(command.canChangeInfo());
 
         chatMemberPort.saveAll(List.of(target));
     }
@@ -88,10 +94,10 @@ public class ChatMemberService implements UpdateMemberPermissionsUseCase, Invite
     @Override
     @Transactional
     public void inviteUser(InviteUserCommand command) {
-        log.info("Inviting user {} to chat {} by {}", command.getTargetUserId(), command.getChatId(), command.getRequesterId());
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
-        UserId targetUserId = new UserId(command.getTargetUserId());
+        log.info("Inviting user {} to chat {} by {}", command.targetUserId(), command.chatId(), command.requesterId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
+        UserId targetUserId = new UserId(command.targetUserId());
 
         Chat chat = chatPort.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException("Chat not found"));
@@ -117,6 +123,7 @@ public class ChatMemberService implements UpdateMemberPermissionsUseCase, Invite
                 .userId(targetUserId)
                 .role(ChatRole.MEMBER)
                 .joinedAt(LocalDateTime.now())
+                .lastReadAt(LocalDateTime.now())
                 .build();
 
         chatMemberPort.saveAll(List.of(newMember));
@@ -125,10 +132,10 @@ public class ChatMemberService implements UpdateMemberPermissionsUseCase, Invite
     @Override
     @Transactional
     public void kickUser(KickUserCommand command) {
-        log.info("Kicking user {} from chat {} by {}", command.getTargetUserId(), command.getChatId(), command.getRequesterId());
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
-        UserId targetUserId = new UserId(command.getTargetUserId());
+        log.info("Kicking user {} from chat {} by {}", command.targetUserId(), command.chatId(), command.requesterId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
+        UserId targetUserId = new UserId(command.targetUserId());
 
         ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
                 .orElseThrow(() -> new UserNotInChatException("Requester is not in the chat"));
@@ -154,9 +161,9 @@ public class ChatMemberService implements UpdateMemberPermissionsUseCase, Invite
     @Override
     @Transactional
     public void leaveChat(LeaveChatCommand command) {
-        log.info("User {} leaving chat {}", command.getRequesterId(), command.getChatId());
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
+        log.info("User {} leaving chat {}", command.requesterId(), command.chatId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
 
         Chat chat = chatPort.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException("Chat not found"));

@@ -4,21 +4,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import ru.kubsu.borshchevyk.auth.domain.model.value.AccountId;
 import ru.kubsu.borshchevyk.auth.domain.model.value.Email;
 import ru.kubsu.borshchevyk.auth.domain.model.value.Tag;
+import ru.kubsu.borshchevyk.auth.domain.exception.AuthServiceException;
 
 /**
  * Domain model representing a user account in the authentication system.
+ * Encapsulates the state and business logic of an account.
  *
  * @author Aleksey Timko
- * @since 2026-03-14
  */
-@Slf4j
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -55,4 +52,53 @@ public class Account {
      * User's private key, encrypted with their password.
      */
     private String encryptedPrivateKey;
+
+    /**
+     * Updates the email of the account.
+     *
+     * @param newEmail the new email to set
+     */
+    public void updateEmail(Email newEmail) {
+        if (newEmail == null) {
+            throw new IllegalArgumentException("Email cannot be null");
+        }
+        this.email = newEmail;
+    }
+
+    /**
+     * Updates the tag of the account.
+     *
+     * @param newTag the new tag to set
+     */
+    public void updateTag(Tag newTag) {
+        if (newTag == null) {
+            throw new IllegalArgumentException("Tag cannot be null");
+        }
+        this.tag = newTag;
+    }
+
+    /**
+     * Updates the user's password hash.
+     *
+     * @param newPasswordHash the new password hash
+     */
+    public void updatePasswordHash(String newPasswordHash) {
+        if (newPasswordHash == null || newPasswordHash.isBlank()) {
+            throw new IllegalArgumentException("Password hash cannot be empty");
+        }
+        this.passwordHash = newPasswordHash;
+    }
+
+    /**
+     * Verifies if the given password hash matches the account's password hash.
+     *
+     * @param passwordHashToVerify the password hash to verify
+     * @return true if the hash matches, false otherwise
+     */
+    public boolean verifyPasswordHash(String passwordHashToVerify) {
+        if (passwordHashToVerify == null || passwordHashToVerify.isBlank()) {
+            return false;
+        }
+        return this.passwordHash.equals(passwordHashToVerify);
+    }
 }

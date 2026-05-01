@@ -7,6 +7,10 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @JsonTypeName("SAVED_MESSAGES")
 @Schema(description = "Saved Messages response")
 @Data

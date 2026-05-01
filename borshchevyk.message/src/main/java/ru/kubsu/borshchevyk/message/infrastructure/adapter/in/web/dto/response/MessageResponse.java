@@ -8,6 +8,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Schema(description = "Message details response")
 public record MessageResponse(
         @Schema(description = "Unique identifier of the message")

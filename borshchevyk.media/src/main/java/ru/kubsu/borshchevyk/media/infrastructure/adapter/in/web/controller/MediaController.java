@@ -77,7 +77,7 @@ public class MediaController {
         AttachmentUrlResult result = uploadAvatarUseCase.uploadAvatar(command);
         
         String absoluteUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path(result.getUrl().substring("/api/v1/media".length())) // since ServletUriComponentsBuilder is relative to context path
+                .path(result.url().substring("/api/v1/media".length())) // since ServletUriComponentsBuilder is relative to context path
                 .build()
                 .toUriString();
 
@@ -97,7 +97,7 @@ public class MediaController {
                 .build();
 
         AttachmentUrlResult result = getAttachmentUrlUseCase.getAttachmentUrl(command);
-        response.sendRedirect(result.getUrl());
+        response.sendRedirect(result.url());
     }
 
     @Operation(summary = "Get pre-signed URL for upload", description = "Generates a secure temporary link for the client to directly upload a file to S3 and returns attachment ID.")
@@ -199,12 +199,12 @@ public class MediaController {
         ValidateAttachmentsResult result = validateAttachmentsUseCase.validateAttachments(command);
         
         List<ValidateAttachmentsResponse.AttachmentMetadataResponse> metadataResponses = null;
-        if (result.getAttachments() != null) {
-            metadataResponses = result.getAttachments().stream()
+        if (result.attachments() != null) {
+            metadataResponses = result.attachments().stream()
                     .map(presentationMediaMapper::toMetadataResponse)
                     .toList();
         }
         
-        return new ValidateAttachmentsResponse(result.isValid(), metadataResponses);
+        return new ValidateAttachmentsResponse(result.valid(), metadataResponses);
     }
 }

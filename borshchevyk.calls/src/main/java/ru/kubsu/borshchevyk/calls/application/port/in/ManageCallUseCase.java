@@ -1,5 +1,6 @@
 package ru.kubsu.borshchevyk.calls.application.port.in;
 
+import jakarta.validation.Valid;
 import ru.kubsu.borshchevyk.calls.application.dto.command.EndCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.command.InitiateCallCommand;
 import ru.kubsu.borshchevyk.calls.application.dto.command.JoinCallCommand;
@@ -20,7 +21,7 @@ public interface ManageCallUseCase {
      * @param command the initiation command
      * @return the created Call domain object
      */
-    Call initiateCall(InitiateCallCommand command);
+    Call initiateCall(@Valid InitiateCallCommand command);
 
     /**
      * Generates a token for a user to join an active call.
@@ -28,7 +29,7 @@ public interface ManageCallUseCase {
      * @param command the join command
      * @return LiveKit JWT access token
      */
-    String joinCall(JoinCallCommand command);
+    String joinCall(@Valid JoinCallCommand command);
 
     /**
      * Terminates an active call.
@@ -36,7 +37,7 @@ public interface ManageCallUseCase {
      * @param command the end call command
      * @return the updated Call domain object
      */
-    Call endCall(EndCallCommand command);
+    Call endCall(@Valid EndCallCommand command);
 
     /**
      * Handles a user leaving the call.
@@ -44,7 +45,7 @@ public interface ManageCallUseCase {
      * @param command the leave command
      * @return the updated Call domain object
      */
-    Call leaveCall(LeaveCallCommand command);
+    Call leaveCall(@Valid LeaveCallCommand command);
 
     /**
      * Retrieves details of a specific call.
@@ -52,5 +53,5 @@ public interface ManageCallUseCase {
      * @param query the get call query
      * @return the Call domain object
      */
-    Call getCall(GetCallQuery query);
+    Call getCall(@Valid GetCallQuery query);
 }

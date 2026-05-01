@@ -61,8 +61,8 @@ public class JwtTokenAdapter implements TokenGeneratorPort, TokenParserPort {
         log.info("Generating access token for account: {}", account.getAccountId().value());
         return Jwts.builder()
                 .subject(account.getAccountId().value().toString())
-                .claim("email", account.getEmail().getValue())
-                .claim("tag", account.getTag().getValue())
+                .claim("email", account.getEmail().value())
+                .claim("tag", account.getTag().value())
                 .issuedAt(Date.from(Instant.now()))
                 .expiration(Date.from(Instant.now().plus(accessTokenExpirationMs, ChronoUnit.MILLIS)))
                 .signWith(secretKey)

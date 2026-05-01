@@ -1,19 +1,18 @@
 package ru.kubsu.borshchevyk.message.application.dto.command;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.Set;
 import java.util.UUID;
 
-@Data
+/**
+ * Command to update allowed reactions in a chat.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UpdateChatReactionsCommand {
-    private UUID chatId;
-    private UUID requesterId;
-    private Set<String> allowedReactions;
+public record UpdateChatReactionsCommand(
+    UUID chatId,
+    UUID requesterId,
+    Set<String> allowedReactions
+) {
 }

@@ -9,6 +9,7 @@ import java.util.List;
  * Result of pulling events.
  *
  * @author Aleksey Timko
+ * @since 2026-03-01
  */
 @Builder
 public record PullResult(

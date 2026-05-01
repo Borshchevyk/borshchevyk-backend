@@ -10,6 +10,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Service
 @RequiredArgsConstructor
 public class UserEnrichmentService {

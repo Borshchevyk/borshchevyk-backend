@@ -27,25 +27,25 @@ public class KafkaEventConsumerAdapter {
     private final ObjectMapper objectMapper;
 
     @KafkaListener(topics = "${app.kafka.topics.user-registered}")
-    public void consumeUserRegistered(UserRegisteredEvent event) {
-        log.info("Received UserRegisteredEvent: {}", event);
+    public void consumeUserRegistered(String payload) {
+        log.info("Received UserRegisteredEvent payload");
         try {
-            String payload = objectMapper.writeValueAsString(event);
+            UserRegisteredEvent event = objectMapper.readValue(payload, UserRegisteredEvent.class);
             processIncomingEventUseCase.process(
                     UUID.fromString(event.userId()),
                     EventType.USER_REGISTERED,
                     payload
             );
         } catch (JsonProcessingException e) {
-            log.error("Failed to serialize UserRegisteredEvent", e);
+            log.error("Failed to deserialize UserRegisteredEvent", e);
         }
     }
 
     @KafkaListener(topics = "${app.kafka.topics.message-created}")
-    public void consumeMessageCreated(MessageCreatedEvent event) {
-        log.info("Received MessageCreatedEvent: {}", event);
+    public void consumeMessageCreated(String payload) {
+        log.info("Received MessageCreatedEvent payload");
         try {
-            String payload = objectMapper.writeValueAsString(event);
+            MessageCreatedEvent event = objectMapper.readValue(payload, MessageCreatedEvent.class);
             if (event.targetUserIds() != null) {
                 for (String targetId : event.targetUserIds()) {
                     processIncomingEventUseCase.process(
@@ -56,7 +56,7 @@ public class KafkaEventConsumerAdapter {
                 }
             }
         } catch (JsonProcessingException e) {
-            log.error("Failed to serialize MessageCreatedEvent", e);
+            log.error("Failed to deserialize MessageCreatedEvent", e);
         }
     }
 }

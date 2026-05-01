@@ -1,19 +1,15 @@
 package ru.kubsu.borshchevyk.message.domain.event;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.List;
 import java.util.UUID;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class MessageDeletedEvent {
-    private UUID messageId;
-    private UUID chatId;
-    private List<String> targetUserIds;
-}
+/**
+ * Domain event published when a message is deleted.
+ *
+ * @author Aleksey Timko
+ */
+public record MessageDeletedEvent(
+        UUID messageId,
+        UUID chatId,
+        List<String> targetUserIds
+) {}

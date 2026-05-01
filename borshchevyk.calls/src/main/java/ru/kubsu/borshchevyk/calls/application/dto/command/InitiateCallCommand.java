@@ -1,5 +1,7 @@
 package ru.kubsu.borshchevyk.calls.application.dto.command;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import ru.kubsu.borshchevyk.calls.domain.model.UserId;
 import java.util.Set;
 
@@ -10,6 +12,8 @@ import java.util.Set;
  * @since 2026-04-25
  */
 public record InitiateCallCommand(
+        @NotNull(message = "Initiator ID cannot be null")
         UserId initiatorId,
+        @NotEmpty(message = "Participant IDs cannot be empty")
         Set<UserId> participantIds
 ) {}

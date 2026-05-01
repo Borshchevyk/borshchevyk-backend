@@ -13,6 +13,10 @@ import lombok.Setter;
 
 import java.util.UUID;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Entity
 @Table(name = "deleted_messages")
 @Getter

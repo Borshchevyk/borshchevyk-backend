@@ -10,6 +10,10 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

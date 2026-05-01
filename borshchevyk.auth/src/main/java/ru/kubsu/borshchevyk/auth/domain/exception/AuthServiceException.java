@@ -1,7 +1,6 @@
 package ru.kubsu.borshchevyk.auth.domain.exception;
 
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Base exception for all authentication-related service errors.
@@ -9,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
  * @author Aleksey Timko
  * @since 2026-03-14
  */
-@Slf4j
 @Getter
 public abstract class AuthServiceException extends RuntimeException {
     /**
@@ -26,7 +24,6 @@ public abstract class AuthServiceException extends RuntimeException {
     public AuthServiceException(ErrorCode code, String message) {
         super(message);
         this.code = code;
-        log.error("Authentication service error [{}]: {}", code, message);
     }
 
     /**

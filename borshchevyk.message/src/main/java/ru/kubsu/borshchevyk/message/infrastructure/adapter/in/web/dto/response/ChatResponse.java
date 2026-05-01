@@ -30,7 +30,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public abstract class ChatResponse {
+public /**
+ * @author Aleksey Timko
+ */
+abstract class ChatResponse {
     @Schema(description = "Unique identifier of the chat")
     private UUID id;
     @Schema(description = "Type of the chat")

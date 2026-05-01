@@ -1,15 +1,18 @@
 package ru.kubsu.borshchevyk.message.application.dto.command;
 
 import lombok.Builder;
-import lombok.Data;
-
 import java.util.UUID;
 
-@Data
+/**
+ * Command to add a reaction to a message.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class AddReactionCommand {
-    private UUID chatId;
-    private UUID messageId;
-    private UUID requesterId;
-    private String reaction;
+public record AddReactionCommand(
+    UUID chatId,
+    UUID messageId,
+    UUID requesterId,
+    String reaction
+) {
 }

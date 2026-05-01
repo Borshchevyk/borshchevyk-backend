@@ -25,6 +25,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * CreateChatService implementation.
+ *
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -68,6 +74,7 @@ public class CreateChatService implements CreateChatUseCase, CreatePrivateChatUs
                     .userId(u1)
                     .role(ChatRole.MEMBER)
                     .joinedAt(LocalDateTime.now())
+                    .lastReadAt(LocalDateTime.now())
                     .build();
 
             ChatMember member2 = ChatMember.builder()
@@ -75,6 +82,7 @@ public class CreateChatService implements CreateChatUseCase, CreatePrivateChatUs
                     .userId(u2)
                     .role(ChatRole.MEMBER)
                     .joinedAt(LocalDateTime.now())
+                    .lastReadAt(LocalDateTime.now())
                     .build();
 
             chatMemberPort.saveAll(List.of(member1, member2));
@@ -86,35 +94,35 @@ public class CreateChatService implements CreateChatUseCase, CreatePrivateChatUs
     @Override
     @Transactional
     public Chat createChat(CreateChatCommand command) {
-        log.info("Creating chat with title: {}", command.getTitle());
+        log.info("Creating chat with title: {}", command.title());
 
         Chat chat;
         ChatId newChatId = new ChatId(UUID.randomUUID());
-        if (command.getType() == ChatType.GROUP) {
+        if (command.type() == ChatType.GROUP) {
             chat = GroupChat.builder()
                     .id(newChatId)
-                    .type(command.getType())
-                    .title(command.getTitle())
-                    .description(command.getDescription())
+                    .type(command.type())
+                    .title(command.title())
+                    .description(command.description())
                     .createdAt(LocalDateTime.now())
                     .build();
-        } else if (command.getType() == ChatType.CHANNEL) {
+        } else if (command.type() == ChatType.CHANNEL) {
             chat = Channel.builder()
                     .id(newChatId)
-                    .type(command.getType())
-                    .title(command.getTitle())
-                    .description(command.getDescription())
+                    .type(command.type())
+                    .title(command.title())
+                    .description(command.description())
                     .createdAt(LocalDateTime.now())
                     .build();
-        } else if (command.getType() == ChatType.SAVED_MESSAGES) {
+        } else if (command.type() == ChatType.SAVED_MESSAGES) {
             chat = ru.kubsu.borshchevyk.message.domain.model.chat.SavedMessages.builder()
                     .id(newChatId)
-                    .type(command.getType())
+                    .type(command.type())
                     .createdAt(LocalDateTime.now())
                     .isDeletable(false)
                     .build();
         } else {
-             throw new IllegalArgumentException("Unsupported chat type for general creation: " + command.getType());
+             throw new IllegalArgumentException("Unsupported chat type for general creation: " + command.type());
         }
 
         chat = chatPort.save(chat);
@@ -123,20 +131,22 @@ public class CreateChatService implements CreateChatUseCase, CreatePrivateChatUs
 
         ChatMember creator = ChatMember.builder()
                 .chatId(chat.getId())
-                .userId(new UserId(command.getCreatorId()))
+                .userId(new UserId(command.creatorId()))
                 .role(ChatRole.OWNER)
                 .joinedAt(LocalDateTime.now())
+                .lastReadAt(LocalDateTime.now())
                 .build();
         members.add(creator);
 
-        if (command.getInitialMemberIds() != null) {
-            for (UUID memberId : command.getInitialMemberIds()) {
-                if (!memberId.equals(command.getCreatorId())) {
+        if (command.initialMemberIds() != null) {
+            for (UUID memberId : command.initialMemberIds()) {
+                if (!memberId.equals(command.creatorId())) {
                     members.add(ChatMember.builder()
                             .chatId(chat.getId())
                             .userId(new UserId(memberId))
                             .role(ChatRole.MEMBER)
                             .joinedAt(LocalDateTime.now())
+                            .lastReadAt(LocalDateTime.now())
                             .build());
                 }
             }

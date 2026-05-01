@@ -28,6 +28,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * SendMessageService implementation.
+ *
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -43,41 +49,41 @@ public class SendMessageService implements SendMessageUseCase {
     @Override
     @Transactional
     public Message sendMessage(SendMessageCommand command) {
-        log.info("Sending message to chat: {}", command.getChatId());
+        log.info("Sending message to chat: {}", command.chatId());
 
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId authorId = new UserId(command.getAuthorId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId authorId = new UserId(command.authorId());
 
         Chat chat = chatPort.findById(chatId)
-                .orElseThrow(() -> new ChatNotFoundException("Chat not found with id: " + command.getChatId()));
+                .orElseThrow(() -> new ChatNotFoundException("Chat not found with id: " + command.chatId()));
 
         ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember chatMember = chatMemberPort.findByChatIdAndUserId(chatId, authorId)
                 .orElseThrow(() -> new UserNotInChatException("User " + authorId.value() + " is not a member of chat " + chatId.value()));
 
-        if (!chat.canMemberSendMessage(chatMember, command.getParentMessageId() != null)) {
+        if (!chat.canMemberSendMessage(chatMember, command.parentMessageId() != null)) {
             throw new ForbiddenActionException("User is not allowed to send messages in this chat");
         }
 
         List<ru.kubsu.borshchevyk.message.domain.model.message.MessageAttachment> attachments = new java.util.ArrayList<>();
-        if (command.getAttachmentIds() != null && !command.getAttachmentIds().isEmpty()) {
-            List<ru.kubsu.borshchevyk.message.application.dto.response.AttachmentMetadataDto> validAttachments = mediaPort.validateAttachments(command.getAttachmentIds(), command.getAuthorId());
-            if (validAttachments == null || validAttachments.isEmpty() || validAttachments.size() != command.getAttachmentIds().size()) {
+        if (command.attachmentIds() != null && !command.attachmentIds().isEmpty()) {
+            List<ru.kubsu.borshchevyk.message.application.dto.response.AttachmentMetadataDto> validAttachments = mediaPort.validateAttachments(command.attachmentIds(), command.authorId());
+            if (validAttachments == null || validAttachments.isEmpty() || validAttachments.size() != command.attachmentIds().size()) {
                 throw new IllegalArgumentException("Invalid attachments. Make sure they are uploaded and ready.");
             }
             attachments = validAttachments.stream()
                     .map(m -> new ru.kubsu.borshchevyk.message.domain.model.message.MessageAttachment(
-                            m.getId(),
-                            m.getType(),
-                            m.getOriginalFilename(),
-                            m.getExtension(),
-                            m.getSizeBytes(),
-                            m.getDuration(),
-                            m.getThumbnailId()
+                            m.id(),
+                            m.type(),
+                            m.originalFilename(),
+                            m.extension(),
+                            m.sizeBytes(),
+                            m.duration(),
+                            m.thumbnailId()
                     ))                    .collect(Collectors.toList());
         }
 
-        if (command.getParentMessageId() != null) {
-            Message parentMessage = messagePort.findById(new MessageId(command.getParentMessageId()))
+        if (command.parentMessageId() != null) {
+            Message parentMessage = messagePort.findById(new MessageId(command.parentMessageId()))
                     .orElseThrow(() -> new MessageNotFoundException("Parent message not found"));
             if (!parentMessage.getChatId().equals(chatId)) {
                 throw new IllegalArgumentException("Parent message belongs to a different chat");
@@ -90,17 +96,22 @@ public class SendMessageService implements SendMessageUseCase {
                 .id(new MessageId(UUID.randomUUID()))
                 .chatId(chatId)
                 .authorId(authorId)
-                .text(command.getText())
+                .text(command.text())
                 .createdAt(LocalDateTime.now())
                 .isDeleted(false)
-                .source(command.getSource())
-                .forwardedFromChatId(command.getForwardedFromChatId() != null ? new ChatId(command.getForwardedFromChatId()) : null)
-                .forwardedFromUserId(command.getForwardedFromUserId() != null ? new UserId(command.getForwardedFromUserId()) : null)
-                .parentMessageId(command.getParentMessageId() != null ? new MessageId(command.getParentMessageId()) : null)
+                .source(command.source())
+                .forwardedFromChatId(command.forwardedFromChatId() != null ? new ChatId(command.forwardedFromChatId()) : null)
+                .forwardedFromUserId(command.forwardedFromUserId() != null ? new UserId(command.forwardedFromUserId()) : null)
+                .parentMessageId(command.parentMessageId() != null ? new MessageId(command.parentMessageId()) : null)
                 .attachments(attachments)
                 .build();
 
         Message savedMessage = messagePort.save(message);
+
+        // Update the author's read status to the message they just sent
+        chatMember.setLastReadMessageId(savedMessage.getId());
+        chatMember.setLastReadAt(savedMessage.getCreatedAt());
+        chatMemberPort.saveAll(List.of(chatMember));
 
         List<ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember> members = chatMemberPort.findByChatId(chatId);
         List<String> memberIds = members.stream().map(m -> m.getUserId().value().toString()).collect(Collectors.toList());

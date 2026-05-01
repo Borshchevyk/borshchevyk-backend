@@ -12,6 +12,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Domain aggregate root representing a Message.
+ *
+ * @author Aleksey Timko
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -17,6 +17,12 @@ import ru.kubsu.borshchevyk.message.domain.model.chat.ChatRole;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 
+/**
+ * UpdateChatReactionsService implementation.
+ *
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -28,10 +34,10 @@ public class UpdateChatReactionsService implements UpdateChatReactionsUseCase {
     @Override
     @Transactional
     public void updateChatReactions(UpdateChatReactionsCommand command) {
-        log.info("User {} is updating allowed reactions in chat {}", command.getRequesterId(), command.getChatId());
+        log.info("User {} is updating allowed reactions in chat {}", command.requesterId(), command.chatId());
 
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
 
         Chat chat = chatPort.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException("Chat not found"));
@@ -43,7 +49,7 @@ public class UpdateChatReactionsService implements UpdateChatReactionsUseCase {
             throw new ForbiddenActionException("Only admins and owners can update allowed reactions");
         }
 
-        chat.setAllowedReactions(command.getAllowedReactions());
+        chat.setAllowedReactions(command.allowedReactions());
         chatPort.save(chat);
     }
 }

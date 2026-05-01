@@ -1,13 +1,17 @@
 package ru.kubsu.borshchevyk.media.application.dto.command;
 
 import lombok.Builder;
-import lombok.Data;
 
 import java.util.UUID;
 
-@Data
+/**
+ * Command for completing an upload process.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class CompleteUploadCommand {
-    private UUID attachmentId;
-    private UUID requesterId;
+public record CompleteUploadCommand(
+        UUID attachmentId,
+        UUID requesterId
+) {
 }

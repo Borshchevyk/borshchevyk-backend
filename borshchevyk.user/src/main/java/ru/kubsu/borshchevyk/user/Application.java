@@ -9,11 +9,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author Aleksey Timko
  */
 @SpringBootApplication
-/**
- * Class documentation.
- *
- * @author Aleksey Timko
- */
 public class Application {
 
 	public static void main(String[] args) {

@@ -16,6 +16,10 @@ import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatEnr
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

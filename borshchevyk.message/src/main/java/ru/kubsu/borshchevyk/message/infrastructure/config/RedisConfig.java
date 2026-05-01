@@ -8,6 +8,10 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import ru.kubsu.borshchevyk.message.infrastructure.redis.RedisMessageSubscriber;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Configuration
 public class RedisConfig {
 

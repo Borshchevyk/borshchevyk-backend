@@ -3,6 +3,9 @@ package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
+/**
+ * @author Aleksey Timko
+ */
 public record GlobalSearchResponse(
         @Schema(description = "List of found chats")
         List<ChatResponse> chats,

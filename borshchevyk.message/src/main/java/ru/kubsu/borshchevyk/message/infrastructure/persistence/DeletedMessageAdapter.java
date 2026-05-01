@@ -8,6 +8,10 @@ import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.DeletedMessageEntity;
 import ru.kubsu.borshchevyk.message.infrastructure.persistence.repository.DeletedMessageRepository;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Component
 @RequiredArgsConstructor
 public class DeletedMessageAdapter implements DeletedMessagePort {

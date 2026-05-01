@@ -5,6 +5,11 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+/**
+ * Domain model representing a Private chat type.
+ *
+ * @author Aleksey Timko
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

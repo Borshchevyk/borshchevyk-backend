@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import lombok.Builder;
 
+/**
+ * Domain model representing a Channel chat type.
+ *
+ * @author Aleksey Timko
+ */
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor

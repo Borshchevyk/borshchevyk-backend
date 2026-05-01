@@ -33,6 +33,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * MessageManagementService implementation.
+ *
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -48,12 +54,12 @@ public class MessageManagementService implements DeleteMessageUseCase, PinMessag
     @Override
     @Transactional
     public void deleteMessage(DeleteMessageCommand command) {
-        log.info("Deleting message: {}", command.getMessageId());
-        MessageId messageId = new MessageId(command.getMessageId());
-        UserId requesterId = new UserId(command.getRequesterId());
+        log.info("Deleting message: {}", command.messageId());
+        MessageId messageId = new MessageId(command.messageId());
+        UserId requesterId = new UserId(command.requesterId());
 
         Message message = messagePort.findById(messageId)
-                .orElseThrow(() -> new MessageNotFoundException("Message not found with id: " + command.getMessageId()));
+                .orElseThrow(() -> new MessageNotFoundException("Message not found with id: " + command.messageId()));
 
         ChatId chatId = message.getChatId();
 
@@ -63,7 +69,7 @@ public class MessageManagementService implements DeleteMessageUseCase, PinMessag
         ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
                 .orElseThrow(() -> new UserNotInChatException("User is not a member of the chat"));
 
-        if (command.isForAll()) {
+        if (command.forAll()) {
             boolean isAuthor = message.getAuthorId().equals(requesterId);
 
             if (chat.canMemberDeleteMessage(requester, isAuthor)) {
@@ -86,10 +92,10 @@ public class MessageManagementService implements DeleteMessageUseCase, PinMessag
     @Override
     @Transactional
     public void pinMessage(PinMessageCommand command) {
-        log.info("Pinning message {} in chat {} by user {}", command.getMessageId(), command.getChatId(), command.getRequesterId());
-        MessageId messageId = new MessageId(command.getMessageId());
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
+        log.info("Pinning message {} in chat {} by user {}", command.messageId(), command.chatId(), command.requesterId());
+        MessageId messageId = new MessageId(command.messageId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
 
         Chat chat = chatPort.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException("Chat not found"));
@@ -122,10 +128,10 @@ public class MessageManagementService implements DeleteMessageUseCase, PinMessag
     @Override
     @Transactional
     public void unpinMessage(UnpinMessageCommand command) {
-        log.info("Unpinning message {} in chat {} by user {}", command.getMessageId(), command.getChatId(), command.getRequesterId());
-        MessageId messageId = new MessageId(command.getMessageId());
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
+        log.info("Unpinning message {} in chat {} by user {}", command.messageId(), command.chatId(), command.requesterId());
+        MessageId messageId = new MessageId(command.messageId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
 
         Chat chat = chatPort.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException("Chat not found"));
@@ -151,4 +157,3 @@ public class MessageManagementService implements DeleteMessageUseCase, PinMessag
         }
     }
 }
-

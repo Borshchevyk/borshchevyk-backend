@@ -1,26 +1,32 @@
 package ru.kubsu.borshchevyk.media.application.dto.response;
 
 import lombok.Builder;
-import lombok.Value;
 
 import java.util.List;
 import java.util.UUID;
 
-@Value
+/**
+ * Result of validating attachments.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class ValidateAttachmentsResult {
-    boolean valid;
-    List<AttachmentMetadata> attachments;
-
-    @Value
+public record ValidateAttachmentsResult(
+        boolean valid,
+        List<AttachmentMetadata> attachments
+) {
+    /**
+     * Metadata of a validated attachment.
+     */
     @Builder
-    public static class AttachmentMetadata {
-        UUID id;
-        String type;
-        String originalFilename;
-        String extension;
-        Long sizeBytes;
-        Double duration;
-        UUID thumbnailId;
+    public record AttachmentMetadata(
+            UUID id,
+            String type,
+            String originalFilename,
+            String extension,
+            Long sizeBytes,
+            Double duration,
+            UUID thumbnailId
+    ) {
     }
 }

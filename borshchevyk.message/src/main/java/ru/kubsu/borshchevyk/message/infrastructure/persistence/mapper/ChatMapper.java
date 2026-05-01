@@ -8,6 +8,10 @@ import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.*;
 import java.util.UUID;
 import java.util.HashSet;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Mapper(componentModel = "spring")
 public interface ChatMapper {
 

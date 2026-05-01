@@ -13,6 +13,7 @@ import ru.kubsu.borshchevyk.sync.application.dto.command.PullEventsCommand;
 import ru.kubsu.borshchevyk.sync.application.dto.result.PullResult;
 import ru.kubsu.borshchevyk.sync.application.port.in.PullEventsUseCase;
 import ru.kubsu.borshchevyk.sync.infrastructure.adapter.in.web.dto.response.SyncResponse;
+import ru.kubsu.borshchevyk.sync.infrastructure.adapter.in.web.mapper.SyncWebMapper;
 
 import java.util.UUID;
 
@@ -28,6 +29,7 @@ import java.util.UUID;
 public class SyncController {
 
     private final PullEventsUseCase pullEventsUseCase;
+    private final SyncWebMapper syncWebMapper;
 
     @GetMapping("/pull")
     @Operation(
@@ -60,7 +62,7 @@ public class SyncController {
         PullResult result = pullEventsUseCase.pull(command);
 
         SyncResponse response = SyncResponse.builder()
-                .events(result.events())
+                .events(syncWebMapper.toDtoList(result.events()))
                 .nextToken(result.nextToken())
                 .hasMore(result.hasMore())
                 .build();

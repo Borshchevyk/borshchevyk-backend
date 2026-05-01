@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Repository
 public interface ChatRepository extends JpaRepository<ChatEntity, UUID> {
     List<ChatEntity> findByIdIn(List<UUID> ids);

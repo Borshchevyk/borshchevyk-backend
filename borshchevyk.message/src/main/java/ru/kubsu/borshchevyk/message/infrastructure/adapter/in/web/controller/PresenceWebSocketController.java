@@ -11,6 +11,10 @@ import ru.kubsu.borshchevyk.message.application.dto.response.PresenceStatusRespo
 
 import java.util.UUID;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Controller
 @RequiredArgsConstructor

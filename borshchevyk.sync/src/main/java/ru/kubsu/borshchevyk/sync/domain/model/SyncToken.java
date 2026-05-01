@@ -1,21 +1,14 @@
 package ru.kubsu.borshchevyk.sync.domain.model;
 
-import lombok.Value;
-
 import java.util.Base64;
 
 /**
  * Domain model representing a synchronization token used for pagination and state tracking.
  *
  * @author Aleksey Timko
+ * @since 2026-03-01
  */
-@Value
-public class SyncToken {
-    String value;
-
-    public SyncToken(String value) {
-        this.value = value;
-    }
+public record SyncToken(String value) {
 
     public static SyncToken encode(Long sequenceNumber) {
         if (sequenceNumber == null) {

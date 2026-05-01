@@ -9,6 +9,11 @@ import ru.kubsu.borshchevyk.media.domain.model.value.AttachmentId;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Domain entity representing a media attachment.
+ *
+ * @author Aleksey Timko
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

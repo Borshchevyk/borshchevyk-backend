@@ -13,6 +13,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Repository
 public interface ChatMemberRepository extends JpaRepository<ChatMemberEntity, ChatMemberId> {
     List<ChatMemberEntity> findByChatId(UUID chatId);

@@ -1,14 +1,17 @@
 package ru.kubsu.borshchevyk.message.application.dto.command;
 
 import lombok.Builder;
-import lombok.Data;
-
 import java.util.UUID;
 
-@Data
+/**
+ * Command to pin a message.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class PinMessageCommand {
-    private UUID chatId;
-    private UUID messageId;
-    private UUID requesterId;
+public record PinMessageCommand(
+    UUID chatId,
+    UUID messageId,
+    UUID requesterId
+) {
 }

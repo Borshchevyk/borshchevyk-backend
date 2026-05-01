@@ -20,6 +20,7 @@ import java.util.UUID;
  * Service handling the core synchronization logic.
  *
  * @author Aleksey Timko
+ * @since 2026-03-01
  */
 @Slf4j
 @Service
@@ -46,10 +47,10 @@ public class SyncService implements PullEventsUseCase, ProcessIncomingEventUseCa
         
         Long lastSequenceNumber = sequenceNumber;
         if (!events.isEmpty()) {
-            lastSequenceNumber = events.get(events.size() - 1).getSequenceNumber();
+            lastSequenceNumber = events.get(events.size() - 1).sequenceNumber();
         }
         
-        String nextToken = SyncToken.encode(lastSequenceNumber).getValue();
+        String nextToken = SyncToken.encode(lastSequenceNumber).value();
         
         log.debug("Found {} events for user: {}. hasMore: {}", events.size(), command.requesterId(), hasMore);
         
@@ -73,6 +74,6 @@ public class SyncService implements PullEventsUseCase, ProcessIncomingEventUseCa
                 .build();
                 
         syncEventPort.save(event);
-        log.info("Successfully saved sync event {} for user {}", event.getEventId(), targetUserId);
+        log.info("Successfully saved sync event {} for user {}", event.eventId(), targetUserId);
     }
 }

@@ -16,6 +16,10 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Component
 public class JwtChannelInterceptor implements ChannelInterceptor {
 

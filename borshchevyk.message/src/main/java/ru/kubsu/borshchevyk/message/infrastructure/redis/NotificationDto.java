@@ -8,6 +8,10 @@ import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.S
 
 import java.util.List;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

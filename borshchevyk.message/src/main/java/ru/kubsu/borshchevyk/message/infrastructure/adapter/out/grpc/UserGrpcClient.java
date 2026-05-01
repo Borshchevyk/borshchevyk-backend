@@ -9,6 +9,10 @@ import ru.kubsu.borshchevyk.grpc.UserServiceGrpc;
 
 import java.util.UUID;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Service
 @RequiredArgsConstructor
 public class UserGrpcClient {

@@ -18,6 +18,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/search")

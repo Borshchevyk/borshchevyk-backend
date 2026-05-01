@@ -33,32 +33,32 @@ public class DirectUploadService implements UploadDirectAttachmentUseCase {
     @Override
     @Transactional
     public Attachment uploadDirectAttachment(UploadDirectAttachmentCommand command) {
-        log.info("Uploading direct attachment of type {} for user {}", command.getType(), command.getUploaderId());
+        log.info("Uploading direct attachment of type {} for user {}", command.type(), command.uploaderId());
 
-        if (command.getType() != AttachmentType.VOICE && command.getType() != AttachmentType.CIRCLE) {
+        if (command.type() != AttachmentType.VOICE && command.type() != AttachmentType.CIRCLE) {
             throw new InvalidAttachmentTypeException("Only VOICE and CIRCLE types are allowed for direct upload");
         }
 
-        String extensionPart = (command.getExtension() != null && !command.getExtension().isEmpty()) ? "." + command.getExtension() : "";
-        String pathPrefix = command.getType() == AttachmentType.VOICE ? "voices/" : "circles/";
-        String s3Key = pathPrefix + command.getUploaderId() + "/" + UUID.randomUUID() + extensionPart;
+        String extensionPart = (command.extension() != null && !command.extension().isEmpty()) ? "." + command.extension() : "";
+        String pathPrefix = command.type() == AttachmentType.VOICE ? "voices/" : "circles/";
+        String s3Key = pathPrefix + command.uploaderId() + "/" + UUID.randomUUID() + extensionPart;
 
         Attachment attachment = Attachment.builder()
                 .id(new AttachmentId(UUID.randomUUID()))
-                .uploaderId(command.getUploaderId())
-                .type(command.getType())
+                .uploaderId(command.uploaderId())
+                .type(command.type())
                 .s3Key(s3Key)
-                .originalFilename(command.getOriginalFilename())
-                .extension(command.getExtension())
-                .contentType(command.getContentType())
-                .sizeBytes(command.getSizeBytes())
-                .duration(command.getDuration())
+                .originalFilename(command.originalFilename())
+                .extension(command.extension())
+                .contentType(command.contentType())
+                .sizeBytes(command.sizeBytes())
+                .duration(command.duration())
                 .status(AttachmentStatus.READY) // Ready immediately upon successful direct upload
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        s3Port.uploadFile(s3Key, command.getInputStream(), command.getSizeBytes(), command.getContentType());
+        s3Port.uploadFile(s3Key, command.inputStream(), command.sizeBytes(), command.contentType());
         
         return attachmentPort.save(attachment);
     }

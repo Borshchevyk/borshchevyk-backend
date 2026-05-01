@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Component
 @RequiredArgsConstructor
 public class ChatAdapter implements ChatPort {

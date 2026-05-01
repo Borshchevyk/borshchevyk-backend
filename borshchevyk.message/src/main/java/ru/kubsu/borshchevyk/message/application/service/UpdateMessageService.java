@@ -24,6 +24,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * UpdateMessageService implementation.
+ *
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -37,14 +43,14 @@ public class UpdateMessageService implements UpdateMessageUseCase {
     @Override
     @Transactional
     public Message updateMessage(UpdateMessageCommand command) {
-        log.info("Updating message: {}", command.getMessageId());
+        log.info("Updating message: {}", command.messageId());
 
-        MessageId messageId = new MessageId(command.getMessageId());
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
+        MessageId messageId = new MessageId(command.messageId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
 
         Message message = messagePort.findById(messageId)
-                .orElseThrow(() -> new MessageNotFoundException("Message not found with id: " + command.getMessageId()));
+                .orElseThrow(() -> new MessageNotFoundException("Message not found with id: " + command.messageId()));
 
         if (!message.getChatId().equals(chatId)) {
             throw new IllegalArgumentException("Message does not belong to this chat");
@@ -57,7 +63,7 @@ public class UpdateMessageService implements UpdateMessageUseCase {
             throw new ForbiddenActionException("Only the author can update this message");
         }
 
-        message.setText(command.getText());
+        message.setText(command.text());
         message.setUpdatedAt(LocalDateTime.now());
         Message updatedMessage = messagePort.save(message);
 

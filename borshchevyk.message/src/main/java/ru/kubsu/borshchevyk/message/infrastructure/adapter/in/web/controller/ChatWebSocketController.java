@@ -13,6 +13,10 @@ import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.S
 
 import java.util.UUID;
 
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Controller
 @RequiredArgsConstructor

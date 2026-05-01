@@ -22,6 +22,12 @@ import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.MessageId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 
+/**
+ * MessageReactionService implementation.
+ *
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -34,10 +40,10 @@ public class MessageReactionService implements AddReactionUseCase, RemoveReactio
     @Override
     @Transactional
     public void addReaction(AddReactionCommand command) {
-        log.info("User {} adding reaction {} to message {} in chat {}", command.getRequesterId(), command.getReaction(), command.getMessageId(), command.getChatId());
-        MessageId messageId = new MessageId(command.getMessageId());
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
+        log.info("User {} adding reaction {} to message {} in chat {}", command.requesterId(), command.reaction(), command.messageId(), command.chatId());
+        MessageId messageId = new MessageId(command.messageId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
 
         Chat chat = chatPort.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException("Chat not found"));
@@ -52,11 +58,11 @@ public class MessageReactionService implements AddReactionUseCase, RemoveReactio
             throw new IllegalArgumentException("Message does not belong to this chat");
         }
 
-        if (chat.getAllowedReactions() != null && !chat.getAllowedReactions().contains(command.getReaction())) {
+        if (chat.getAllowedReactions() != null && !chat.getAllowedReactions().contains(command.reaction())) {
             throw new IllegalArgumentException("Reaction not allowed in this chat");
         }
 
-        MessageReaction newReaction = new MessageReaction(command.getRequesterId(), command.getReaction());
+        MessageReaction newReaction = new MessageReaction(command.requesterId(), command.reaction());
         if (!message.getReactions().contains(newReaction)) {
             message.getReactions().add(newReaction);
             messagePort.save(message);
@@ -66,10 +72,10 @@ public class MessageReactionService implements AddReactionUseCase, RemoveReactio
     @Override
     @Transactional
     public void removeReaction(RemoveReactionCommand command) {
-        log.info("User {} removing reaction {} from message {} in chat {}", command.getRequesterId(), command.getReaction(), command.getMessageId(), command.getChatId());
-        MessageId messageId = new MessageId(command.getMessageId());
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
+        log.info("User {} removing reaction {} from message {} in chat {}", command.requesterId(), command.reaction(), command.messageId(), command.chatId());
+        MessageId messageId = new MessageId(command.messageId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
 
         ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
                 .orElseThrow(() -> new UserNotInChatException("User is not a member of the chat"));
@@ -81,7 +87,7 @@ public class MessageReactionService implements AddReactionUseCase, RemoveReactio
             throw new IllegalArgumentException("Message does not belong to this chat");
         }
 
-        MessageReaction targetReaction = new MessageReaction(command.getRequesterId(), command.getReaction());
+        MessageReaction targetReaction = new MessageReaction(command.requesterId(), command.reaction());
         if (message.getReactions().contains(targetReaction)) {
             message.getReactions().remove(targetReaction);
             messagePort.save(message);

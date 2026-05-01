@@ -2,7 +2,6 @@ package ru.kubsu.borshchevyk.sync.infrastructure.adapter.in.web.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
-import ru.kubsu.borshchevyk.sync.domain.model.SyncEvent;
 
 import java.util.List;
 
@@ -15,7 +14,7 @@ import java.util.List;
 @Schema(description = "Response containing synchronization events and pagination details")
 public record SyncResponse(
         @Schema(description = "List of synchronization events")
-        List<SyncEvent> events,
+        List<SyncEventDto> events,
 
         @Schema(description = "Token to use for fetching the next batch of events", example = "eyJzZXEiOjIwfQ==")
         String nextToken,

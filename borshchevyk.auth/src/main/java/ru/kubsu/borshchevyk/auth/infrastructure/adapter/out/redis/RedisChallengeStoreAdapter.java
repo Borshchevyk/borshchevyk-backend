@@ -2,6 +2,7 @@ package ru.kubsu.borshchevyk.auth.infrastructure.adapter.out.redis;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import ru.kubsu.borshchevyk.auth.application.port.out.ChallengeStorePort;
@@ -22,8 +23,11 @@ import java.util.Optional;
 public class RedisChallengeStoreAdapter implements ChallengeStorePort {
 
     private final StringRedisTemplate redisTemplate;
+
+    @Value("${app.auth.challenge.ttl:300}")
+    private long challengeTtlSeconds;
+
     private static final String CHALLENGE_PREFIX = "challenge:";
-    private static final Duration CHALLENGE_TTL = Duration.ofMinutes(5);
 
     /**
      * Saves a challenge for a given account.
@@ -35,7 +39,7 @@ public class RedisChallengeStoreAdapter implements ChallengeStorePort {
     public void saveChallenge(AccountId accountId, String challenge) {
         log.info("Saving challenge for account: {}", accountId.value());
         String key = CHALLENGE_PREFIX + accountId.value().toString();
-        redisTemplate.opsForValue().set(key, challenge, CHALLENGE_TTL);
+        redisTemplate.opsForValue().set(key, challenge, Duration.ofSeconds(challengeTtlSeconds));
     }
 
     /**

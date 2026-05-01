@@ -19,7 +19,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
-public abstract class PresentationMessageMapper {
+public /**
+ * @author Aleksey Timko
+ */
+abstract class PresentationMessageMapper {
 
     @Autowired
     private UserEnrichmentService userEnrichmentService;

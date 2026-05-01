@@ -1,18 +1,17 @@
 package ru.kubsu.borshchevyk.message.application.dto.command;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.UUID;
 
-@Data
+/**
+ * Command to delete a message.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class DeleteMessageCommand {
-    private UUID messageId;
-    private UUID requesterId;
-    private boolean forAll;
+public record DeleteMessageCommand(
+    UUID messageId,
+    UUID requesterId,
+    boolean forAll
+) {
 }

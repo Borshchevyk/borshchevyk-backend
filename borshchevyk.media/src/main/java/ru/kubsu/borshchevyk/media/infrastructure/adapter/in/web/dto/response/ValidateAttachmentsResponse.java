@@ -4,6 +4,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Response for attachment validation.
+ *
+ * @author Aleksey Timko
+ */
 @Schema(description = "Response for attachment validation")
 public record ValidateAttachmentsResponse(
         @Schema(description = "Indicates whether all requested attachments are valid")

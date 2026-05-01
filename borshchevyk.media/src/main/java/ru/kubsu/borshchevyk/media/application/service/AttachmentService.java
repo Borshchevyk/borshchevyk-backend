@@ -58,26 +58,26 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
     @Override
     @Transactional
     public AttachmentUrlResult uploadAvatar(UploadAvatarCommand command) {
-        log.info("Uploading avatar directly for user {}", command.getUploaderId());
+        log.info("Uploading avatar directly for user {}", command.uploaderId());
 
-        String extensionPart = (command.getExtension() != null && !command.getExtension().isEmpty()) ? "." + command.getExtension() : "";
-        String s3Key = "avatars/" + command.getUploaderId() + "/" + UUID.randomUUID() + extensionPart;
+        String extensionPart = (command.extension() != null && !command.extension().isEmpty()) ? "." + command.extension() : "";
+        String s3Key = "avatars/" + command.uploaderId() + "/" + UUID.randomUUID() + extensionPart;
 
         Attachment attachment = Attachment.builder()
                 .id(new AttachmentId(UUID.randomUUID()))
-                .uploaderId(command.getUploaderId())
+                .uploaderId(command.uploaderId())
                 .type(AttachmentType.AVATAR)
                 .s3Key(s3Key)
-                .originalFilename(command.getOriginalFilename())
-                .extension(command.getExtension())
-                .contentType(command.getContentType())
-                .sizeBytes(command.getSizeBytes())
+                .originalFilename(command.originalFilename())
+                .extension(command.extension())
+                .contentType(command.contentType())
+                .sizeBytes(command.sizeBytes())
                 .status(AttachmentStatus.READY) // Avatar is ready immediately
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
 
-        s3Port.uploadFile(s3Key, command.getInputStream(), command.getSizeBytes(), command.getContentType());
+        s3Port.uploadFile(s3Key, command.inputStream(), command.sizeBytes(), command.contentType());
         attachment = attachmentPort.save(attachment);
 
         String localAvatarUrl = "/api/v1/media/avatars/" + attachment.getId().value();
@@ -90,23 +90,23 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
     @Override
     @Transactional
     public UploadUrlResult requestUploadUrl(RequestUploadUrlCommand command) {
-        log.info("Requesting upload URL for user {} type {}", command.getUploaderId(), command.getType());
+        log.info("Requesting upload URL for user {} type {}", command.uploaderId(), command.type());
 
-        String extensionPart = (command.getExtension() != null && !command.getExtension().isEmpty()) ? "." + command.getExtension() : "";
-        String s3Key = "attachments/" + command.getUploaderId() + "/" + UUID.randomUUID() + extensionPart;
+        String extensionPart = (command.extension() != null && !command.extension().isEmpty()) ? "." + command.extension() : "";
+        String s3Key = "attachments/" + command.uploaderId() + "/" + UUID.randomUUID() + extensionPart;
 
         Attachment attachment = Attachment.builder()
                 .id(new AttachmentId(UUID.randomUUID()))
-                .uploaderId(command.getUploaderId())
-                .type(command.getType())
+                .uploaderId(command.uploaderId())
+                .type(command.type())
                 .s3Key(s3Key)
-                .originalFilename(command.getOriginalFilename())
-                .extension(command.getExtension())
-                .contentType(command.getContentType())
-                .sizeBytes(command.getSizeBytes())
-                .width(command.getWidth())
-                .height(command.getHeight())
-                .duration(command.getDuration())
+                .originalFilename(command.originalFilename())
+                .extension(command.extension())
+                .contentType(command.contentType())
+                .sizeBytes(command.sizeBytes())
+                .width(command.width())
+                .height(command.height())
+                .duration(command.duration())
                 .status(AttachmentStatus.INITIALIZED)
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
@@ -114,7 +114,7 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
 
         attachment = attachmentPort.save(attachment);
 
-        String uploadUrl = s3Port.generatePresignedPutUrl(s3Key, command.getContentType(), Duration.ofMinutes(15));
+        String uploadUrl = s3Port.generatePresignedPutUrl(s3Key, command.contentType(), Duration.ofMinutes(15));
 
         return UploadUrlResult.builder()
                 .attachmentId(attachment.getId().value())
@@ -126,12 +126,12 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
     @Override
     @Transactional
     public Attachment completeUpload(CompleteUploadCommand command) {
-        log.info("Completing upload for attachment {} by user {}", command.getAttachmentId(), command.getRequesterId());
+        log.info("Completing upload for attachment {} by user {}", command.attachmentId(), command.requesterId());
 
-        Attachment attachment = attachmentPort.findById(new AttachmentId(command.getAttachmentId()))
+        Attachment attachment = attachmentPort.findById(new AttachmentId(command.attachmentId()))
                 .orElseThrow(() -> new AttachmentNotFoundException("Attachment not found"));
 
-        if (!attachment.getUploaderId().equals(command.getRequesterId())) {
+        if (!attachment.getUploaderId().equals(command.requesterId())) {
             throw new ForbiddenActionException("Only the uploader can complete the upload");
         }
 
@@ -232,9 +232,9 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
     @Override
     @Transactional(readOnly = true)
     public AttachmentUrlResult getAttachmentUrl(GetAttachmentUrlCommand command) {
-        log.info("Getting download URL for attachment {} by user {}", command.getAttachmentId(), command.getRequesterId());
+        log.info("Getting download URL for attachment {} by user {}", command.attachmentId(), command.requesterId());
 
-        Attachment attachment = attachmentPort.findById(new AttachmentId(command.getAttachmentId()))
+        Attachment attachment = attachmentPort.findById(new AttachmentId(command.attachmentId()))
                 .orElseThrow(() -> new AttachmentNotFoundException("Attachment not found"));
 
         if (attachment.getStatus() != AttachmentStatus.READY && attachment.getStatus() != AttachmentStatus.DELETED) {
@@ -251,13 +251,13 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
     @Override
     @Transactional(readOnly = true)
     public AttachmentUrlResult getThumbnailUrl(GetAttachmentUrlCommand command) {
-        log.info("Getting thumbnail URL for attachment {} by user {}", command.getAttachmentId(), command.getRequesterId());
+        log.info("Getting thumbnail URL for attachment {} by user {}", command.attachmentId(), command.requesterId());
 
-        Attachment attachment = attachmentPort.findById(new AttachmentId(command.getAttachmentId()))
+        Attachment attachment = attachmentPort.findById(new AttachmentId(command.attachmentId()))
                 .orElseThrow(() -> new AttachmentNotFoundException("Attachment not found"));
 
         if (attachment.getThumbnailKey() == null || attachment.getThumbnailKey().isEmpty()) {
-            log.warn("Thumbnail not found for attachment {}, returning original URL as fallback", command.getAttachmentId());
+            log.warn("Thumbnail not found for attachment {}, returning original URL as fallback", command.attachmentId());
             return getAttachmentUrl(command);
         }
 
@@ -271,23 +271,23 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
     @Override
     @Transactional(readOnly = true)
     public ValidateAttachmentsResult validateAttachments(ValidateAttachmentsCommand command) {
-        if (command.getAttachmentIds() == null || command.getAttachmentIds().isEmpty()) {
+        if (command.attachmentIds() == null || command.attachmentIds().isEmpty()) {
             return ValidateAttachmentsResult.builder().valid(true).attachments(new ArrayList<>()).build();
         }
 
-        List<AttachmentId> ids = command.getAttachmentIds().stream().map(AttachmentId::new).toList();
+        List<AttachmentId> ids = command.attachmentIds().stream().map(AttachmentId::new).toList();
         List<Attachment> attachments = attachmentPort.findAllById(ids);
 
-        if (attachments.size() != command.getAttachmentIds().size()) {
-            log.warn("Validation failed: some attachments not found. Expected: {}, Found: {}", command.getAttachmentIds().size(), attachments.size());
+        if (attachments.size() != command.attachmentIds().size()) {
+            log.warn("Validation failed: some attachments not found. Expected: {}, Found: {}", command.attachmentIds().size(), attachments.size());
             return ValidateAttachmentsResult.builder().valid(false).attachments(new ArrayList<>()).build();
         }
 
         List<ValidateAttachmentsResult.AttachmentMetadata> metadataList = new ArrayList<>();
 
         for (Attachment attachment : attachments) {
-            if (!attachment.getUploaderId().equals(command.getRequesterId())) {
-                log.warn("Validation failed: attachment {} doesn't belong to user {}", attachment.getId().value(), command.getRequesterId());
+            if (!attachment.getUploaderId().equals(command.requesterId())) {
+                log.warn("Validation failed: attachment {} doesn't belong to user {}", attachment.getId().value(), command.requesterId());
                 return ValidateAttachmentsResult.builder().valid(false).attachments(new ArrayList<>()).build();
             }
             if (attachment.getStatus() != AttachmentStatus.READY) {

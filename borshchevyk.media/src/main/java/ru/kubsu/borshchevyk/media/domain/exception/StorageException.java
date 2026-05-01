@@ -1,7 +1,7 @@
 package ru.kubsu.borshchevyk.media.domain.exception;
 
 /**
- * Exception thrown when a storage operation fails.
+ * Exception thrown when a storage operation (S3, DB) fails.
  *
  * @author Aleksey Timko
  */

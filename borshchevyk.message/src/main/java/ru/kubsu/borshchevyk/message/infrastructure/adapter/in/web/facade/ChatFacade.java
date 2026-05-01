@@ -20,6 +20,10 @@ import ru.kubsu.borshchevyk.message.infrastructure.persistence.repository.ChatMe
 
 import java.util.*;
 import java.util.stream.Collectors;
+/**
+ * @author Aleksey Timko
+ * @since 2026-05-01
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor

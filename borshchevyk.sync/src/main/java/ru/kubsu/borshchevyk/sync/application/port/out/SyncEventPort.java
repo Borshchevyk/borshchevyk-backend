@@ -9,6 +9,7 @@ import java.util.UUID;
  * Output port for managing sync events in the persistence layer.
  *
  * @author Aleksey Timko
+ * @since 2026-03-01
  */
 public interface SyncEventPort {
     void save(SyncEvent event);

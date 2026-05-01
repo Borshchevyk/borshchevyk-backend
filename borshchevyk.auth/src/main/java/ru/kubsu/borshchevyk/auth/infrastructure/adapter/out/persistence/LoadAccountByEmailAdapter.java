@@ -28,7 +28,7 @@ public class LoadAccountByEmailAdapter implements LoadAccountByEmailPort {
     @Override
     public Optional<Account> loadAccountByEmail(Email email) {
         log.info("Loading account by email");
-        return accountRepository.findByEmail(email.getValue())
+        return accountRepository.findByEmail(email.value())
                 .map(accountMapper::toDomain);
     }
 }
