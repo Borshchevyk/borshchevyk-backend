@@ -12,6 +12,10 @@ import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.S
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortChatDto;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatEnrichmentService;
+import ru.kubsu.borshchevyk.message.application.port.out.ChatPort;
+import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatFacade;
+import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ChatResponse;
+import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +33,8 @@ public class RedisRealtimeNotificationAdapter implements RealtimeNotificationPor
     private final ObjectMapper objectMapper;
     private final UserEnrichmentService userEnrichmentService;
     private final ChatEnrichmentService chatEnrichmentService;
+    private final ChatPort chatPort;
+    private final ChatFacade chatFacade;
 
     @Override
     public void notifyUser(UserId userId, Message message) {
@@ -76,8 +82,10 @@ public class RedisRealtimeNotificationAdapter implements RealtimeNotificationPor
     @Override
     public void notifyChatEvent(UserId userId, ru.kubsu.borshchevyk.message.domain.model.value.ChatId chatId, String action) {
         try {
-            ShortChatDto chat = chatEnrichmentService.enrichChat(chatId.value(), userId.value());
-            NotificationDto.ChatEventDto eventDto = new NotificationDto.ChatEventDto(chat, action);
+            Chat chat = chatPort.findById(chatId).orElse(null);
+            ChatResponse chatResponse = chat != null ? chatFacade.enrichChatResponse(chat, userId.value()) : null;
+            
+            NotificationDto.ChatEventDto eventDto = new NotificationDto.ChatEventDto(chatResponse, action);
             NotificationDto notification = new NotificationDto(userId.value().toString(), null, eventDto, null);
 
             String json = objectMapper.writeValueAsString(notification);

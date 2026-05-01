@@ -23,7 +23,7 @@ import ru.kubsu.borshchevyk.message.application.port.in.KickUserUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.LeaveChatUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.LoadChatMembersUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.UpdateMemberPermissionsUseCase;
-import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
+import ru.kubsu.borshchevyk.message.application.port.out.ChatEventPublisherPort;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
@@ -60,7 +60,7 @@ public class ChatMemberController {
     private final LoadChatMembersUseCase loadChatMembersUseCase;
     private final PresentationChatMapper presentationChatMapper;
     private final SimpMessagingTemplate messagingTemplate;
-    private final RealtimeNotificationPort realtimeNotificationPort;
+    private final ChatEventPublisherPort chatEventPublisherPort;
     private final ChatEnrichmentService chatEnrichmentService;
     private final UserEnrichmentService userEnrichmentService;
 
@@ -124,7 +124,7 @@ public class ChatMemberController {
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
                 new ChatMemberEvent(chatEnrichmentService.enrichChat(chatId, requesterId), userEnrichmentService.enrichUser(request.targetUserId()), "JOIN"));
         
-        realtimeNotificationPort.notifyChatEvent(
+        chatEventPublisherPort.publishChatEvent(
                 new UserId(request.targetUserId()), 
                 new ChatId(chatId), 
                 "JOINED"
@@ -154,7 +154,7 @@ public class ChatMemberController {
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
                 new ChatMemberEvent(chatEnrichmentService.enrichChat(chatId, requesterId), userEnrichmentService.enrichUser(targetUserId), "LEAVE"));
         
-        realtimeNotificationPort.notifyChatEvent(
+        chatEventPublisherPort.publishChatEvent(
                 new UserId(targetUserId), 
                 new ChatId(chatId), 
                 "KICKED"
@@ -180,7 +180,7 @@ public class ChatMemberController {
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
                 new ChatMemberEvent(chatEnrichmentService.enrichChat(chatId, requesterId), userEnrichmentService.enrichUser(requesterId), "LEAVE"));
         
-        realtimeNotificationPort.notifyChatEvent(
+        chatEventPublisherPort.publishChatEvent(
                 new UserId(requesterId), 
                 new ChatId(chatId), 
                 "LEFT"
@@ -206,13 +206,13 @@ public class ChatMemberController {
                 .requesterId(requesterId)
                 .canSendMessages(request.canSendMessages())
                 .canDeleteMessages(request.canDeleteMessages())
-                .canInviteUsers(request.canInviteUsers())
+                .canInviteUsers(request.canChangeInfo())
                 .canChangeInfo(request.canChangeInfo())
                 .build();
         
         updateMemberPermissionsUseCase.updatePermissions(command);
         
-        realtimeNotificationPort.notifyChatEvent(
+        chatEventPublisherPort.publishChatEvent(
                 new UserId(targetUserId), 
                 new ChatId(chatId), 
                 "PERMISSIONS_UPDATED"

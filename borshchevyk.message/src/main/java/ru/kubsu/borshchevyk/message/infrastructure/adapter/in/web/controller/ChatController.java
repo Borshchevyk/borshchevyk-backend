@@ -21,7 +21,7 @@ import ru.kubsu.borshchevyk.message.application.port.in.CreateChatUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.CreatePrivateChatUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.DeleteChatUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.LoadUserChatsUseCase;
-import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
+import ru.kubsu.borshchevyk.message.application.port.out.ChatEventPublisherPort;
 import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
@@ -56,7 +56,7 @@ public class ChatController {
     private final LoadUserChatsUseCase loadUserChatsUseCase;
     private final ChatFacade chatFacade;
     private final SimpMessagingTemplate messagingTemplate;
-    private final RealtimeNotificationPort realtimeNotificationPort;
+    private final ChatEventPublisherPort chatEventPublisherPort;
     private final ChatEnrichmentService chatEnrichmentService;
     private final UserEnrichmentService userEnrichmentService;
 
@@ -88,7 +88,7 @@ public class ChatController {
                 messagingTemplate.convertAndSend("/topic/chat/" + chat.getId().value() + "/members",
                         new ChatMemberEvent(chatEnrichmentService.enrichChat(chat.getId().value(), userId), userEnrichmentService.enrichUser(memberId), "JOIN"));
                 
-                realtimeNotificationPort.notifyChatEvent(
+                chatEventPublisherPort.publishChatEvent(
                         new UserId(memberId), 
                         chat.getId(), 
                         "JOINED"
@@ -114,7 +114,7 @@ public class ChatController {
         
         Chat chat = ((CreatePrivateChatUseCase) createChatUseCase).createPrivateChat(userId, request.targetUserId());
         
-        realtimeNotificationPort.notifyChatEvent(
+        chatEventPublisherPort.publishChatEvent(
                 new UserId(request.targetUserId()), 
                 chat.getId(), 
                 "JOINED"

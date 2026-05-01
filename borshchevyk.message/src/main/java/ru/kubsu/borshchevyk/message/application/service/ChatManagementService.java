@@ -35,7 +35,7 @@ import ru.kubsu.borshchevyk.message.application.port.in.PinChatUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.UnpinChatUseCase;
 import ru.kubsu.borshchevyk.message.application.dto.command.PinChatCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.UnpinChatCommand;
-import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
+import ru.kubsu.borshchevyk.message.application.port.out.ChatEventPublisherPort;
 
 /**
  * ChatManagementService implementation.
@@ -50,7 +50,7 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
 
     private final ChatPort chatPort;
     private final ChatMemberPort chatMemberPort;
-    private final RealtimeNotificationPort realtimeNotificationPort;
+    private final ChatEventPublisherPort chatEventPublisherPort;
 
     @Override
     @Transactional
@@ -64,7 +64,7 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
 
         requester.setPinned(true);
         chatMemberPort.saveAll(List.of(requester));
-        realtimeNotificationPort.notifyChatEvent(requesterId, chatId, "PINNED");
+        chatEventPublisherPort.publishChatEvent(requesterId, chatId, "PINNED");
     }
 
     @Override
@@ -79,7 +79,7 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
 
         requester.setPinned(false);
         chatMemberPort.saveAll(List.of(requester));
-        realtimeNotificationPort.notifyChatEvent(requesterId, chatId, "UNPINNED");
+        chatEventPublisherPort.publishChatEvent(requesterId, chatId, "UNPINNED");
     }
 
     @Override
@@ -99,7 +99,7 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
         if (!command.forAll()) {
             requester.setHistoryClearedAt(LocalDateTime.now());
             chatMemberPort.saveAll(List.of(requester));
-            realtimeNotificationPort.notifyChatEvent(requesterId, chatId, "HISTORY_CLEARED");
+            chatEventPublisherPort.publishChatEvent(requesterId, chatId, "HISTORY_CLEARED");
         } else {
             if (chat.getType() != ru.kubsu.borshchevyk.message.domain.model.chat.ChatType.PRIVATE) {
                 throw new ForbiddenActionException("Clearing history for all is only allowed in private chats");
@@ -108,7 +108,7 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
             LocalDateTime now = LocalDateTime.now();
             allMembers.forEach(member -> {
                 member.setHistoryClearedAt(now);
-                realtimeNotificationPort.notifyChatEvent(member.getUserId(), chatId, "HISTORY_CLEARED");
+                chatEventPublisherPort.publishChatEvent(member.getUserId(), chatId, "HISTORY_CLEARED");
             });
             chatMemberPort.saveAll(allMembers);
         }
@@ -132,7 +132,7 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
             chat.setDeleted(true);
             chatPort.save(chat);
             chatMemberPort.findByChatId(chatId).forEach(member -> 
-                realtimeNotificationPort.notifyChatEvent(member.getUserId(), chatId, "DELETED")
+                chatEventPublisherPort.publishChatEvent(member.getUserId(), chatId, "DELETED")
             );
         } else {
             if (requester.getRole() != ChatRole.OWNER) {
@@ -141,7 +141,7 @@ public class ChatManagementService implements ClearChatHistoryUseCase, DeleteCha
             chat.setDeleted(true);
             chatPort.save(chat);
             chatMemberPort.findByChatId(chatId).forEach(member ->
-                realtimeNotificationPort.notifyChatEvent(member.getUserId(), chatId, "DELETED")
+                chatEventPublisherPort.publishChatEvent(member.getUserId(), chatId, "DELETED")
             );
         }
     }

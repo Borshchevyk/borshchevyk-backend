@@ -7,15 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import ru.kubsu.borshchevyk.message.application.port.out.MessageEventPublisherPort;
-import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
 import ru.kubsu.borshchevyk.message.domain.event.MessageCreatedEvent;
 import ru.kubsu.borshchevyk.message.domain.event.MessageDeletedEvent;
 import ru.kubsu.borshchevyk.message.domain.model.message.Message;
 import ru.kubsu.borshchevyk.message.domain.exception.MessagingSerializationException;
-import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -32,7 +29,6 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
-    private final RealtimeNotificationPort realtimeNotificationPort;
 
     @Override
     public void publishMessageCreatedEvent(Message message, List<String> targetUserIds) {
@@ -60,11 +56,6 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
             String payload = objectMapper.writeValueAsString(event);
             kafkaTemplate.send(TOPIC, message.getId().value().toString(), payload);
             log.info("Published MessageCreatedEvent to topic {}: {}", TOPIC, payload);
-            
-            // Notify via WebSockets
-            for (String targetId : targetUserIds) {
-                realtimeNotificationPort.notifyUser(new UserId(UUID.fromString(targetId)), message);
-            }
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize MessageCreatedEvent", e);
             throw new MessagingSerializationException("Failed to serialize event", e);
@@ -83,11 +74,6 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
             String payload = objectMapper.writeValueAsString(event);
             kafkaTemplate.send(TOPIC_DELETED, message.getId().value().toString(), payload);
             log.info("Published MessageDeletedEvent to topic {}: {}", TOPIC_DELETED, payload);
-            
-            // Notify via WebSockets
-            for (String targetId : targetUserIds) {
-                realtimeNotificationPort.notifyUser(new UserId(UUID.fromString(targetId)), message);
-            }
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize MessageDeletedEvent", e);
             throw new MessagingSerializationException("Failed to serialize event", e);

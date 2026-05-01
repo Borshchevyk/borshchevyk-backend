@@ -18,7 +18,7 @@ import ru.kubsu.borshchevyk.message.application.dto.command.UpdateChatReactionsC
 import ru.kubsu.borshchevyk.message.application.port.in.LoadChatMembersUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.UpdateChatInfoUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.UpdateChatReactionsUseCase;
-import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
+import ru.kubsu.borshchevyk.message.application.port.out.ChatEventPublisherPort;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request.UpdateChatInfoRequest;
@@ -47,7 +47,7 @@ public class ChatSettingsController {
     private final LoadChatMembersUseCase loadChatMembersUseCase;
     private final ChatEnrichmentService chatEnrichmentService;
     private final SimpMessagingTemplate messagingTemplate;
-    private final RealtimeNotificationPort realtimeNotificationPort;
+    private final ChatEventPublisherPort chatEventPublisherPort;
 
     @Operation(summary = "Update chat info", description = "Updates the title and/or description of a chat.")
     @ApiResponses(value = {
@@ -76,7 +76,7 @@ public class ChatSettingsController {
 
         Page<ChatMember> membersPage = loadChatMembersUseCase.loadChatMembers(chatId, requesterId, Pageable.unpaged());
         for (ChatMember member : membersPage.getContent()) {
-            realtimeNotificationPort.notifyChatEvent(member.getUserId(), new ChatId(chatId), "INFO_UPDATED");
+            chatEventPublisherPort.publishChatEvent(member.getUserId(), new ChatId(chatId), "INFO_UPDATED");
         }
     }
 

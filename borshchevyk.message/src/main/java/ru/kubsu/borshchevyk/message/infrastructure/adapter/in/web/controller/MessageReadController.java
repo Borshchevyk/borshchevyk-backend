@@ -12,7 +12,7 @@ import ru.kubsu.borshchevyk.message.application.dto.command.ReadMessageCommand;
 import ru.kubsu.borshchevyk.message.application.port.in.LoadMessageCommentsUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.LoadMessageReadersUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.ReadMessageUseCase;
-import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
+import ru.kubsu.borshchevyk.message.application.port.out.ChatEventPublisherPort;
 import ru.kubsu.borshchevyk.message.domain.model.message.Message;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
@@ -42,7 +42,7 @@ public class MessageReadController {
     private final LoadMessageCommentsUseCase loadMessageCommentsUseCase;
     private final PresentationMessageMapper presentationMessageMapper;
     private final UserEnrichmentService userEnrichmentService;
-    private final RealtimeNotificationPort realtimeNotificationPort;
+    private final ChatEventPublisherPort chatEventPublisherPort;
     private final SimpMessagingTemplate messagingTemplate;
 
     @Operation(summary = "Mark message as read", description = "Marks a specific message as read by the user.")
@@ -68,7 +68,7 @@ public class MessageReadController {
         ReadReceiptEvent event = new ReadReceiptEvent(user, messageId);
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/read", event);
         
-        realtimeNotificationPort.notifyChatEvent(
+        chatEventPublisherPort.publishChatEvent(
                 new UserId(userId),
                 new ChatId(chatId),
                 "READ"

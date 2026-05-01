@@ -10,7 +10,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.message.application.port.in.GenerateInviteLinkUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.JoinChatByLinkUseCase;
-import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
+import ru.kubsu.borshchevyk.message.application.port.out.ChatEventPublisherPort;
 import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ChatResponse;
@@ -37,7 +37,7 @@ public class ChatInviteController {
     private final JoinChatByLinkUseCase joinChatByLinkUseCase;
     private final ChatFacade chatFacade;
     private final SimpMessagingTemplate messagingTemplate;
-    private final RealtimeNotificationPort realtimeNotificationPort;
+    private final ChatEventPublisherPort chatEventPublisherPort;
     private final ChatEnrichmentService chatEnrichmentService;
     private final UserEnrichmentService userEnrichmentService;
 
@@ -66,7 +66,7 @@ public class ChatInviteController {
         messagingTemplate.convertAndSend("/topic/chat/" + chat.getId().value() + "/members",
                 new ChatMemberEvent(chatEnrichmentService.enrichChat(chat.getId().value(), userId), userEnrichmentService.enrichUser(userId), "JOIN"));
         
-        realtimeNotificationPort.notifyChatEvent(
+        chatEventPublisherPort.publishChatEvent(
                 new UserId(userId), 
                 chat.getId(), 
                 "JOINED"

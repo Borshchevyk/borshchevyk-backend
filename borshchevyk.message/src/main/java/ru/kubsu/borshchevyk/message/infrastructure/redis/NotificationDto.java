@@ -25,7 +25,7 @@ public class NotificationDto {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class ChatEventDto {
-        private ShortChatDto chat;
+        private ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ChatResponse chat;
         private String action;
     }
 
