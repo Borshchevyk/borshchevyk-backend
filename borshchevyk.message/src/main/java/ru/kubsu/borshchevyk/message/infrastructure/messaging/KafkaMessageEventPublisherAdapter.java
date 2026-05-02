@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import ru.kubsu.borshchevyk.message.application.port.out.MessageEventPublisherPort;
 import ru.kubsu.borshchevyk.message.domain.event.MessageCreatedEvent;
 import ru.kubsu.borshchevyk.message.domain.event.MessageDeletedEvent;
@@ -52,14 +54,18 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
                         .collect(Collectors.toList()) : null
         );
 
-        try {
-            String payload = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(TOPIC, message.getId().value().toString(), payload);
-            log.info("Published MessageCreatedEvent to topic {}: {}", TOPIC, payload);
-        } catch (JsonProcessingException e) {
-            log.error("Failed to serialize MessageCreatedEvent", e);
-            throw new MessagingSerializationException("Failed to serialize event", e);
-        }
+        Runnable publishAction = () -> {
+            try {
+                String payload = objectMapper.writeValueAsString(event);
+                kafkaTemplate.send(TOPIC, message.getId().value().toString(), payload);
+                log.info("Published MessageCreatedEvent to topic {}: {}", TOPIC, payload);
+            } catch (JsonProcessingException e) {
+                log.error("Failed to serialize MessageCreatedEvent", e);
+                throw new MessagingSerializationException("Failed to serialize event", e);
+            }
+        };
+
+        executeAfterCommit(publishAction);
     }
 
     @Override
@@ -70,13 +76,30 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
                 targetUserIds
         );
 
-        try {
-            String payload = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(TOPIC_DELETED, message.getId().value().toString(), payload);
-            log.info("Published MessageDeletedEvent to topic {}: {}", TOPIC_DELETED, payload);
-        } catch (JsonProcessingException e) {
-            log.error("Failed to serialize MessageDeletedEvent", e);
-            throw new MessagingSerializationException("Failed to serialize event", e);
+        Runnable publishAction = () -> {
+            try {
+                String payload = objectMapper.writeValueAsString(event);
+                kafkaTemplate.send(TOPIC_DELETED, message.getId().value().toString(), payload);
+                log.info("Published MessageDeletedEvent to topic {}: {}", TOPIC_DELETED, payload);
+            } catch (JsonProcessingException e) {
+                log.error("Failed to serialize MessageDeletedEvent", e);
+                throw new MessagingSerializationException("Failed to serialize event", e);
+            }
+        };
+
+        executeAfterCommit(publishAction);
+    }
+
+    private void executeAfterCommit(Runnable action) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    action.run();
+                }
+            });
+        } else {
+            action.run();
         }
     }
 }

@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import ru.kubsu.borshchevyk.message.application.port.out.ChatEventPublisherPort;
 import ru.kubsu.borshchevyk.message.domain.exception.MessagingSerializationException;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
@@ -35,13 +37,26 @@ public class KafkaChatEventPublisherAdapter implements ChatEventPublisherPort {
         event.put("chatId", chatId.value().toString());
         event.put("action", action);
 
-        try {
-            String payload = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(TOPIC, chatId.value().toString(), payload);
-            log.info("Published ChatEvent to topic {}: {}", TOPIC, payload);
-        } catch (JsonProcessingException e) {
-            log.error("Failed to serialize ChatEvent", e);
-            throw new MessagingSerializationException("Failed to serialize event", e);
+        Runnable publishAction = () -> {
+            try {
+                String payload = objectMapper.writeValueAsString(event);
+                kafkaTemplate.send(TOPIC, chatId.value().toString(), payload);
+                log.info("Published ChatEvent to topic {}: {}", TOPIC, payload);
+            } catch (JsonProcessingException e) {
+                log.error("Failed to serialize ChatEvent", e);
+                throw new MessagingSerializationException("Failed to serialize event", e);
+            }
+        };
+
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    publishAction.run();
+                }
+            });
+        } else {
+            publishAction.run();
         }
     }
 }
