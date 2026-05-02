@@ -286,10 +286,6 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
         List<ValidateAttachmentsResult.AttachmentMetadata> metadataList = new ArrayList<>();
 
         for (Attachment attachment : attachments) {
-            if (!attachment.getUploaderId().equals(command.requesterId())) {
-                log.warn("Validation failed: attachment {} doesn't belong to user {}", attachment.getId().value(), command.requesterId());
-                return ValidateAttachmentsResult.builder().valid(false).attachments(new ArrayList<>()).build();
-            }
             if (attachment.getStatus() != AttachmentStatus.READY) {
                 log.warn("Validation failed: attachment {} is not READY (status: {})", attachment.getId().value(), attachment.getStatus());
                 return ValidateAttachmentsResult.builder().valid(false).attachments(new ArrayList<>()).build();

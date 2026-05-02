@@ -44,6 +44,15 @@ public class MessageAdapter implements MessagePort {
     }
 
     @Override
+    public List<Message> loadChatAttachments(ChatId chatId, ru.kubsu.borshchevyk.message.domain.model.value.UserId userId, String type, java.time.LocalDateTime historyClearedAt, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return messageRepository.loadChatAttachments(chatId.value(), userId.value(), type, historyClearedAt, pageable)
+                .stream()
+                .map(messageMapper::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<Message> loadMessageComments(ChatId chatId, MessageId parentMessageId, ru.kubsu.borshchevyk.message.domain.model.value.UserId userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return messageRepository.loadMessageComments(chatId.value(), parentMessageId.value(), userId.value(), pageable)

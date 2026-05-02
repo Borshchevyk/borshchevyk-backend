@@ -17,6 +17,7 @@ import java.util.Optional;
 public interface MessagePort {
     Message save(Message message);
     List<Message> loadChatHistory(ChatId chatId, UserId userId, LocalDateTime historyClearedAt, int page, int size);
+    List<Message> loadChatAttachments(ChatId chatId, UserId userId, String type, LocalDateTime historyClearedAt, int page, int size);
     List<Message> loadMessageComments(ChatId chatId, MessageId parentMessageId, UserId userId, int page, int size);
     int countPinnedMessagesByChatId(ChatId chatId);
     List<Message> findPinnedMessagesByChatId(ChatId chatId);

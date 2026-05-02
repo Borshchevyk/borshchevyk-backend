@@ -15,6 +15,7 @@ import ru.kubsu.borshchevyk.message.application.dto.command.DeleteMessageCommand
 import ru.kubsu.borshchevyk.message.application.dto.command.SendMessageCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.UpdateMessageCommand;
 import ru.kubsu.borshchevyk.message.application.port.in.DeleteMessageUseCase;
+import ru.kubsu.borshchevyk.message.application.port.in.LoadChatAttachmentsUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.LoadChatHistoryUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.SendMessageUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.UpdateMessageUseCase;
@@ -44,6 +45,7 @@ public class MessageController {
 
     private final SendMessageUseCase sendMessageUseCase;
     private final LoadChatHistoryUseCase loadChatHistoryUseCase;
+    private final LoadChatAttachmentsUseCase loadChatAttachmentsUseCase;
     private final DeleteMessageUseCase deleteMessageUseCase;
     private final UpdateMessageUseCase updateMessageUseCase;
     private final PresentationMessageMapper presentationMessageMapper;
@@ -90,6 +92,22 @@ public class MessageController {
             @RequestParam(defaultValue = "50") int size) {
         log.info("Request to load chat history for chat {} from user {} (page: {}, size: {})", chatId, userId, page, size);
         List<Message> messages = loadChatHistoryUseCase.loadChatHistory(chatId, userId, page, size);
+        return presentationMessageMapper.toResponseList(messages, userId);
+    }
+
+    @Operation(summary = "Load chat attachments", description = "Loads paginated messages containing attachments of a specific category.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Chat attachments loaded successfully")
+    })
+    @GetMapping("/attachments")
+    public List<MessageResponse> loadChatAttachments(
+            @PathVariable UUID chatId,
+            @RequestHeader("X-User-Id") @Parameter(description = "ID of the authenticated user") UUID userId,
+            @RequestParam @Parameter(description = "Attachment type (e.g. PHOTO, VIDEO, DOCUMENT, VOICE, CIRCLE)") String type,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+        log.info("Request to load chat attachments for chat {} from user {} (type: {}, page: {}, size: {})", chatId, userId, type, page, size);
+        List<Message> messages = loadChatAttachmentsUseCase.loadChatAttachments(chatId, userId, type, page, size);
         return presentationMessageMapper.toResponseList(messages, userId);
     }
 

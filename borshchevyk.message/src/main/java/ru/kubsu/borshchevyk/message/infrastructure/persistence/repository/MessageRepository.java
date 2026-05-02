@@ -50,6 +50,20 @@ public interface MessageRepository extends JpaRepository<MessageEntity, UUID> {
     
     List<MessageEntity> findByChatIdAndPinnedAtIsNotNullOrderByPinnedAtDesc(UUID chatId);
 
+    @Query("SELECT DISTINCT m FROM MessageEntity m JOIN m.attachments a " +
+           "WHERE m.chatId = :chatId " +
+           "AND a.type = :type " +
+           "AND m.isDeleted = false " +
+           "AND m.id NOT IN (SELECT dm.messageId FROM DeletedMessageEntity dm WHERE dm.userId = :userId) " +
+           "AND (cast(:historyClearedAt as timestamp) IS NULL OR m.createdAt > :historyClearedAt) " +
+           "ORDER BY m.createdAt DESC")
+    Page<MessageEntity> loadChatAttachments(
+            @Param("chatId") UUID chatId,
+            @Param("userId") UUID userId,
+            @Param("type") String type,
+            @Param("historyClearedAt") java.time.LocalDateTime historyClearedAt,
+            Pageable pageable);
+
     @Query("SELECT COUNT(m) FROM MessageEntity m " +
            "WHERE m.chatId = :chatId " +
            "AND m.isDeleted = false " +
