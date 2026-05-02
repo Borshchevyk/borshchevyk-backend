@@ -25,10 +25,10 @@ public class KafkaUserEventPublisherAdapter implements UserEventPublisherPort {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${app.kafka.topics.user-updated:user-updated-events}")
+    @Value("${app.kafka.topics.user-updated}")
     private String userUpdatedTopic;
 
-    @Value("${app.kafka.topics.user-deleted:user-deleted-events}")
+    @Value("${app.kafka.topics.user-deleted}")
     private String userDeletedTopic;
 
     /**

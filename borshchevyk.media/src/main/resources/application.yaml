@@ -1,5 +1,5 @@
 server:
-  port: ${MEDIA_SERVICE_PORT:8086}
+  port: ${MEDIA_SERVICE_PORT}
   forward-headers-strategy: framework
 
 spring:
@@ -12,18 +12,18 @@ spring:
   boot:
     admin:
       client:
-        url: "http://admin-service:${ADMIN_SERVICE_PORT:8085}/admin"
-        username: ${ADMIN_USERNAME:admin}
-        password: ${ADMIN_PASSWORD:admin}
+        url: "${ADMIN_SERVICE_URL}"
+        username: ${ADMIN_USERNAME}
+        password: ${ADMIN_PASSWORD}
         instance:
           prefer-ip: true
   datasource:
-    url: ${SPRING_DATASOURCE_URL_MEDIA:jdbc:postgresql://localhost:5432/borshchevyk_media}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    url: ${SPRING_DATASOURCE_URL_MEDIA}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${JPA_HIBERNATE_DDL_AUTO}
     show-sql: false
 
 springdoc:
@@ -35,12 +35,12 @@ springdoc:
 
 app:
   s3:
-    endpoint: ${S3_ENDPOINT:https://s3.cloud.ru}
-    region: ${S3_REGION:ru-central-1}
-    bucket: ${S3_BUCKET:bucket-d6b96b}
-    access-key: ${S3_ACCESS_KEY:}
-    secret-key: ${S3_SECRET_KEY:}
-    tenant-id: ${S3_TENANT_ID:5624c512-13f2-476a-bc25-4940ba82543e}
+    endpoint: ${S3_ENDPOINT}
+    region: ${S3_REGION}
+    bucket: ${S3_BUCKET}
+    access-key: ${S3_ACCESS_KEY}
+    secret-key: ${S3_SECRET_KEY}
+    tenant-id: ${S3_TENANT_ID}
 
 management:
   endpoints:

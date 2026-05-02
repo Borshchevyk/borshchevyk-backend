@@ -33,7 +33,7 @@ public class KafkaChatEventConsumerAdapter {
     private final NotificationPort notificationPort;
     private final PushNotificationPort pushNotificationPort;
 
-    @KafkaListener(topics = "chats.events", groupId = "${spring.kafka.consumer.group-id:message-service-group}")
+    @KafkaListener(topics = "chats.events", groupId = "${spring.kafka.consumer.group-id}")
     public void consumeChatEvent(String payload) {
         log.debug("Received ChatEvent payload: {}", payload);
         try {

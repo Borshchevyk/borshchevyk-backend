@@ -1,3 +1,7 @@
+server:
+  port: ${GATEWAY_PORT}
+  forward-headers-strategy: framework
+
 spring:
   application:
     name: borshchevyk.gateway
@@ -19,8 +23,8 @@ spring:
 
   data:
     redis:
-      host: ${SPRING_REDIS_HOST:localhost}
-      port: ${SPRING_REDIS_PORT:6379}
+      host: ${SPRING_REDIS_HOST}
+      port: ${SPRING_REDIS_PORT}
 
   cloud:
     gateway:
@@ -126,7 +130,7 @@ spring:
             - RewritePath=/v3/api-docs/calls, /v3/api-docs
 
         - id: livekit-server
-          uri: ${LIVEKIT_SERVER_URL:http://livekit-server:7880}
+          uri: ${LIVEKIT_URL}
           predicates:
             - Path=/livekit/**
           filters:
@@ -134,15 +138,11 @@ spring:
   boot:
     admin:
       client:
-        url: "http://admin-service:${ADMIN_SERVICE_PORT:8085}/admin"
-        username: ${ADMIN_USERNAME:admin}
-        password: ${ADMIN_PASSWORD:admin}
+        url: "${ADMIN_SERVICE_URL}"
+        username: ${ADMIN_USERNAME}
+        password: ${ADMIN_PASSWORD}
         instance:
           prefer-ip: true
-
-server:
-  port: 8080
-  forward-headers-strategy: framework
 
 springdoc:
   swagger-ui:

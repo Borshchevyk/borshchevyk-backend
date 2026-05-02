@@ -29,7 +29,7 @@ public class KafkaUserRegisteredEventConsumerAdapter {
      *
      * @param payload the JSON payload of the user registration event
      */
-    @KafkaListener(topics = "${app.kafka.topics.user-registered}", groupId = "${spring.kafka.consumer.group-id:user-service-group}")
+    @KafkaListener(topics = "${app.kafka.topics.user-registered}", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(String payload) {
         log.debug("Received UserRegisteredEvent payload");
         try {

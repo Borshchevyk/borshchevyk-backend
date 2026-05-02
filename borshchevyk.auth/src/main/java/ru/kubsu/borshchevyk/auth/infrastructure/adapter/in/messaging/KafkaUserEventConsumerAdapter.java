@@ -29,7 +29,7 @@ public class KafkaUserEventConsumerAdapter {
      *
      * @param payload the JSON payload of the event
      */
-    @KafkaListener(topics = "${app.kafka.topics.user-updated:user-updated-events}", groupId = "${spring.kafka.consumer.group-id:auth-service-group}")
+    @KafkaListener(topics = "${app.kafka.topics.user-updated}", groupId = "${spring.kafka.consumer.group-id}")
     public void consumeUpdated(String payload) {
         log.info("Received UserUpdatedEvent: {}", payload);
         try {
@@ -48,7 +48,7 @@ public class KafkaUserEventConsumerAdapter {
      *
      * @param payload the JSON payload of the event
      */
-    @KafkaListener(topics = "${app.kafka.topics.user-deleted:user-deleted-events}", groupId = "${spring.kafka.consumer.group-id:auth-service-group}")
+    @KafkaListener(topics = "${app.kafka.topics.user-deleted}", groupId = "${spring.kafka.consumer.group-id}")
     public void consumeDeleted(String payload) {
         log.info("Received UserDeletedEvent: {}", payload);
         try {

@@ -27,7 +27,7 @@ public class MediaAdapter implements MediaPort {
 
     private final RestTemplate restTemplate;
 
-    @Value("${app.media-service.url:http://media-service:8086}")
+    @Value("${app.media-service.url}")
     private String mediaServiceUrl;
 
     @Override

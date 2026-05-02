@@ -1,41 +1,41 @@
 server:
-  port: ${SYNC_SERVICE_PORT:8084}
+  port: ${SYNC_SERVICE_PORT}
   forward-headers-strategy: framework
 
 spring:
   application:
-    name: ${SYNC_SERVICE_NAME:borshchevyk.sync}
+    name: borshchevyk.sync
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/borshchevyk_sync}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+    url: ${SPRING_DATASOURCE_URL_SYNC}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: ${JPA_HIBERNATE_DDL-AUTO:update}
-    database: ${JPA_DATABASE:postgresql}
+      ddl-auto: ${JPA_HIBERNATE_DDL_AUTO}
+    database: ${JPA_DATABASE}
   kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
     consumer:
-      group-id: ${SPRING_KAFKA_CONSUMER_GROUP_ID:sync-service-group}
+      group-id: sync-service-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
   boot:
     admin:
       client:
-        url: "http://admin-service:${ADMIN_SERVICE_PORT:8085}/admin"
-        username: ${ADMIN_USERNAME:admin}
-        password: ${ADMIN_PASSWORD:admin}
+        url: "${ADMIN_SERVICE_URL}"
+        username: ${ADMIN_USERNAME}
+        password: ${ADMIN_PASSWORD}
         instance:
           prefer-ip: true
 
 app:
   kafka:
     topics:
-      user-registered: ${KAFKA_TOPIC_USER_REGISTERED:user-registered-events}
-      user-updated: ${KAFKA_TOPIC_USER_UPDATED:user-updated-events}
-      message-created: ${KAFKA_TOPIC_MESSAGE_CREATED:message-created-events}
-      message-deleted: ${KAFKA_TOPIC_MESSAGE_DELETED:message-deleted-events}
+      user-registered: ${KAFKA_TOPIC_USER_REGISTERED}
+      user-updated: ${KAFKA_TOPIC_USER_UPDATED}
+      message-created: ${KAFKA_TOPIC_MESSAGE_CREATED}
+      message-deleted: ${KAFKA_TOPIC_MESSAGE_DELETED}
 
 springdoc:
   swagger-ui:

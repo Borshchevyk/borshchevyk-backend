@@ -4,28 +4,28 @@ server:
 
 spring:
   application:
-    name: ${USER_SERVICE_NAME}
+    name: borshchevyk.user
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
+    url: ${SPRING_DATASOURCE_URL_USER}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: ${JPA_HIBERNATE_DDL-AUTO}
+      ddl-auto: ${JPA_HIBERNATE_DDL_AUTO}
     database: ${JPA_DATABASE}
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
     producer:
-      key-serializer: ${KAFKA_PRODUCER_KEY_SERIALIZER}
-      value-serializer: ${KAFKA_PRODUCER_VALUE_SERIALIZER}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:
-      group-id: ${KAFKA_USER_GROUP_ID:user-service-group}
+      group-id: user-service-group
   boot:
     admin:
       client:
-        url: "http://admin-service:${ADMIN_SERVICE_PORT:8085}/admin"
-        username: ${ADMIN_USERNAME:admin}
-        password: ${ADMIN_PASSWORD:admin}
+        url: "${ADMIN_SERVICE_URL}"
+        username: ${ADMIN_USERNAME}
+        password: ${ADMIN_PASSWORD}
         instance:
           prefer-ip: true
 
@@ -45,7 +45,7 @@ springdoc:
 
 grpc:
   server:
-    port: ${GRPC_SERVER_PORT:9090}
+    port: ${USER_GRPC_PORT}
 
 management:
   endpoints:

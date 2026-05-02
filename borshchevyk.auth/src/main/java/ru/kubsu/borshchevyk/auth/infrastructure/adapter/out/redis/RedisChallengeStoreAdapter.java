@@ -24,7 +24,7 @@ public class RedisChallengeStoreAdapter implements ChallengeStorePort {
 
     private final StringRedisTemplate redisTemplate;
 
-    @Value("${app.auth.challenge.ttl:300}")
+    @Value("${app.auth.challenge.ttl}")
     private long challengeTtlSeconds;
 
     private static final String CHALLENGE_PREFIX = "challenge:";

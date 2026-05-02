@@ -40,7 +40,7 @@ public class KafkaCallEventConsumerAdapter {
         private Set<String> participants;
     }
 
-    @KafkaListener(topics = "${app.kafka.topics.call-events:call-events-topic}", groupId = "${spring.kafka.consumer.group-id:message-service-group}")
+    @KafkaListener(topics = "${app.kafka.topics.call-events}", groupId = "${spring.kafka.consumer.group-id}")
     public void consumeCallEvent(String payload) {
         log.debug("Received call event payload: {}", payload);
         try {

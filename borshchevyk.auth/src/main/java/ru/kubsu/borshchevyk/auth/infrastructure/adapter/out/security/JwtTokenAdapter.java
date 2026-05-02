@@ -43,8 +43,7 @@ public class JwtTokenAdapter implements TokenGeneratorPort, TokenParserPort {
     public JwtTokenAdapter(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.access-expiration-ms}") long accessTokenExpirationMs,
-            @Value("${jwt.refresh-expiration-ms}") long refreshTokenExpirationMs
-    ) {
+            @Value("${jwt.refresh-expiration-ms}") long refreshTokenExpirationMs) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.accessTokenExpirationMs = accessTokenExpirationMs;
         this.refreshTokenExpirationMs = refreshTokenExpirationMs;

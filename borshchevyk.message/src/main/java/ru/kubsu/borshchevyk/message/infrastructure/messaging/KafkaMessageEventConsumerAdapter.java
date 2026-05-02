@@ -29,7 +29,7 @@ public class KafkaMessageEventConsumerAdapter {
     private final MessagePort messagePort;
     private final RealtimeNotificationPort realtimeNotificationPort;
 
-    @KafkaListener(topics = "messages.events", groupId = "${spring.kafka.consumer.group-id:message-service-group}")
+    @KafkaListener(topics = "messages.events", groupId = "${spring.kafka.consumer.group-id}")
     public void consumeMessageCreatedEvent(String payload) {
         log.debug("Received MessageCreatedEvent payload: {}", payload);
         try {
@@ -46,7 +46,7 @@ public class KafkaMessageEventConsumerAdapter {
         }
     }
 
-    @KafkaListener(topics = "messages.deleted.events", groupId = "${spring.kafka.consumer.group-id:message-service-group}")
+    @KafkaListener(topics = "messages.deleted.events", groupId = "${spring.kafka.consumer.group-id}")
     public void consumeMessageDeletedEvent(String payload) {
         log.debug("Received MessageDeletedEvent payload: {}", payload);
         try {
