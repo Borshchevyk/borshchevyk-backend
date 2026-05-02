@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import ru.kubsu.borshchevyk.message.application.port.out.MessagePort;
 import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
 import ru.kubsu.borshchevyk.message.domain.event.MessageCreatedEvent;
@@ -29,6 +30,7 @@ public class KafkaMessageEventConsumerAdapter {
     private final MessagePort messagePort;
     private final RealtimeNotificationPort realtimeNotificationPort;
 
+    @Transactional(readOnly = true)
     @KafkaListener(topics = "messages.events", groupId = "${spring.kafka.consumer.group-id}")
     public void consumeMessageCreatedEvent(String payload) {
         log.debug("Received MessageCreatedEvent payload: {}", payload);
@@ -46,6 +48,7 @@ public class KafkaMessageEventConsumerAdapter {
         }
     }
 
+    @Transactional(readOnly = true)
     @KafkaListener(topics = "messages.deleted.events", groupId = "${spring.kafka.consumer.group-id}")
     public void consumeMessageDeletedEvent(String payload) {
         log.debug("Received MessageDeletedEvent payload: {}", payload);
