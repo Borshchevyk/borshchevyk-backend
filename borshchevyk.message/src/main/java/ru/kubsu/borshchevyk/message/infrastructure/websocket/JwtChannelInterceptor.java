@@ -37,14 +37,20 @@ public class JwtChannelInterceptor implements ChannelInterceptor {
             String token = extractToken(accessor);
 
             if (token != null) {
-                Claims claims = Jwts.parser()
-                        .verifyWith(secretKey)
-                        .build()
-                        .parseSignedClaims(token)
-                        .getPayload();
+                try {
+                    Claims claims = Jwts.parser()
+                            .verifyWith(secretKey)
+                            .build()
+                            .parseSignedClaims(token)
+                            .getPayload();
 
-                String userId = claims.getSubject();
-                accessor.setUser(new UserPrincipal(userId));
+                    String userId = claims.getSubject();
+                    accessor.setUser(new UserPrincipal(userId));
+                } catch (Exception e) {
+                    throw new IllegalArgumentException("Invalid JWT token", e);
+                }
+            } else {
+                throw new IllegalArgumentException("Missing JWT token in STOMP headers");
             }
         }
         return message;
