@@ -64,6 +64,7 @@ public class RedisRealtimeNotificationAdapter implements RealtimeNotificationPor
                 author,
                 message.getText(),
                 message.getCreatedAt() != null ? message.getCreatedAt().toString() : null,
+                message.getUpdatedAt() != null ? message.getUpdatedAt().toString() : null,
                 message.isDeleted(),
                 message.getStatus() != null ? message.getStatus().name() : null,
                 fwChat,

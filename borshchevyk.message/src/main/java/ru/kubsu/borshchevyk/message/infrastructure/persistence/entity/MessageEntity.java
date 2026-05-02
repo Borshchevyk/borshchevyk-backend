@@ -38,7 +38,7 @@ public class MessageEntity {
     @Column(name = "author_id", nullable = false)
     private UUID authorId;
 
-    @Column(name = "text", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "text", nullable = true, columnDefinition = "TEXT")
     private String text;
 
     @Column(name = "created_at", nullable = false)

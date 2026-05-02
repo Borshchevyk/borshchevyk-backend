@@ -61,6 +61,7 @@ public class NotificationDto {
         private ShortUserDto author;
         private String text;
         private String createdAt;
+        private String updatedAt;
         private boolean isDeleted;
         private String status;
         private ShortChatDto forwardedFromChat;

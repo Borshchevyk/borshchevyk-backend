@@ -82,6 +82,10 @@ public class SendMessageService implements SendMessageUseCase {
                     ))                    .collect(Collectors.toList());
         }
 
+        if ((command.text() == null || command.text().trim().isEmpty()) && attachments.isEmpty()) {
+            throw new IllegalArgumentException("Message must contain text or at least one attachment");
+        }
+
         if (command.parentMessageId() != null) {
             Message parentMessage = messagePort.findById(new MessageId(command.parentMessageId()))
                     .orElseThrow(() -> new MessageNotFoundException("Parent message not found"));
