@@ -241,14 +241,3 @@ volumes:
   postgres-data:
   caddy_data:
   caddy_config:
-y_data:/data
-      - caddy_config:/config
-    env_file:
-      - .env
-    depends_on:
-      - gateway-service
-
-volumes:
-  postgres-data:
-  caddy_data:
-  caddy_config:
