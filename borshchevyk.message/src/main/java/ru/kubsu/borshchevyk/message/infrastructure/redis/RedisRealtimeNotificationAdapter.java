@@ -19,6 +19,7 @@ import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author Aleksey Timko
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RedisRealtimeNotificationAdapter implements RealtimeNotificationPort {
 
     private final StringRedisTemplate redisTemplate;
