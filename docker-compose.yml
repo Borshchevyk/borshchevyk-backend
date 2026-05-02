@@ -59,7 +59,7 @@ services:
       borshchevyk-postgres:
         condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
       borshchevyk-redis:
         condition: service_healthy
 
@@ -80,7 +80,7 @@ services:
       borshchevyk-postgres:
         condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
 
   message-service:
     image: ${MESSAGE_SERVICE_IMAGE}
@@ -103,7 +103,7 @@ services:
       borshchevyk-postgres:
         condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
       borshchevyk-redis:
         condition: service_healthy
 
@@ -126,7 +126,7 @@ services:
       borshchevyk-postgres:
         condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
 
   media-service:
     image: ${MEDIA_SERVICE_IMAGE}
@@ -168,7 +168,7 @@ services:
       borshchevyk-postgres:
         condition: service_healthy
       kafka:
-        condition: service_started
+        condition: service_healthy
 
   gateway-service:
     image: ${GATEWAY_SERVICE_IMAGE}
@@ -231,6 +231,17 @@ services:
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
+      - caddy_config:/config
+    env_file:
+      - .env
+    depends_on:
+      - gateway-service
+
+volumes:
+  postgres-data:
+  caddy_data:
+  caddy_config:
+y_data:/data
       - caddy_config:/config
     env_file:
       - .env

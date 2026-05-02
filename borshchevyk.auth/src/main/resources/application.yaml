@@ -39,6 +39,9 @@ app:
       user-registered: ${KAFKA_TOPIC_USER_REGISTERED}
       user-updated: ${KAFKA_TOPIC_USER_UPDATED}
       user-deleted: ${KAFKA_TOPIC_USER_DELETED}
+  auth:
+    challenge:
+      ttl: ${AUTH_CHALLENGE_TTL}
 
 grpc:
   client:
