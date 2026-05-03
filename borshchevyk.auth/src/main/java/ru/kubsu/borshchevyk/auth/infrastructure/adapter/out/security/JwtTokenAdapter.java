@@ -21,9 +21,6 @@ import java.util.UUID;
 
 /**
  * Adapter for generating JWT tokens.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Slf4j
 @Component

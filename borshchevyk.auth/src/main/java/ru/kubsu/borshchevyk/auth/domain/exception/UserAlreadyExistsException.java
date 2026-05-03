@@ -2,9 +2,6 @@ package ru.kubsu.borshchevyk.auth.domain.exception;
 
 /**
  * Exception thrown when attempting to register a user with an already existing email.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 public class UserAlreadyExistsException extends AuthServiceException {
     /**

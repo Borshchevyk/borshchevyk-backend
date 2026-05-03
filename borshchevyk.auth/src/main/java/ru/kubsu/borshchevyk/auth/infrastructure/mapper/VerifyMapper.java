@@ -2,19 +2,15 @@ package ru.kubsu.borshchevyk.auth.infrastructure.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
+import ru.kubsu.borshchevyk.auth.application.dto.command.RefreshCommand;
 import ru.kubsu.borshchevyk.auth.application.dto.command.VerifyCommand;
 import ru.kubsu.borshchevyk.auth.domain.model.result.VerifyResult;
+import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.RefreshRequest;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.VerifyRequest;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.response.VerifyResponse;
 
-import ru.kubsu.borshchevyk.auth.application.dto.command.RefreshCommand;
-import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.RefreshRequest;
-
 /**
  * MapStruct mapper for verification-related DTOs and results.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface VerifyMapper {

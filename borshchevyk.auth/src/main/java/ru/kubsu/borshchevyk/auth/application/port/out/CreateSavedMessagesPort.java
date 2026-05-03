@@ -4,8 +4,6 @@ import ru.kubsu.borshchevyk.auth.domain.model.value.AccountId;
 
 /**
  * Port for creating saved messages chat for a newly registered user.
- *
- * @author Aleksey Timko
  */
 public interface CreateSavedMessagesPort {
     /**

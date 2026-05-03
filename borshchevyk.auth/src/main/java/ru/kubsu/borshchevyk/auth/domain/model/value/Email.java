@@ -6,7 +6,6 @@ import ru.kubsu.borshchevyk.auth.domain.exception.IncorrectInputFormatException;
  * Value object representing an email address.
  *
  * @param value the email address string
- * @author Aleksey Timko
  */
 public record Email(String value) {
     /**

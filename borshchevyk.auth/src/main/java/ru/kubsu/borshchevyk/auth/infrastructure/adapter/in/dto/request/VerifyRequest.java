@@ -7,18 +7,23 @@ import java.util.UUID;
 
 /**
  * Request to verify challenge signature and obtain tokens.
- *
  * @param userId    UUID of the user being authenticated
  * @param signature Base64 encoded RSA signature of the challenge
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Schema(description = "Request to verify challenge signature and obtain tokens")
 public record VerifyRequest(
         @NotNull(message = "User ID is mandatory")
-        @Schema(description = "UUID of the user being authenticated", example = "550e8400-e29b-41d4-a716-446655440000", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(
+                description = "UUID of the user being authenticated",
+                example = "550e8400-e29b-41d4-a716-446655440000",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
         UUID userId,
         @NotBlank(message = "Signature is mandatory")
-        @Schema(description = "Base64 encoded RSA signature of the challenge", example = "MIIBIjAN...", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(
+                description = "Base64 encoded RSA signature of the challenge",
+                example = "MIIBIjAN...",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
         String signature
 ) { }

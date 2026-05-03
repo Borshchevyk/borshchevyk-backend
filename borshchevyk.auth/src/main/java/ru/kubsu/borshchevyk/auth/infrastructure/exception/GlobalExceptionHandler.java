@@ -5,22 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import ru.kubsu.borshchevyk.auth.domain.exception.AuthServiceException;
-import ru.kubsu.borshchevyk.auth.domain.exception.IncorrectInputFormatException;
-import ru.kubsu.borshchevyk.auth.domain.exception.InvalidCredentialsException;
-import ru.kubsu.borshchevyk.auth.domain.exception.MessagingSerializationException;
-import ru.kubsu.borshchevyk.auth.domain.exception.UserAlreadyExistsException;
-import ru.kubsu.borshchevyk.auth.domain.exception.AccountNotFoundException;
-import ru.kubsu.borshchevyk.auth.domain.exception.ChallengeExpiredException;
-import ru.kubsu.borshchevyk.auth.domain.exception.InvalidSignatureException;
+import ru.kubsu.borshchevyk.auth.domain.exception.*;
 
 import java.time.Instant;
 
 /**
  * Global exception handler for the authentication microservice.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Slf4j
 @ControllerAdvice

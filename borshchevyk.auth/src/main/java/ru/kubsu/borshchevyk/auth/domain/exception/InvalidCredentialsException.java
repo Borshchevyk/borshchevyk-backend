@@ -2,9 +2,6 @@ package ru.kubsu.borshchevyk.auth.domain.exception;
 
 /**
  * Exception thrown when authentication fails due to incorrect credentials.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 public class InvalidCredentialsException extends AuthServiceException {
     /**

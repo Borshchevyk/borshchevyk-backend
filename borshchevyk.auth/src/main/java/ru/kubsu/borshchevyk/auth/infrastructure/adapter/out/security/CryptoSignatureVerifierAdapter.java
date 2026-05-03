@@ -12,9 +12,6 @@ import java.util.Base64;
 
 /**
  * Adapter for verifying cryptographic signatures using RSA.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Component
 @Slf4j

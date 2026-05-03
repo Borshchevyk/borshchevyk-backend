@@ -4,9 +4,6 @@ import lombok.Getter;
 
 /**
  * Base exception for all authentication-related service errors.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Getter
 public abstract class AuthServiceException extends RuntimeException {
@@ -18,7 +15,7 @@ public abstract class AuthServiceException extends RuntimeException {
     /**
      * Constructs a new authentication service exception.
      *
-     * @param code the business error code
+     * @param code    the business error code
      * @param message the descriptive error message
      */
     public AuthServiceException(ErrorCode code, String message) {
@@ -53,6 +50,10 @@ public abstract class AuthServiceException extends RuntimeException {
         /**
          * Account not found.
          */
-        ACCOUNT_NOT_FOUND
+        ACCOUNT_NOT_FOUND,
+        /**
+         * Serialization error.
+         */
+        SERIALIZATION_ERROR
     }
 }

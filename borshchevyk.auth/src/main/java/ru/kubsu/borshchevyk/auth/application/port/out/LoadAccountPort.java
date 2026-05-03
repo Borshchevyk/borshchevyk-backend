@@ -7,8 +7,6 @@ import java.util.Optional;
 
 /**
  * Port for loading an account by its unique identifier.
- *
- * @author Aleksey Timko
  */
 public interface LoadAccountPort {
     /**

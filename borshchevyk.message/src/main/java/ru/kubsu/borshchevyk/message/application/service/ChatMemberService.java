@@ -17,6 +17,7 @@ import ru.kubsu.borshchevyk.message.application.port.in.LoadChatMembersUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.UpdateMemberPermissionsUseCase;
 import ru.kubsu.borshchevyk.message.application.port.out.ChatMemberPort;
 import ru.kubsu.borshchevyk.message.application.port.out.ChatPort;
+import ru.kubsu.borshchevyk.message.application.port.out.CheckUserPrivacyPort;
 import ru.kubsu.borshchevyk.message.domain.exception.ChatNotFoundException;
 import ru.kubsu.borshchevyk.message.domain.exception.ForbiddenActionException;
 import ru.kubsu.borshchevyk.message.domain.exception.UserNotInChatException;
@@ -45,6 +46,7 @@ public class ChatMemberService implements UpdateMemberPermissionsUseCase, Invite
 
     private final ChatPort chatPort;
     private final ChatMemberPort chatMemberPort;
+    private final CheckUserPrivacyPort checkUserPrivacyPort;
 
     @Override
     @Transactional
@@ -111,6 +113,10 @@ public class ChatMemberService implements UpdateMemberPermissionsUseCase, Invite
 
         if (!requester.isCanInviteUsers() && requester.getRole() == ChatRole.MEMBER) {
             throw new ForbiddenActionException("User does not have permission to invite");
+        }
+        
+        if (!checkUserPrivacyPort.canInviteToChat(targetUserId.value(), requesterId.value())) {
+            throw new ForbiddenActionException("User's privacy settings do not allow you to invite them");
         }
 
         Optional<ChatMember> existingMember = chatMemberPort.findByChatIdAndUserId(chatId, targetUserId);

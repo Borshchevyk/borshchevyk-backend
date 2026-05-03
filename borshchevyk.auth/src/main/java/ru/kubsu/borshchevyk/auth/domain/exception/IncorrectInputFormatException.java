@@ -2,9 +2,6 @@ package ru.kubsu.borshchevyk.auth.domain.exception;
 
 /**
  * Exception thrown when the format of an input (email or tag) is invalid.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 public class IncorrectInputFormatException extends AuthServiceException {
     /**

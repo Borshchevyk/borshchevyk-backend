@@ -5,8 +5,6 @@ import ru.kubsu.borshchevyk.auth.domain.model.result.VerifyResult;
 
 /**
  * Use case for refreshing an authentication token.
- *
- * @author Aleksey Timko
  */
 public interface RefreshUseCase {
 

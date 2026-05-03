@@ -4,9 +4,6 @@ import ru.kubsu.borshchevyk.auth.domain.model.value.AccountId;
 
 /**
  * Port for deleting an account.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 public interface DeleteAccountPort {
     /**

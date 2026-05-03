@@ -14,9 +14,6 @@ import java.util.UUID;
 
 /**
  * Service for generating auth challenges for crypto-signature verification.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Service
 @RequiredArgsConstructor

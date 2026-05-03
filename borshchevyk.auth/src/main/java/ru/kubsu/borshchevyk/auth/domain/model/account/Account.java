@@ -7,13 +7,10 @@ import lombok.Getter;
 import ru.kubsu.borshchevyk.auth.domain.model.value.AccountId;
 import ru.kubsu.borshchevyk.auth.domain.model.value.Email;
 import ru.kubsu.borshchevyk.auth.domain.model.value.Tag;
-import ru.kubsu.borshchevyk.auth.domain.exception.AuthServiceException;
 
 /**
  * Domain model representing a user account in the authentication system.
  * Encapsulates the state and business logic of an account.
- *
- * @author Aleksey Timko
  */
 @Getter
 @Builder
@@ -87,18 +84,5 @@ public class Account {
             throw new IllegalArgumentException("Password hash cannot be empty");
         }
         this.passwordHash = newPasswordHash;
-    }
-
-    /**
-     * Verifies if the given password hash matches the account's password hash.
-     *
-     * @param passwordHashToVerify the password hash to verify
-     * @return true if the hash matches, false otherwise
-     */
-    public boolean verifyPasswordHash(String passwordHashToVerify) {
-        if (passwordHashToVerify == null || passwordHashToVerify.isBlank()) {
-            return false;
-        }
-        return this.passwordHash.equals(passwordHashToVerify);
     }
 }

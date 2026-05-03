@@ -12,9 +12,6 @@ import ru.kubsu.borshchevyk.auth.domain.event.UserUpdatedEvent;
 
 /**
  * Adapter for consuming user-related events from Kafka.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Slf4j
 @Component

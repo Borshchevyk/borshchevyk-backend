@@ -6,9 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Main application class for Borshchevyk Admin Service.
- *
- * @author Aleksey Timko
- */
+ * */
 @SpringBootApplication
 @EnableAdminServer
 public class Application {

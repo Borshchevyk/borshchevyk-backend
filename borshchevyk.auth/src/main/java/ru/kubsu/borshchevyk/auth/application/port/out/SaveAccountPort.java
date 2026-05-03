@@ -4,8 +4,6 @@ import ru.kubsu.borshchevyk.auth.domain.model.account.Account;
 
 /**
  * Port for saving an account.
- *
- * @author Aleksey Timko
  */
 public interface SaveAccountPort {
     /**

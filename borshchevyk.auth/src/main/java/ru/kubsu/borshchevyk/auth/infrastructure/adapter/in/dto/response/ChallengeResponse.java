@@ -7,12 +7,13 @@ import lombok.Builder;
  * Response containing the cryptographic challenge.
  *
  * @param challenge The generated challenge string to be signed
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Builder
 @Schema(description = "Response containing the cryptographic challenge")
 public record ChallengeResponse(
-        @Schema(description = "The generated challenge string to be signed", example = "550e8400-e29b-41d4-a716-446655440000")
+        @Schema(
+                description = "The generated challenge string to be signed",
+                example = "550e8400-e29b-41d4-a716-446655440000"
+        )
         String challenge
 ) { }

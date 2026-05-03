@@ -9,11 +9,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.kubsu.borshchevyk.auth.application.dto.command.LoginCommand;
 import ru.kubsu.borshchevyk.auth.application.port.in.LoginUseCase;
-import org.springframework.http.ProblemDetail;
 import ru.kubsu.borshchevyk.auth.domain.model.result.LoginResult;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.LoginRequest;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.response.LoginResponse;
@@ -21,9 +24,6 @@ import ru.kubsu.borshchevyk.auth.infrastructure.mapper.LoginMapper;
 
 /**
  * REST controller for logging in.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -41,7 +41,10 @@ public class LoginController {
      * @param loginRequest the login credentials
      * @return the login response (including public key for challenge)
      */
-    @Operation(summary = "Login an existing user", description = "Authenticates a user and returns an access token if credentials are valid.")
+    @Operation(
+            summary = "Login an existing user",
+            description = "Authenticates a user and returns an access token if credentials are valid."
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User successfully logged in",
                     content = @Content(schema = @Schema(implementation = LoginResponse.class))),
@@ -54,7 +57,8 @@ public class LoginController {
     })
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(
-            @Valid @RequestBody LoginRequest loginRequest) {
+            @Valid @RequestBody LoginRequest loginRequest
+    ) {
         log.info("Login request received");
         LoginCommand loginCommand = loginMapper.toCommand(loginRequest);
         LoginResult loginResult = loginUseCase.login(loginCommand);

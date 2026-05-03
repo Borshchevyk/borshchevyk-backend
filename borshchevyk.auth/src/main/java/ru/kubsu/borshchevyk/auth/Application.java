@@ -6,9 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Entry point for the Auth microservice.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Slf4j
 @SpringBootApplication

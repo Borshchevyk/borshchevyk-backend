@@ -5,9 +5,6 @@ import ru.kubsu.borshchevyk.auth.domain.model.result.LoginResult;
 
 /**
  * Use case for logging into an account.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 public interface LoginUseCase {
     /**

@@ -13,9 +13,6 @@ import java.util.Optional;
 
 /**
  * Adapter for loading accounts by ID from the database.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Slf4j
 @Component
@@ -28,7 +25,6 @@ public class AccountPersistenceAdapter implements LoadAccountPort {
     @Override
     public Optional<Account> loadAccount(AccountId accountId) {
         log.info("Loading account with ID: {}", accountId.value());
-        return accountRepository.findById(accountId.value())
-                .map(accountMapper::toDomain);
+        return accountRepository.findById(accountId.value()).map(accountMapper::toDomain);
     }
 }

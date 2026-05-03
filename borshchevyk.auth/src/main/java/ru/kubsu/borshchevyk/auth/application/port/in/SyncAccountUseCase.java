@@ -5,9 +5,6 @@ import ru.kubsu.borshchevyk.auth.domain.event.UserUpdatedEvent;
 
 /**
  * Use case for synchronizing account data based on user events.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 public interface SyncAccountUseCase {
     /**

@@ -7,9 +7,6 @@ import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.ChangePas
 
 /**
  * MapStruct mapper for converting password change requests to commands.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ChangePasswordMapper {

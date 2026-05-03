@@ -9,9 +9,6 @@ import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.response.LoginRes
 
 /**
  * MapStruct mapper for login-related DTOs and results.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface LoginMapper {

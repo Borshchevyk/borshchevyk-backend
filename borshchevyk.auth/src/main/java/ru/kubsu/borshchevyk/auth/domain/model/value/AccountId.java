@@ -7,7 +7,6 @@ import java.util.UUID;
  * Value object representing an account unique identifier.
  *
  * @param value the UUID value
- * @author Aleksey Timko
  */
 public record AccountId(UUID value) {
     /**

@@ -17,9 +17,6 @@ import ru.kubsu.borshchevyk.auth.domain.model.value.AccountId;
 
 /**
  * Service for verifying crypto-signature and issuing tokens.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Service
 @RequiredArgsConstructor

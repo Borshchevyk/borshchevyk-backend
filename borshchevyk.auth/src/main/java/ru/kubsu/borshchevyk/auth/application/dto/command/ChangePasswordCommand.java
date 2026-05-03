@@ -5,15 +5,14 @@ import lombok.Builder;
 /**
  * Command for changing a user password.
  *
- * @param email        user's email address
- * @param oldPassword  the user's old password
- * @param newPassword  the user's new password
- * @author Aleksey Timko
- * @since 2026-03-14
+ * @param email       user's email address
+ * @param oldPassword the user's old password
+ * @param newPassword the user's new password
  */
 @Builder
 public record ChangePasswordCommand(
         String email,
         String oldPassword,
         String newPassword
-) { }
+) {
+}

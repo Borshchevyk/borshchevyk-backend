@@ -2,9 +2,6 @@ package ru.kubsu.borshchevyk.auth.domain.exception;
 
 /**
  * Exception thrown when an account is not found.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 public class AccountNotFoundException extends AuthServiceException {
     /**

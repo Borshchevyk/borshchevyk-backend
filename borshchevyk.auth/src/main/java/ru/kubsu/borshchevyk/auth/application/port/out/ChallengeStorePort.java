@@ -6,8 +6,6 @@ import java.util.Optional;
 
 /**
  * Port for storing, retrieving, and deleting authentication challenges.
- *
- * @author Aleksey Timko
  */
 public interface ChallengeStorePort {
     /**

@@ -9,6 +9,8 @@ import ru.kubsu.borshchevyk.message.application.port.in.CreateChatUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.CreatePrivateChatUseCase;
 import ru.kubsu.borshchevyk.message.application.port.out.ChatMemberPort;
 import ru.kubsu.borshchevyk.message.application.port.out.ChatPort;
+import ru.kubsu.borshchevyk.message.application.port.out.CheckUserPrivacyPort;
+import ru.kubsu.borshchevyk.message.domain.exception.ForbiddenActionException;
 import ru.kubsu.borshchevyk.message.domain.model.chat.Channel;
 import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember;
@@ -38,6 +40,7 @@ public class CreateChatService implements CreateChatUseCase, CreatePrivateChatUs
 
     private final ChatPort chatPort;
     private final ChatMemberPort chatMemberPort;
+    private final CheckUserPrivacyPort checkUserPrivacyPort;
 
     @Override
     @Transactional
@@ -46,6 +49,10 @@ public class CreateChatService implements CreateChatUseCase, CreatePrivateChatUs
         
         if (requesterId.equals(targetUserId)) {
             throw new IllegalArgumentException("Cannot create private chat with yourself. Use Saved Messages.");
+        }
+        
+        if (!checkUserPrivacyPort.canInviteToChat(targetUserId, requesterId)) {
+            throw new ForbiddenActionException("User's privacy settings do not allow you to invite them");
         }
         
         UserId u1 = new UserId(requesterId);
@@ -141,6 +148,10 @@ public class CreateChatService implements CreateChatUseCase, CreatePrivateChatUs
         if (command.initialMemberIds() != null) {
             for (UUID memberId : command.initialMemberIds()) {
                 if (!memberId.equals(command.creatorId())) {
+                    if (!checkUserPrivacyPort.canInviteToChat(memberId, command.creatorId())) {
+                        throw new ForbiddenActionException("User's privacy settings do not allow you to invite them");
+                    }
+                    
                     members.add(ChatMember.builder()
                             .chatId(chat.getId())
                             .userId(new UserId(memberId))

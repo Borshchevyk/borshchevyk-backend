@@ -8,9 +8,6 @@ import ru.kubsu.borshchevyk.auth.application.port.out.PasswordEncoderPort;
 
 /**
  * Adapter for password encoding using BCrypt.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Slf4j
 @Component
@@ -27,8 +24,7 @@ public class BcryptPasswordEncoderAdapter implements PasswordEncoderPort {
 
     /**
      * Checks if a raw password matches an encoded password.
-     *
-     * @param rawPassword     the raw password
+         * @param rawPassword     the raw password
      * @param encodedPassword the encoded password
      * @return true if the passwords match, false otherwise
      */
@@ -40,8 +36,7 @@ public class BcryptPasswordEncoderAdapter implements PasswordEncoderPort {
 
     /**
      * Encodes a raw password.
-     *
-     * @param rawPassword the raw password to encode
+         * @param rawPassword the raw password to encode
      * @return the encoded password
      */
     @Override

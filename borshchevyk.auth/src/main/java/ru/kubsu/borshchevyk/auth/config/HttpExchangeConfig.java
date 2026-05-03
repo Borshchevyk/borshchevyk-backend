@@ -8,9 +8,6 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Configuration for HttpExchangeRepository.
  * Enables tracking of HTTP request/response metrics.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Configuration
 public class HttpExchangeConfig {

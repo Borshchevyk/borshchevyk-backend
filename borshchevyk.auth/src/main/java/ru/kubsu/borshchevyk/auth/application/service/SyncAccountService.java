@@ -17,9 +17,6 @@ import java.util.Optional;
 
 /**
  * Service for synchronizing account data based on user events.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Service
 @RequiredArgsConstructor
@@ -34,12 +31,8 @@ public class SyncAccountService implements SyncAccountUseCase {
         Optional<Account> accountOpt = loadAccountPort.loadAccount(new AccountId(event.userId()));
         if (accountOpt.isPresent()) {
             Account account = accountOpt.get();
-            if (event.email() != null && !event.email().isBlank()) {
-                account.updateEmail(new Email(event.email()));
-            }
-            if (event.tag() != null && !event.tag().isBlank()) {
-                account.updateTag(new Tag(event.tag()));
-            }
+            account.updateEmail(new Email(event.email()));
+            account.updateTag(new Tag(event.tag()));
             saveAccountPort.saveAccount(account);
         }
     }

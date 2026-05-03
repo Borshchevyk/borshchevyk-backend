@@ -9,11 +9,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.kubsu.borshchevyk.auth.application.dto.command.RegisterCommand;
 import ru.kubsu.borshchevyk.auth.application.port.in.RegisterUseCase;
-import org.springframework.http.ProblemDetail;
 import ru.kubsu.borshchevyk.auth.domain.model.result.RegisterResult;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.RegisterRequest;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.response.RegisterResponse;
@@ -21,9 +24,6 @@ import ru.kubsu.borshchevyk.auth.infrastructure.mapper.RegisterMapper;
 
 /**
  * REST controller for user registration.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -41,7 +41,10 @@ public class RegisterController {
      * @param registerRequest the registration details
      * @return the registration response
      */
-    @Operation(summary = "Register a new user", description = "Creates a new user account with the provided email, tag, and password.")
+    @Operation(
+            summary = "Register a new user",
+            description = "Creates a new user account with the provided email, tag, and password."
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User successfully registered",
                     content = @Content(schema = @Schema(implementation = RegisterResponse.class))),
@@ -54,7 +57,8 @@ public class RegisterController {
     })
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(
-            @Valid @RequestBody RegisterRequest registerRequest) {
+            @Valid @RequestBody RegisterRequest registerRequest
+    ) {
         log.info("Registering user"); // Removed PII (email)
         RegisterCommand registerCommand = registerMapper.toCommand(registerRequest);
         RegisterResult registerResult = registerUseCase.register(registerCommand);

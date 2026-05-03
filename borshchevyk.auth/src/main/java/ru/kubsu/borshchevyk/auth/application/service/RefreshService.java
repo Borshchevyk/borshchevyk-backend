@@ -14,9 +14,6 @@ import ru.kubsu.borshchevyk.auth.domain.model.value.AccountId;
 
 /**
  * Service for refreshing authentication tokens.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Service
 @RequiredArgsConstructor

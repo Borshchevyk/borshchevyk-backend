@@ -12,9 +12,6 @@ import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Security configuration for the application.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Slf4j
 @Configuration

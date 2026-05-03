@@ -2,8 +2,6 @@ package ru.kubsu.borshchevyk.auth.application.port.out;
 
 /**
  * Port for verifying cryptographic signatures.
- *
- * @author Aleksey Timko
  */
 public interface SignatureVerifierPort {
     /**
