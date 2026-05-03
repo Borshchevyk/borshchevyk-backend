@@ -1,7 +1,7 @@
 package ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.response.ShortUserDto;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.response.UserDto;
 
 import java.time.Instant;
 import java.util.Set;
@@ -19,7 +19,7 @@ public record CallResponse(
         String roomId,
         
         @Schema(description = "Short info of the user who initiated the call", requiredMode = Schema.RequiredMode.REQUIRED)
-        ShortUserDto initiator,
+        UserDto initiator,
         
         @Schema(description = "Current status of the call", example = "IN_PROGRESS", requiredMode = Schema.RequiredMode.REQUIRED)
         String status,
@@ -31,5 +31,5 @@ public record CallResponse(
         Instant endedAt,
         
         @Schema(description = "Set of participant short info", requiredMode = Schema.RequiredMode.REQUIRED)
-        Set<ShortUserDto> participants
+        Set<UserDto> participants
 ) {}

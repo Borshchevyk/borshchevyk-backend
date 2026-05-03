@@ -1,18 +1,19 @@
 package ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.mapper;
 
+import lombok.RequiredArgsConstructor;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.springframework.beans.factory.annotation.Autowired;
+import ru.kubsu.borshchevyk.calls.application.port.out.GetUserInfoPort;
+import ru.kubsu.borshchevyk.calls.application.port.out.GetUsersBatchPort;
 import ru.kubsu.borshchevyk.calls.domain.model.Call;
 import ru.kubsu.borshchevyk.calls.domain.model.CallId;
+import ru.kubsu.borshchevyk.calls.domain.model.User;
 import ru.kubsu.borshchevyk.calls.domain.model.UserId;
 import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.CallResponse;
-import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.response.ShortUserDto;
-import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.facade.UserEnrichmentService;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.response.UserDto;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -20,11 +21,14 @@ import java.util.stream.Collectors;
 /**
  * Mapper for Web-layer DTOs.
  */
+@RequiredArgsConstructor
 @Mapper(componentModel = "spring")
 public abstract class CallWebMapper {
 
-    @Autowired
-    protected UserEnrichmentService userEnrichmentService;
+    protected final GetUserInfoPort getUserInfoPort;
+    protected final GetUsersBatchPort getUsersBatchPort;
+
+    private final UserMapper userMapper;
 
     @Mapping(target = "id", source = "id", qualifiedByName = "mapCallId")
     @Mapping(target = "initiator", expression = "java(getInitiatorInfo(call))")
@@ -36,14 +40,15 @@ public abstract class CallWebMapper {
         return id != null ? id.value() : null;
     }
 
-    protected ShortUserDto getInitiatorInfo(Call call) {
+    protected UserDto getInitiatorInfo(Call call) {
         if (call.getInitiatorId() == null) {
             return null;
         }
-        return userEnrichmentService.getUserInfo(call.getInitiatorId().value());
+        User user = getUserInfoPort.getUserInfo(call.getInitiatorId().value());
+        return userMapper.toDto(user);
     }
 
-    protected Set<ShortUserDto> getParticipantsInfo(Call call) {
+    protected Set<UserDto> getParticipantsInfo(Call call) {
         if (call.getParticipants() == null || call.getParticipants().isEmpty()) {
             return Set.of();
         }
@@ -52,10 +57,8 @@ public abstract class CallWebMapper {
                 .map(UserId::value)
                 .toList();
                 
-        Map<UUID, ShortUserDto> batchInfo = userEnrichmentService.getUsersBatch(userIds);
+        List<User> users = getUsersBatchPort.getUsersBatch(userIds);
         
-        return userIds.stream()
-                .map(batchInfo::get)
-                .collect(Collectors.toSet());
+        return users.stream().map(userMapper::toDto).collect(Collectors.toSet());
     }
 }

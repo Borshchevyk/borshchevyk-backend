@@ -2,8 +2,10 @@ package ru.kubsu.borshchevyk.calls.infrastructure.adapter.out.grpc;
 
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.springframework.stereotype.Service;
-import ru.kubsu.borshchevyk.grpc.UserRequest;
+import org.springframework.stereotype.Component;
+import ru.kubsu.borshchevyk.calls.application.port.out.GetUsersBatchPort;
+import ru.kubsu.borshchevyk.calls.domain.model.User;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.out.grpc.mapper.UserMapper;
 import ru.kubsu.borshchevyk.grpc.UserResponse;
 import ru.kubsu.borshchevyk.grpc.UserServiceGrpc;
 import ru.kubsu.borshchevyk.grpc.UsersBatchRequest;
@@ -11,27 +13,20 @@ import ru.kubsu.borshchevyk.grpc.UsersBatchRequest;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * gRPC client for fetching user info from user-service.
- */
-@Service
+@Component
 @RequiredArgsConstructor
-public class UserGrpcClient {
+public class GetUsersBatchGrpcClient implements GetUsersBatchPort {
 
     @GrpcClient("user-service")
     private UserServiceGrpc.UserServiceBlockingStub userServiceStub;
 
-    public UserResponse getUserInfo(UUID userId) {
-        UserRequest request = UserRequest.newBuilder()
-                .setUserId(userId.toString())
-                .build();
-        return userServiceStub.getUserInfo(request);
-    }
+    private final UserMapper userMapper;
 
-    public List<UserResponse> getUsersBatch(List<UUID> userIds) {
+    public List<User> getUsersBatch(List<UUID> userIds) {
         UsersBatchRequest request = UsersBatchRequest.newBuilder()
                 .addAllUserIds(userIds.stream().map(UUID::toString).toList())
                 .build();
-        return userServiceStub.getUsersBatch(request).getUsersList();
+        List<UserResponse> userResponses = userServiceStub.getUsersBatch(request).getUsersList();
+        return userResponses.stream().map(userMapper::toDomain).toList();
     }
 }
