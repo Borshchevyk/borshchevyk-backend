@@ -6,9 +6,6 @@ import ru.kubsu.borshchevyk.calls.domain.model.UserId;
 
 /**
  * Query to get an existing call by ID.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 public record GetCallQuery(
         @NotNull(message = "Call ID cannot be null")

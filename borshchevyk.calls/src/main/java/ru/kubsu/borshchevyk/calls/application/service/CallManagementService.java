@@ -27,9 +27,6 @@ import java.util.UUID;
 
 /**
  * Service implementing Call lifecycle management use cases.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 @Service
 @Validated

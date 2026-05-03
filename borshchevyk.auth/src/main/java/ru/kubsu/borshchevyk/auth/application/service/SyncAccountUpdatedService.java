@@ -2,7 +2,7 @@ package ru.kubsu.borshchevyk.auth.application.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.kubsu.borshchevyk.auth.application.port.in.SyncAccountUseCase;
+import ru.kubsu.borshchevyk.auth.application.port.in.SyncAccountUpdatedUseCase;
 import ru.kubsu.borshchevyk.auth.application.port.out.DeleteAccountPort;
 import ru.kubsu.borshchevyk.auth.application.port.out.LoadAccountPort;
 import ru.kubsu.borshchevyk.auth.application.port.out.SaveAccountPort;
@@ -20,7 +20,7 @@ import java.util.Optional;
  */
 @Service
 @RequiredArgsConstructor
-public class SyncAccountService implements SyncAccountUseCase {
+public class SyncAccountUpdatedService implements SyncAccountUpdatedUseCase {
 
     private final LoadAccountPort loadAccountPort;
     private final SaveAccountPort saveAccountPort;
@@ -35,10 +35,5 @@ public class SyncAccountService implements SyncAccountUseCase {
             account.updateTag(new Tag(event.tag()));
             saveAccountPort.saveAccount(account);
         }
-    }
-
-    @Override
-    public void syncDeleted(UserDeletedEvent event) {
-        deleteAccountPort.delete(new AccountId(event.userId()));
     }
 }

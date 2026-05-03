@@ -19,9 +19,6 @@ import java.util.stream.Collectors;
 
 /**
  * Mapper for Web-layer DTOs.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 @Mapper(componentModel = "spring")
 public abstract class CallWebMapper {

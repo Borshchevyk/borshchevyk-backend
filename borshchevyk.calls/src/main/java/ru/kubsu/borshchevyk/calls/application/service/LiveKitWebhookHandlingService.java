@@ -8,13 +8,11 @@ import ru.kubsu.borshchevyk.calls.application.port.in.HandleLiveKitWebhookUseCas
 import ru.kubsu.borshchevyk.calls.application.port.out.LoadCallPort;
 import ru.kubsu.borshchevyk.calls.application.port.out.PublishCallEventPort;
 import ru.kubsu.borshchevyk.calls.application.port.out.SaveCallPort;
+import ru.kubsu.borshchevyk.calls.domain.event.call.CallEndedEvent;
 import ru.kubsu.borshchevyk.calls.domain.model.CallStatus;
 
 /**
  * Service implementing LiveKit Webhook handling use cases.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 @Service
 @RequiredArgsConstructor
@@ -32,7 +30,10 @@ public class LiveKitWebhookHandlingService implements HandleLiveKitWebhookUseCas
             if (call.getStatus() != CallStatus.ENDED) {
                 call.endCall();
                 saveCallPort.saveCall(call);
-                publishCallEventPort.publishCallEnded(call);
+
+                CallEndedEvent event = new CallEndedEvent(call);
+                publishCallEventPort.publish(event);
+
                 log.info("Call {} ended via LiveKit webhook", call.getId().value());
             }
         });

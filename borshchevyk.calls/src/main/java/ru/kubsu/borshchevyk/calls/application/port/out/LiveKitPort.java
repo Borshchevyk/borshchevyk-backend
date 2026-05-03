@@ -5,9 +5,6 @@ import ru.kubsu.borshchevyk.calls.domain.model.UserId;
 
 /**
  * Port for interacting with the LiveKit server.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 public interface LiveKitPort {
     /**

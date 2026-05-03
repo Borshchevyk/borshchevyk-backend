@@ -14,9 +14,6 @@ import java.util.stream.Collectors;
 
 /**
  * Service to enrich call data with short user info via gRPC.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 @Service
 @RequiredArgsConstructor

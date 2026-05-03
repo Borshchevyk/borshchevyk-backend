@@ -13,9 +13,6 @@ import ru.kubsu.borshchevyk.calls.domain.model.UserId;
 
 /**
  * Adapter for generating LiveKit JWT tokens.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 @Component
 @Slf4j
@@ -32,9 +29,16 @@ public class LiveKitAdapter implements LiveKitPort {
         log.debug("Generating LiveKit token for user {} in room {}", userId.value(), roomId);
         
         AccessToken token = new AccessToken(apiKey, apiSecret);
+
         token.setName(userId.value().toString());
         token.setIdentity(userId.value().toString());
-        token.addGrants(new RoomJoin(true), new RoomName(roomId), new CanPublish(canPublish), new CanSubscribe(true));
+
+        token.addGrants(
+                new RoomJoin(true),
+                new RoomName(roomId),
+                new CanPublish(canPublish),
+                new CanSubscribe(true)
+        );
         
         return token.toJwt();
     }

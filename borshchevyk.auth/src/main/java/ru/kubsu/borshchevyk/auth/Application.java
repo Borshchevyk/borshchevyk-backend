@@ -17,7 +17,7 @@ public class Application {
      * @param args command line arguments
      */
     public static void main(String[] args) {
-        log.info("Starting Auth microservice application...");
+        log.info("Starting Auth application...");
         SpringApplication.run(Application.class, args);
     }
 

@@ -6,20 +6,20 @@ import ru.kubsu.borshchevyk.calls.application.port.out.LoadCallPort;
 import ru.kubsu.borshchevyk.calls.application.port.out.SaveCallPort;
 import ru.kubsu.borshchevyk.calls.domain.model.Call;
 import ru.kubsu.borshchevyk.calls.domain.model.CallId;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.out.persistence.entity.CallJpaEntity;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.out.persistence.mapper.CallMapper;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.out.persistence.repository.CallJpaRepository;
 
 import java.util.Optional;
 
 /**
  * JPA implementation of SaveCallPort and LoadCallPort.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 @Component
 @RequiredArgsConstructor
 public class CallJpaAdapter implements LoadCallPort, SaveCallPort {
-    private final CallRepository repository;
-    private final CallEntityMapper mapper;
+    private final CallJpaRepository repository;
+    private final CallMapper mapper;
 
     @Override
     public Optional<Call> loadCall(CallId callId) {
@@ -33,8 +33,8 @@ public class CallJpaAdapter implements LoadCallPort, SaveCallPort {
 
     @Override
     public Call saveCall(Call call) {
-        CallEntity entity = mapper.toEntity(call);
-        CallEntity saved = repository.save(entity);
+        CallJpaEntity entity = mapper.toEntity(call);
+        CallJpaEntity saved = repository.save(entity);
         return mapper.toDomain(saved);
     }
 }

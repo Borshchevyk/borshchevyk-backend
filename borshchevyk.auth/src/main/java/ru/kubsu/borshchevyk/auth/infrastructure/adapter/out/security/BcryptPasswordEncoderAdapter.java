@@ -24,7 +24,8 @@ public class BcryptPasswordEncoderAdapter implements PasswordEncoderPort {
 
     /**
      * Checks if a raw password matches an encoded password.
-         * @param rawPassword     the raw password
+     *
+     * @param rawPassword     the raw password
      * @param encodedPassword the encoded password
      * @return true if the passwords match, false otherwise
      */
@@ -36,7 +37,8 @@ public class BcryptPasswordEncoderAdapter implements PasswordEncoderPort {
 
     /**
      * Encodes a raw password.
-         * @param rawPassword the raw password to encode
+     *
+     * @param rawPassword the raw password to encode
      * @return the encoded password
      */
     @Override
