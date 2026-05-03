@@ -20,7 +20,8 @@ public interface AccountPersistenceMapper {
 
     /**
      * Maps domain model to JPA entity.
-         * @param account the domain model
+     *
+     * @param account the domain model
      * @return the JPA entity
      */
     @Mapping(target = "id", source = "accountId.value")
@@ -30,7 +31,8 @@ public interface AccountPersistenceMapper {
 
     /**
      * Maps JPA entity to domain model.
-         * @param entity the JPA entity
+     *
+     * @param entity the JPA entity
      * @return the domain model
      */
     @Mapping(target = "accountId", source = "id", qualifiedByName = "mapToAccountId")
@@ -40,7 +42,8 @@ public interface AccountPersistenceMapper {
 
     /**
      * Helper for mapping UUID to AccountId.
-         * @param id the UUID
+     *
+     * @param id the UUID
      * @return the AccountId
      */
     @Named("mapToAccountId")
@@ -50,7 +53,8 @@ public interface AccountPersistenceMapper {
 
     /**
      * Helper for mapping String to Email.
-         * @param value the String
+     *
+     * @param value the String
      * @return the Email
      */
     @Named("mapToEmail")
@@ -60,7 +64,8 @@ public interface AccountPersistenceMapper {
 
     /**
      * Helper for mapping String to Tag.
-         * @param value the String
+     *
+     * @param value the String
      * @return the Tag
      */
     @Named("mapToTag")

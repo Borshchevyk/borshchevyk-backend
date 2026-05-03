@@ -16,9 +16,6 @@ import java.time.Instant;
 
 /**
  * Global exception handler for the REST layer.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 @RestControllerAdvice
 @Slf4j

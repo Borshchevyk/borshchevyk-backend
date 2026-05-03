@@ -33,9 +33,6 @@ import java.util.stream.Collectors;
 
 /**
  * REST Controller for managing Calls.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 @RestController
 @RequestMapping("/api/v1/calls")

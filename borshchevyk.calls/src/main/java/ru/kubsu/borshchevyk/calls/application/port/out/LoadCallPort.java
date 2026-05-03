@@ -7,9 +7,6 @@ import java.util.Optional;
 
 /**
  * Port for loading Call entities from persistence.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 public interface LoadCallPort {
     Optional<Call> loadCall(CallId callId);

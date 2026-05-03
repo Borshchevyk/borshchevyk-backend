@@ -6,9 +6,6 @@ import java.util.UUID;
 
 /**
  * DTO for short user information obtained via gRPC.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 @Builder
 @Schema(description = "Short user information")

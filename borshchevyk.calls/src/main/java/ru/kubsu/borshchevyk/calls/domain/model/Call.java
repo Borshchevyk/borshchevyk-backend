@@ -6,18 +6,17 @@ import lombok.Getter;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
- * Aggregate Root representing a Call (Video/Audio conference).
- *
- * @author Aleksey Timko
- * @since 2026-04-25
+ * Aggregate Root representing a Call.
  */
 @Getter
 @Builder(toBuilder = true)
 public class Call {
     private final CallId id;
-    private final String roomId; // LiveKit room ID mapping
+    private final String roomId;
     private final UserId initiatorId;
     private CallStatus status;
     private final Instant createdAt;
@@ -32,6 +31,10 @@ public class Call {
 
     public void removeParticipant(UserId userId) {
         this.participants.remove(userId);
+    }
+
+    public Set<UUID> getParticipantsUUIDs() {
+        return participants.stream().map(UserId::value).collect(Collectors.toSet());
     }
 
     public void markAsInProgress() {

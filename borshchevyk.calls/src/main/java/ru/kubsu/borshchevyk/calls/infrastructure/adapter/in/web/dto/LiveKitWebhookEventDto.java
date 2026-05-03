@@ -6,8 +6,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 /**
  * DTO for receiving webhook events from LiveKit.
  * 
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Schema(description = "LiveKit webhook event payload")

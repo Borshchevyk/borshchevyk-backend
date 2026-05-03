@@ -11,9 +11,6 @@ import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.LiveKitWebho
 /**
  * Controller for receiving webhooks from the LiveKit server.
  * Hidden from Swagger because it's an internal machine-to-machine API.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 @RestController
 @RequestMapping("/api/v1/calls/webhook")

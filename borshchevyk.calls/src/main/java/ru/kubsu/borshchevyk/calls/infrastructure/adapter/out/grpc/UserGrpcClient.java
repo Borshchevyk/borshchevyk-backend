@@ -13,9 +13,6 @@ import java.util.UUID;
 
 /**
  * gRPC client for fetching user info from user-service.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 @Service
 @RequiredArgsConstructor

@@ -20,6 +20,7 @@ import ru.kubsu.borshchevyk.auth.application.port.in.RefreshUseCase;
 import ru.kubsu.borshchevyk.auth.domain.model.result.VerifyResult;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.RefreshRequest;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.response.VerifyResponse;
+import ru.kubsu.borshchevyk.auth.infrastructure.mapper.RefreshMapper;
 import ru.kubsu.borshchevyk.auth.infrastructure.mapper.VerifyMapper;
 
 /**
@@ -33,6 +34,7 @@ import ru.kubsu.borshchevyk.auth.infrastructure.mapper.VerifyMapper;
 public class RefreshController {
 
     private final RefreshUseCase refreshUseCase;
+    private final RefreshMapper refreshMapper;
     private final VerifyMapper verifyMapper;
 
     /**
@@ -58,7 +60,7 @@ public class RefreshController {
             @Valid @RequestBody RefreshRequest refreshRequest
     ) {
         log.info("Refresh tokens requested");
-        RefreshCommand refreshCommand = verifyMapper.toCommand(refreshRequest);
+        RefreshCommand refreshCommand = refreshMapper.toCommand(refreshRequest);
         VerifyResult verifyResult = refreshUseCase.refresh(refreshCommand);
         VerifyResponse verifyResponse = verifyMapper.toResponse(verifyResult);
         log.info("Tokens refreshed successfully");
