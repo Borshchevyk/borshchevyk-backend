@@ -29,6 +29,7 @@ public class DirectUploadService implements UploadDirectAttachmentUseCase {
 
     private final AttachmentPort attachmentPort;
     private final S3Port s3Port;
+    private final AttachmentService attachmentService;
 
     @Override
     @Transactional
@@ -59,6 +60,8 @@ public class DirectUploadService implements UploadDirectAttachmentUseCase {
                 .build();
 
         s3Port.uploadFile(s3Key, command.inputStream(), command.sizeBytes(), command.contentType());
+        
+        attachmentService.generateThumbnailIfNeeded(attachment);
         
         return attachmentPort.save(attachment);
     }

@@ -36,10 +36,9 @@ import java.awt.image.BufferedImage;
 
 import ru.kubsu.borshchevyk.media.application.dto.command.UploadAvatarCommand;
 import net.coobird.thumbnailator.Thumbnails;
-import org.jcodec.api.FrameGrab;
-import org.jcodec.common.model.Picture;
-import org.jcodec.scale.AWTUtil;
-import org.jcodec.common.io.NIOUtils;
+import org.bytedeco.javacv.FFmpegFrameGrabber;
+import org.bytedeco.javacv.Java2DFrameConverter;
+import org.bytedeco.javacv.Frame;
 
 /**
  * Service implementing various use cases for managing attachments and media files.
@@ -149,24 +148,28 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
         }
 
         // Generate thumbnail for images and videos
+        generateThumbnailIfNeeded(attachment);
+
+        attachment.setStatus(AttachmentStatus.READY);
+        attachment.setUpdatedAt(LocalDateTime.now());
+        
+        return attachmentPort.save(attachment);
+    }
+    
+    public void generateThumbnailIfNeeded(Attachment attachment) {
         if (attachment.getType() == AttachmentType.PHOTO) {
             try {
                 generateAndUploadImageThumbnail(attachment);
             } catch (Exception e) {
                 log.error("Failed to generate image thumbnail for attachment {}", attachment.getId().value(), e);
             }
-        } else if (attachment.getType() == AttachmentType.VIDEO) {
+        } else if (attachment.getType() == AttachmentType.VIDEO || attachment.getType() == AttachmentType.CIRCLE) {
             try {
                 generateAndUploadVideoThumbnail(attachment);
             } catch (Exception e) {
                 log.error("Failed to generate video thumbnail for attachment {}", attachment.getId().value(), e);
             }
         }
-
-        attachment.setStatus(AttachmentStatus.READY);
-        attachment.setUpdatedAt(LocalDateTime.now());
-        
-        return attachmentPort.save(attachment);
     }
 
     private void generateAndUploadImageThumbnail(Attachment attachment) throws Exception {
@@ -194,20 +197,37 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
                 Files.copy(is, tempFile, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             }
 
-            FrameGrab grab = FrameGrab.createFrameGrab(NIOUtils.readableChannel(tempFile.toFile()));
-            Picture picture = grab.getNativeFrame();
-            
-            if (picture != null) {
-                BufferedImage bufferedImage = AWTUtil.toBufferedImage(picture);
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            try (FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(tempFile.toFile())) {
+                grabber.start();
+                // Try to grab a frame around 10% into the video, or at least a valid image frame
+                int lengthInFrames = grabber.getLengthInVideoFrames();
+                if (lengthInFrames > 10) {
+                    grabber.setVideoFrameNumber(Math.min(10, lengthInFrames / 2));
+                }
                 
-                Thumbnails.of(bufferedImage)
-                        .size(320, 320)
-                        .keepAspectRatio(true)
-                        .outputFormat("jpg")
-                        .toOutputStream(outputStream);
-                
-                uploadThumbnailData(attachment, outputStream.toByteArray());
+                Frame frame = null;
+                for (int i = 0; i < 50; i++) {
+                    frame = grabber.grabImage();
+                    if (frame != null) break;
+                }
+
+                if (frame != null) {
+                    try (Java2DFrameConverter converter = new Java2DFrameConverter()) {
+                        BufferedImage bufferedImage = converter.getBufferedImage(frame);
+                        if (bufferedImage != null) {
+                            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                            Thumbnails.of(bufferedImage)
+                                    .size(320, 320)
+                                    .keepAspectRatio(true)
+                                    .outputFormat("jpg")
+                                    .toOutputStream(outputStream);
+                            uploadThumbnailData(attachment, outputStream.toByteArray());
+                        }
+                    }
+                } else {
+                    log.warn("Failed to extract any image frame from video attachment {}", attachment.getId().value());
+                }
+                grabber.stop();
             }
         } finally {
             Files.deleteIfExists(tempFile);
@@ -215,7 +235,7 @@ public class AttachmentService implements RequestUploadUrlUseCase, CompleteUploa
     }
 
     private void uploadThumbnailData(Attachment attachment, byte[] thumbnailData) {
-        String thumbnailKey = attachment.getS3Key().replace("attachments/", "thumbnails/");
+        String thumbnailKey = attachment.getS3Key().replace("attachments/", "thumbnails/").replace("circles/", "thumbnails/").replace("voices/", "thumbnails/");
         if (thumbnailKey.contains(".")) {
             thumbnailKey = thumbnailKey.substring(0, thumbnailKey.lastIndexOf(".")) + ".jpg";
         } else {
