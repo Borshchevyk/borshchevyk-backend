@@ -16,7 +16,7 @@ import ru.kubsu.borshchevyk.calls.application.port.in.JoinCallUseCase;
 import ru.kubsu.borshchevyk.calls.domain.value.CallId;
 import ru.kubsu.borshchevyk.calls.domain.value.UserId;
 import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.response.JoinCallResponse;
-import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.mapper.CallMapper;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.mapper.WebCallMapper;
 
 import java.util.UUID;
 
@@ -28,7 +28,7 @@ import java.util.UUID;
 public class JoinCallController {
 
     private final JoinCallUseCase joinCallUseCase;
-    private final CallMapper callMapper;
+    private final WebCallMapper webCallMapper;
 
     @Operation(
             summary = "Join a call",

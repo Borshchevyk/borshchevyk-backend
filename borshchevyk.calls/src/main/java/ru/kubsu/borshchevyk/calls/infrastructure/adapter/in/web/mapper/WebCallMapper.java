@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
         componentModel = MappingConstants.ComponentModel.SPRING,
         uses = WebUserMapper.class
 )
-public abstract class CallMapper {
+public abstract class WebCallMapper {
 
     @Autowired
     protected GetUserInfoPort getUserInfoPort;

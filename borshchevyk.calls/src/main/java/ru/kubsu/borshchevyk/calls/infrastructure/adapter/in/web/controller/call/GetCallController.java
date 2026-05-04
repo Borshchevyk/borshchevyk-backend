@@ -17,7 +17,7 @@ import ru.kubsu.borshchevyk.calls.domain.model.Call;
 import ru.kubsu.borshchevyk.calls.domain.value.CallId;
 import ru.kubsu.borshchevyk.calls.domain.value.UserId;
 import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.response.CallResponse;
-import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.mapper.CallMapper;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.mapper.WebCallMapper;
 
 import java.util.UUID;
 
@@ -29,7 +29,7 @@ import java.util.UUID;
 public class GetCallController {
 
     private final GetCallUseCase getCallUseCase;
-    private final CallMapper callMapper;
+    private final WebCallMapper webCallMapper;
 
     @Operation(
             summary = "Get call details",
@@ -59,6 +59,6 @@ public class GetCallController {
         );
 
         Call call = getCallUseCase.getCall(query);
-        return ResponseEntity.ok(callMapper.toResponse(call));
+        return ResponseEntity.ok(webCallMapper.toResponse(call));
     }
 }

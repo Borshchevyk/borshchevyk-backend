@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
  * Mapper between Domain and JPA Entity for Calls.
  */
 @Mapper(componentModel = "spring")
-public interface CallMapper {
+public interface CallJpaMapper {
     @Mapping(target = "id", source = "id", qualifiedByName = "mapCallIdToUuid")
     @Mapping(target = "initiatorId", source = "initiatorId", qualifiedByName = "mapUserIdToUuid")
     @Mapping(target = "participants", source = "participants", qualifiedByName = "mapUserIdSetToUuidSet")

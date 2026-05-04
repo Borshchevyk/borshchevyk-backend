@@ -17,7 +17,7 @@ import ru.kubsu.borshchevyk.calls.domain.model.Call;
 import ru.kubsu.borshchevyk.calls.domain.value.CallId;
 import ru.kubsu.borshchevyk.calls.domain.value.UserId;
 import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.response.CallResponse;
-import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.mapper.CallMapper;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.mapper.WebCallMapper;
 
 import java.util.UUID;
 
@@ -29,7 +29,7 @@ import java.util.UUID;
 public class LeaveCallController {
 
     private final LeaveCallUseCase leaveCallUseCase;
-    private final CallMapper callMapper;
+    private final WebCallMapper webCallMapper;
 
     @Operation(
             summary = "Leave a call",
@@ -58,6 +58,6 @@ public class LeaveCallController {
         );
 
         Call call = leaveCallUseCase.leaveCall(command);
-        return ResponseEntity.ok(callMapper.toResponse(call));
+        return ResponseEntity.ok(webCallMapper.toResponse(call));
     }
 }

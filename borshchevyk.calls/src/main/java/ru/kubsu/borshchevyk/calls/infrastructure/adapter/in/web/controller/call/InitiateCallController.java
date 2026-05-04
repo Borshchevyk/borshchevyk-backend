@@ -19,7 +19,7 @@ import ru.kubsu.borshchevyk.calls.domain.model.Call;
 import ru.kubsu.borshchevyk.calls.domain.value.UserId;
 import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.request.InitiateCallRequest;
 import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.response.CallResponse;
-import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.mapper.CallMapper;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.mapper.WebCallMapper;
 
 import java.util.Set;
 import java.util.UUID;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class InitiateCallController {
 
     private final InitiateCallUseCase initiateCallUseCase;
-    private final CallMapper callMapper;
+    private final WebCallMapper webCallMapper;
 
     @Operation(
             summary = "Initiate a new call",
@@ -66,6 +66,6 @@ public class InitiateCallController {
         );
 
         Call call = initiateCallUseCase.initiateCall(command);
-        return ResponseEntity.status(HttpStatus.CREATED).body(callMapper.toResponse(call));
+        return ResponseEntity.status(HttpStatus.CREATED).body(webCallMapper.toResponse(call));
     }
 }
