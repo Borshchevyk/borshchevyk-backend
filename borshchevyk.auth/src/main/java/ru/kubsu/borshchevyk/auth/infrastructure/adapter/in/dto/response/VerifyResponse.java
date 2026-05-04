@@ -8,8 +8,6 @@ import lombok.Builder;
  *
  * @param accessToken  JWT Access Token
  * @param refreshToken JWT Refresh Token
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Builder
 @Schema(description = "Response containing JWT tokens after successful signature verification")

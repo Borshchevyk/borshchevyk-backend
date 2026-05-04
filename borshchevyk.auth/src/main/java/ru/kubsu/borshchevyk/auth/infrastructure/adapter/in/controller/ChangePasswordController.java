@@ -9,19 +9,19 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.kubsu.borshchevyk.auth.application.dto.command.ChangePasswordCommand;
 import ru.kubsu.borshchevyk.auth.application.port.in.ChangePasswordUseCase;
-import org.springframework.http.ProblemDetail;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.ChangePasswordRequest;
-import ru.kubsu.borshchevyk.auth.infrastructure.mapper.ChangePasswordMapper;
+import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.mapper.ChangePasswordMapper;
 
 /**
  * REST controller for changing passwords.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -39,7 +39,10 @@ public class ChangePasswordController {
      * @param changePasswordRequest the password change details
      * @return 200 OK if successful
      */
-    @Operation(summary = "Change user password", description = "Updates the user's password if the old password matches.")
+    @Operation(
+            summary = "Change user password",
+            description = "Updates the user's password if the old password matches."
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Password successfully changed",
                     content = @Content(schema = @Schema())),
@@ -52,8 +55,9 @@ public class ChangePasswordController {
     })
     @PatchMapping("/password")
     public ResponseEntity<Void> changePassword(
-            @Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
-        log.info("Password change requested"); // Removed PII (email)
+            @Valid @RequestBody ChangePasswordRequest changePasswordRequest
+    ) {
+        log.info("Password change requested");
         ChangePasswordCommand changePasswordCommand = changePasswordMapper.toCommand(changePasswordRequest);
         changePasswordUseCase.changePassword(changePasswordCommand);
         log.info("Password changed successfully");

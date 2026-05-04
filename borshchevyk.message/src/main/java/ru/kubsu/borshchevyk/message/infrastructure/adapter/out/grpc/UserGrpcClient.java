@@ -3,6 +3,7 @@ package ru.kubsu.borshchevyk.message.infrastructure.adapter.out.grpc;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
+import ru.kubsu.borshchevyk.grpc.CheckInvitePermissionRequest;
 import ru.kubsu.borshchevyk.grpc.UserRequest;
 import ru.kubsu.borshchevyk.grpc.UserResponse;
 import ru.kubsu.borshchevyk.grpc.UserServiceGrpc;
@@ -40,5 +41,13 @@ public class UserGrpcClient {
                 .setRequesterId(requesterId != null ? requesterId.toString() : "")
                 .build();
         return userServiceStub.searchUsers(request).getUsersList();
+    }
+
+    public boolean checkInvitePermission(UUID targetUserId, UUID requesterId) {
+        CheckInvitePermissionRequest request = CheckInvitePermissionRequest.newBuilder()
+                .setTargetUserId(targetUserId.toString())
+                .setRequesterId(requesterId != null ? requesterId.toString() : "")
+                .build();
+        return userServiceStub.checkInvitePermission(request).getCanInvite();
     }
 }

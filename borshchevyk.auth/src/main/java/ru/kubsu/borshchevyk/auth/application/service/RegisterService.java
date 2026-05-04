@@ -22,9 +22,6 @@ import java.util.UUID;
 
 /**
  * Service for user registration.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Service
 @RequiredArgsConstructor

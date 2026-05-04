@@ -2,9 +2,6 @@ package ru.kubsu.borshchevyk.auth.domain.exception;
 
 /**
  * Exception thrown when the format of an input (email or tag) is invalid.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 public class IncorrectInputFormatException extends AuthServiceException {
     /**
@@ -13,7 +10,7 @@ public class IncorrectInputFormatException extends AuthServiceException {
      * @param inputFormat the type of input (EMAIL or TAG) with invalid format
      */
     public IncorrectInputFormatException(InputFormat inputFormat) {
-        super(ErrorCode.INCORRECT_FORMAT, String.format("Incorrect %s format.", inputFormat.name().toLowerCase()));
+        super(ErrorCode.INCORRECT_FORMAT, inputFormat.name().toLowerCase());
     }
 
     /**
@@ -27,6 +24,10 @@ public class IncorrectInputFormatException extends AuthServiceException {
         /**
          * User tag/nickname format.
          */
-        TAG
+        TAG,
+        /**
+         * User password format.
+         */
+        PASSWORD
     }
 }

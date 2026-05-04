@@ -10,9 +10,6 @@ import ru.kubsu.borshchevyk.auth.domain.event.UserRegisteredEvent;
 
 /**
  * Adapter for publishing user registration events to Kafka.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Slf4j
 @Component

@@ -6,7 +6,6 @@ import ru.kubsu.borshchevyk.auth.domain.exception.IncorrectInputFormatException;
  * Value object representing a user tag.
  *
  * @param value the tag value string
- * @author Aleksey Timko
  */
 public record Tag(String value) {
     /**

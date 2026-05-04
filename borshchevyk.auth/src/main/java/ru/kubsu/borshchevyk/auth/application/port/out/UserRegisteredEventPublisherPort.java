@@ -4,9 +4,6 @@ import ru.kubsu.borshchevyk.auth.domain.event.UserRegisteredEvent;
 
 /**
  * Port for publishing user registration events.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 public interface UserRegisteredEventPublisherPort {
     /**

@@ -10,6 +10,16 @@ service UserService {
   rpc GetUserInfo (UserRequest) returns (UserResponse);
   rpc GetUsersBatch (UsersBatchRequest) returns (UsersBatchResponse);
   rpc SearchUsers (SearchUsersRequest) returns (UsersBatchResponse);
+  rpc CheckInvitePermission (CheckInvitePermissionRequest) returns (CheckInvitePermissionResponse);
+}
+
+message CheckInvitePermissionRequest {
+  string targetUserId = 1;
+  string requesterId = 2;
+}
+
+message CheckInvitePermissionResponse {
+  bool canInvite = 1;
 }
 
 message SearchUsersRequest {

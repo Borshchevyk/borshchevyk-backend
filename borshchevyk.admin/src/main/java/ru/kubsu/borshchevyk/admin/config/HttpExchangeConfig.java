@@ -7,8 +7,6 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Configuration for HttpExchangeRepository to expose HTTP request/response metrics.
- *
- * @author Aleksey Timko
  */
 @Configuration
 public class HttpExchangeConfig {

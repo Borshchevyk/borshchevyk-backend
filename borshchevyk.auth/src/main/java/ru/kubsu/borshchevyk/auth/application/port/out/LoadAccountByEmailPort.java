@@ -7,8 +7,6 @@ import java.util.Optional;
 
 /**
  * Port for loading an account by its email address.
- *
- * @author Aleksey Timko
  */
 public interface LoadAccountByEmailPort {
     /**

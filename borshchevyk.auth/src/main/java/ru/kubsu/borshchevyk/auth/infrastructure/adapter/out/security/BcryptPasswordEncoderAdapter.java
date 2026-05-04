@@ -8,9 +8,6 @@ import ru.kubsu.borshchevyk.auth.application.port.out.PasswordEncoderPort;
 
 /**
  * Adapter for password encoding using BCrypt.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Slf4j
 @Component

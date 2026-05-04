@@ -13,9 +13,6 @@ import ru.kubsu.borshchevyk.auth.domain.model.value.Email;
 
 /**
  * Service for changing user password.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Service
 @RequiredArgsConstructor

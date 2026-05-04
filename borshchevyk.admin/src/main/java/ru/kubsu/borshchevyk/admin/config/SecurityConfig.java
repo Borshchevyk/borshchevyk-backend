@@ -13,8 +13,6 @@ import org.springframework.security.config.Customizer;
 
 /**
  * Security configuration for Spring Boot Admin.
- *
- * @author Aleksey Timko
  */
 @Configuration(proxyBeanMethods = false)
 @EnableWebSecurity

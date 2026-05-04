@@ -4,8 +4,6 @@ import ru.kubsu.borshchevyk.auth.domain.model.account.Account;
 
 /**
  * Port for generating authentication and refresh tokens.
- *
- * @author Aleksey Timko
  */
 public interface TokenGeneratorPort {
     /**

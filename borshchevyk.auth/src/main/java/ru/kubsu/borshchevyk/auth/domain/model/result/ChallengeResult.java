@@ -6,7 +6,6 @@ import lombok.Builder;
  * Result of a challenge generation request.
  *
  * @param challenge The generated challenge string for the user to sign.
- * @author Aleksey Timko
  */
 @Builder
-public record ChallengeResult(String challenge) {}
+public record ChallengeResult(String challenge) { }

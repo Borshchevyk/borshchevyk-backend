@@ -6,22 +6,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import ru.kubsu.borshchevyk.auth.application.port.in.SyncAccountUseCase;
+import ru.kubsu.borshchevyk.auth.application.port.in.SyncAccountDeletedUseCase;
+import ru.kubsu.borshchevyk.auth.application.port.in.SyncAccountUpdatedUseCase;
 import ru.kubsu.borshchevyk.auth.domain.event.UserDeletedEvent;
 import ru.kubsu.borshchevyk.auth.domain.event.UserUpdatedEvent;
 
 /**
  * Adapter for consuming user-related events from Kafka.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class KafkaUserEventConsumerAdapter {
 
-    private final SyncAccountUseCase syncAccountUseCase;
+    private final SyncAccountUpdatedUseCase syncAccountUpdatedUseCase;
+    private final SyncAccountDeletedUseCase syncAccountDeletedUseCase;
     private final ObjectMapper objectMapper;
 
     /**
@@ -34,7 +33,7 @@ public class KafkaUserEventConsumerAdapter {
         log.info("Received UserUpdatedEvent: {}", payload);
         try {
             UserUpdatedEvent event = objectMapper.readValue(payload, UserUpdatedEvent.class);
-            syncAccountUseCase.syncUpdated(event);
+            syncAccountUpdatedUseCase.syncUpdated(event);
             log.info("UserUpdatedEvent processed successfully for user: {}", event.userId());
         } catch (JsonProcessingException e) {
             log.error("Failed to parse UserUpdatedEvent payload: {}", payload, e);
@@ -53,7 +52,7 @@ public class KafkaUserEventConsumerAdapter {
         log.info("Received UserDeletedEvent: {}", payload);
         try {
             UserDeletedEvent event = objectMapper.readValue(payload, UserDeletedEvent.class);
-            syncAccountUseCase.syncDeleted(event);
+            syncAccountDeletedUseCase.syncDeleted(event);
             log.info("UserDeletedEvent processed successfully for user: {}", event.userId());
         } catch (JsonProcessingException e) {
             log.error("Failed to parse UserDeletedEvent payload: {}", payload, e);

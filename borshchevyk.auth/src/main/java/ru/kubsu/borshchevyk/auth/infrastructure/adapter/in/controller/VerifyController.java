@@ -9,21 +9,21 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import ru.kubsu.borshchevyk.auth.application.dto.command.VerifyCommand;
 import ru.kubsu.borshchevyk.auth.application.port.in.VerifyUseCase;
-import org.springframework.http.ProblemDetail;
 import ru.kubsu.borshchevyk.auth.domain.model.result.VerifyResult;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.VerifyRequest;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.response.VerifyResponse;
-import ru.kubsu.borshchevyk.auth.infrastructure.mapper.VerifyMapper;
+import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.mapper.VerifyMapper;
 
 /**
  * REST controller for verifying cryptographic challenges.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -54,7 +54,8 @@ public class VerifyController {
     })
     @PostMapping("/verify")
     public ResponseEntity<VerifyResponse> verify(
-            @Valid @RequestBody VerifyRequest verifyRequest) {
+            @Valid @RequestBody VerifyRequest verifyRequest
+    ) {
         log.info("Verifying challenge for user: {}", verifyRequest.userId());
         VerifyCommand verifyCommand = verifyMapper.toCommand(verifyRequest);
         VerifyResult verifyResult = verifyUseCase.verify(verifyCommand);

@@ -4,8 +4,6 @@ import ru.kubsu.borshchevyk.auth.domain.model.value.AccountId;
 
 /**
  * Port for parsing authentication and refresh tokens.
- *
- * @author Aleksey Timko
  */
 public interface TokenParserPort {
     /**

@@ -2,9 +2,6 @@ package ru.kubsu.borshchevyk.auth.application.port.out;
 
 /**
  * Port for encoding passwords.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 public interface PasswordEncoderPort {
     /**
@@ -18,7 +15,7 @@ public interface PasswordEncoderPort {
     /**
      * Matches a raw password against an encoded password.
      *
-     * @param rawPassword the raw password string
+     * @param rawPassword     the raw password string
      * @param encodedPassword the encoded password string to match against
      * @return true if the passwords match, false otherwise
      */

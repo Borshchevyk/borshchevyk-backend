@@ -13,8 +13,6 @@ import ru.kubsu.borshchevyk.grpc.CreateSavedMessagesResponse;
 /**
  * Adapter for communicating with the Message microservice via gRPC.
  * Responsible for operations like creating saved messages chat for users.
- *
- * @author Aleksey Timko
  */
 @Slf4j
 @Service

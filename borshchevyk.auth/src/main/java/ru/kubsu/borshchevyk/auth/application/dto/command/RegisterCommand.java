@@ -12,8 +12,6 @@ import lombok.Builder;
  * @param passwordHash        client-side password hash
  * @param publicKey           user's public key
  * @param encryptedPrivateKey user's encrypted private key
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Builder
 public record RegisterCommand(
@@ -24,4 +22,5 @@ public record RegisterCommand(
         String passwordHash,
         String publicKey,
         String encryptedPrivateKey
-) { }
+) {
+}

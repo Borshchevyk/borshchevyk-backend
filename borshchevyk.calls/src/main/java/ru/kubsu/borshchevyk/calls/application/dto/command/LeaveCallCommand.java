@@ -1,14 +1,11 @@
 package ru.kubsu.borshchevyk.calls.application.dto.command;
 
 import jakarta.validation.constraints.NotNull;
-import ru.kubsu.borshchevyk.calls.domain.model.CallId;
-import ru.kubsu.borshchevyk.calls.domain.model.UserId;
+import ru.kubsu.borshchevyk.calls.domain.value.CallId;
+import ru.kubsu.borshchevyk.calls.domain.value.UserId;
 
 /**
  * Command to leave an existing call.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 public record LeaveCallCommand(
         @NotNull(message = "Call ID cannot be null")

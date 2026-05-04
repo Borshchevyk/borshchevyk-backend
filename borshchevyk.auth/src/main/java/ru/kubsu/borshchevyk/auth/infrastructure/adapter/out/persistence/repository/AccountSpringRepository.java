@@ -8,9 +8,6 @@ import java.util.UUID;
 
 /**
  * Spring Data JPA repository for {@link AccountJpaEntity}.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 public interface AccountSpringRepository extends JpaRepository<AccountJpaEntity, UUID> {
     /**

@@ -3,6 +3,7 @@ package ru.kubsu.borshchevyk.auth.infrastructure.adapter.out.security;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.kubsu.borshchevyk.auth.application.port.out.SignatureVerifierPort;
+import ru.kubsu.borshchevyk.auth.domain.exception.InvalidSignatureException;
 
 import java.security.KeyFactory;
 import java.security.PublicKey;
@@ -12,9 +13,6 @@ import java.util.Base64;
 
 /**
  * Adapter for verifying cryptographic signatures using RSA.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Component
 @Slf4j
@@ -29,10 +27,9 @@ public class CryptoSignatureVerifierAdapter implements SignatureVerifierPort {
      * @param challenge       the original challenge string
      * @param signature       the base64 encoded signature
      * @param publicKeyBase64 the base64 encoded public key
-     * @return true if the signature is valid, false otherwise
      */
     @Override
-    public boolean verifySignature(String challenge, String signature, String publicKeyBase64) {
+    public void verifySignature(String challenge, String signature, String publicKeyBase64) {
         log.debug("Verifying signature for challenge: {}", challenge);
         try {
             byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyBase64);
@@ -47,10 +44,11 @@ public class CryptoSignatureVerifierAdapter implements SignatureVerifierPort {
             byte[] signatureBytes = Base64.getDecoder().decode(signature);
             boolean isValid = sig.verify(signatureBytes);
             log.debug("Signature verification result: {}", isValid);
-            return isValid;
+            if (!isValid) {
+                throw new InvalidSignatureException();
+            }
         } catch (Exception e) {
-            log.error("Failed to verify signature", e);
-            return false;
+            throw new InvalidSignatureException();
         }
     }
 }

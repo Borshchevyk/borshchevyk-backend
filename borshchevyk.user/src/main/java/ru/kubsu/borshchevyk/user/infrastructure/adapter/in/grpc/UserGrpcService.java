@@ -4,14 +4,18 @@ import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.server.service.GrpcService;
+import ru.kubsu.borshchevyk.grpc.CheckInvitePermissionRequest;
+import ru.kubsu.borshchevyk.grpc.CheckInvitePermissionResponse;
 import ru.kubsu.borshchevyk.grpc.SearchUsersRequest;
 import ru.kubsu.borshchevyk.grpc.UserRequest;
 import ru.kubsu.borshchevyk.grpc.UserResponse;
 import ru.kubsu.borshchevyk.grpc.UserServiceGrpc;
 import ru.kubsu.borshchevyk.grpc.UsersBatchRequest;
 import ru.kubsu.borshchevyk.grpc.UsersBatchResponse;
+import ru.kubsu.borshchevyk.user.application.dto.command.CheckInvitePermissionCommand;
 import ru.kubsu.borshchevyk.user.application.dto.command.GetUsersBatchCommand;
 import ru.kubsu.borshchevyk.user.application.dto.command.SearchUsersCommand;
+import ru.kubsu.borshchevyk.user.application.port.in.CheckInvitePermissionUseCase;
 import ru.kubsu.borshchevyk.user.application.port.in.GetUserProfileUseCase;
 import ru.kubsu.borshchevyk.user.application.port.in.GetUsersBatchUseCase;
 import ru.kubsu.borshchevyk.user.application.port.in.SearchUsersUseCase;
@@ -36,6 +40,7 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
     private final GetUserProfileUseCase getUserProfileUseCase;
     private final GetUsersBatchUseCase getUsersBatchUseCase;
     private final SearchUsersUseCase searchUsersUseCase;
+    private final CheckInvitePermissionUseCase checkInvitePermissionUseCase;
 
     @Override
     public void searchUsers(SearchUsersRequest request, StreamObserver<UsersBatchResponse> responseObserver) {
@@ -131,6 +136,30 @@ public class UserGrpcService extends UserServiceGrpc.UserServiceImplBase {
             log.error("Failed to fetch users batch via gRPC of size: [{}]", request.getUserIdsCount(), e);
             responseObserver.onError(io.grpc.Status.INTERNAL
                     .withDescription("Failed to fetch users batch: " + e.getMessage())
+                    .asRuntimeException());
+        }
+    }
+
+    @Override
+    public void checkInvitePermission(CheckInvitePermissionRequest request, StreamObserver<CheckInvitePermissionResponse> responseObserver) {
+        log.info("Received gRPC request to check invite permission: target=[{}], requester=[{}]", request.getTargetUserId(), request.getRequesterId());
+        try {
+            boolean canInvite = checkInvitePermissionUseCase.checkInvitePermission(CheckInvitePermissionCommand.builder()
+                    .targetUserId(request.getTargetUserId())
+                    .requesterId(request.getRequesterId())
+                    .build());
+
+            CheckInvitePermissionResponse response = CheckInvitePermissionResponse.newBuilder()
+                    .setCanInvite(canInvite)
+                    .build();
+
+            responseObserver.onNext(response);
+            responseObserver.onCompleted();
+            log.info("Successfully processed gRPC request to check invite permission: target=[{}], result=[{}]", request.getTargetUserId(), canInvite);
+        } catch (Exception e) {
+            log.error("Failed to check invite permission via gRPC: target=[{}]", request.getTargetUserId(), e);
+            responseObserver.onError(io.grpc.Status.INTERNAL
+                    .withDescription("Failed to check invite permission: " + e.getMessage())
                     .asRuntimeException());
         }
     }

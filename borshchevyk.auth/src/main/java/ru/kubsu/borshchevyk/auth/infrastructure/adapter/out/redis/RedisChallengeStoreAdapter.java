@@ -13,9 +13,6 @@ import java.util.Optional;
 
 /**
  * Adapter for storing cryptographic challenges in Redis.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Slf4j
 @Component
