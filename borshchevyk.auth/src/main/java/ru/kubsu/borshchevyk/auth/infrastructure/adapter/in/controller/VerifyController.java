@@ -20,7 +20,7 @@ import ru.kubsu.borshchevyk.auth.application.port.in.VerifyUseCase;
 import ru.kubsu.borshchevyk.auth.domain.model.result.VerifyResult;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.VerifyRequest;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.response.VerifyResponse;
-import ru.kubsu.borshchevyk.auth.infrastructure.mapper.VerifyMapper;
+import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.mapper.VerifyMapper;
 
 /**
  * REST controller for verifying cryptographic challenges.

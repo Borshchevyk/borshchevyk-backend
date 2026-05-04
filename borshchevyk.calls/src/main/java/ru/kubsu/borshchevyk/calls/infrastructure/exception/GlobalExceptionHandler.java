@@ -1,4 +1,4 @@
-package ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.exception;
+package ru.kubsu.borshchevyk.calls.infrastructure.exception;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

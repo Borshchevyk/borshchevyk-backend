@@ -1,4 +1,4 @@
-package ru.kubsu.borshchevyk.auth.infrastructure.mapper;
+package ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;

@@ -20,7 +20,7 @@ import ru.kubsu.borshchevyk.auth.application.port.in.LoginUseCase;
 import ru.kubsu.borshchevyk.auth.domain.model.result.LoginResult;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.LoginRequest;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.response.LoginResponse;
-import ru.kubsu.borshchevyk.auth.infrastructure.mapper.LoginMapper;
+import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.mapper.LoginMapper;
 
 /**
  * REST controller for logging in.

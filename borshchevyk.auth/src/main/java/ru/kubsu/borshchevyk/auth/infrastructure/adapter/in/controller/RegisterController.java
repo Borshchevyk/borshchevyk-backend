@@ -20,7 +20,7 @@ import ru.kubsu.borshchevyk.auth.application.port.in.RegisterUseCase;
 import ru.kubsu.borshchevyk.auth.domain.model.result.RegisterResult;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.RegisterRequest;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.response.RegisterResponse;
-import ru.kubsu.borshchevyk.auth.infrastructure.mapper.RegisterMapper;
+import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.mapper.RegisterMapper;
 
 /**
  * REST controller for user registration.

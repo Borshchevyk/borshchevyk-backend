@@ -20,7 +20,7 @@ import ru.kubsu.borshchevyk.auth.application.port.in.ChallengeUseCase;
 import ru.kubsu.borshchevyk.auth.domain.model.result.ChallengeResult;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.ChallengeRequest;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.response.ChallengeResponse;
-import ru.kubsu.borshchevyk.auth.infrastructure.mapper.ChallengeMapper;
+import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.mapper.ChallengeMapper;
 
 /**
  * REST controller for generating cryptographic challenges.

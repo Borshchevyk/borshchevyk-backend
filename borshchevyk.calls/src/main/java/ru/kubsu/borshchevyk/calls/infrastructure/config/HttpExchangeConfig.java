@@ -1,4 +1,4 @@
-package ru.kubsu.borshchevyk.calls.config;
+package ru.kubsu.borshchevyk.calls.infrastructure.config;
 
 import org.springframework.boot.actuate.web.exchanges.HttpExchangeRepository;
 import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;

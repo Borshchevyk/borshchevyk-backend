@@ -1,4 +1,4 @@
-package ru.kubsu.borshchevyk.auth.config;
+package ru.kubsu.borshchevyk.auth.infrastructure.config;
 
 import org.springframework.boot.actuate.web.exchanges.HttpExchangeRepository;
 import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;

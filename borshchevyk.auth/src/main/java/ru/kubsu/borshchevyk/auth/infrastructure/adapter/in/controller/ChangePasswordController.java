@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.kubsu.borshchevyk.auth.application.dto.command.ChangePasswordCommand;
 import ru.kubsu.borshchevyk.auth.application.port.in.ChangePasswordUseCase;
 import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.dto.request.ChangePasswordRequest;
-import ru.kubsu.borshchevyk.auth.infrastructure.mapper.ChangePasswordMapper;
+import ru.kubsu.borshchevyk.auth.infrastructure.adapter.in.mapper.ChangePasswordMapper;
 
 /**
  * REST controller for changing passwords.
