@@ -10,7 +10,7 @@ import ru.kubsu.borshchevyk.grpc.UserResponse;
 import java.util.UUID;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface UserMapper {
+public interface GrpcUserMapper {
 
     @Mapping(target = "id", source = "userId", qualifiedByName = "mapId")
     @Mapping(target = "avatarUrl", source = "avatarUrl", qualifiedByName = "mapAvatar")

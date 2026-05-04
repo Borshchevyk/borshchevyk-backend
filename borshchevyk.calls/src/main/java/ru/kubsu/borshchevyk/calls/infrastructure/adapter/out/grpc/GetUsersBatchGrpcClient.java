@@ -5,7 +5,7 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Component;
 import ru.kubsu.borshchevyk.calls.application.port.out.GetUsersBatchPort;
 import ru.kubsu.borshchevyk.calls.domain.model.User;
-import ru.kubsu.borshchevyk.calls.infrastructure.adapter.out.grpc.mapper.UserMapper;
+import ru.kubsu.borshchevyk.calls.infrastructure.adapter.out.grpc.mapper.GrpcUserMapper;
 import ru.kubsu.borshchevyk.grpc.UserResponse;
 import ru.kubsu.borshchevyk.grpc.UserServiceGrpc;
 import ru.kubsu.borshchevyk.grpc.UsersBatchRequest;
@@ -20,13 +20,13 @@ public class GetUsersBatchGrpcClient implements GetUsersBatchPort {
     @GrpcClient("user-service")
     private UserServiceGrpc.UserServiceBlockingStub userServiceStub;
 
-    private final UserMapper userMapper;
+    private final GrpcUserMapper grpcUserMapper;
 
     public List<User> getUsersBatch(List<UUID> userIds) {
         UsersBatchRequest request = UsersBatchRequest.newBuilder()
                 .addAllUserIds(userIds.stream().map(UUID::toString).toList())
                 .build();
         List<UserResponse> userResponses = userServiceStub.getUsersBatch(request).getUsersList();
-        return userResponses.stream().map(userMapper::toDomain).toList();
+        return userResponses.stream().map(grpcUserMapper::toDomain).toList();
     }
 }

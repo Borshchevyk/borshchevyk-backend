@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING,
-        uses = UserMapper.class
+        uses = WebUserMapper.class
 )
 public abstract class CallMapper {
 
@@ -27,7 +27,7 @@ public abstract class CallMapper {
     protected GetUsersBatchPort getUsersBatchPort;
 
     @Autowired
-    protected UserMapper userMapper;
+    protected WebUserMapper webUserMapper;
 
     @Mapping(target = "id", source = "id", qualifiedByName = "mapCallId")
     @Mapping(target = "initiator", expression = "java(getInitiatorInfo(call))")
@@ -41,7 +41,7 @@ public abstract class CallMapper {
 
     protected UserResponse getInitiatorInfo(Call call) {
         var user = getUserInfoPort.getUserInfo(call.getInitiatorId().value());
-        return userMapper.toDto(user);
+        return webUserMapper.toDto(user);
     }
 
     protected Set<UserResponse> getParticipantsInfo(Call call) {
@@ -49,7 +49,7 @@ public abstract class CallMapper {
         var users = getUsersBatchPort.getUsersBatch(userIds);
 
         return users.stream()
-                .map(userMapper::toDto)
+                .map(webUserMapper::toDto)
                 .collect(Collectors.toSet());
     }
 }
