@@ -1,8 +1,8 @@
 package ru.kubsu.borshchevyk.calls.application.dto.command;
 
 import jakarta.validation.constraints.NotNull;
-import ru.kubsu.borshchevyk.calls.domain.model.CallId;
-import ru.kubsu.borshchevyk.calls.domain.model.UserId;
+import ru.kubsu.borshchevyk.calls.domain.value.CallId;
+import ru.kubsu.borshchevyk.calls.domain.value.UserId;
 
 /**
  * Command to leave an existing call.

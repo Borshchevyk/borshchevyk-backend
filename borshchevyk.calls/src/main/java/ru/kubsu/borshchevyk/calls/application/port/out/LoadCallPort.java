@@ -1,7 +1,7 @@
 package ru.kubsu.borshchevyk.calls.application.port.out;
 
 import ru.kubsu.borshchevyk.calls.domain.model.Call;
-import ru.kubsu.borshchevyk.calls.domain.model.CallId;
+import ru.kubsu.borshchevyk.calls.domain.value.CallId;
 
 import java.util.Optional;
 
@@ -10,5 +10,4 @@ import java.util.Optional;
  */
 public interface LoadCallPort {
     Optional<Call> loadCall(CallId callId);
-    Optional<Call> loadCallByRoomId(String roomId);
 }

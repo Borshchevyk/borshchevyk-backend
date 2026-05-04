@@ -10,7 +10,6 @@ import ru.kubsu.borshchevyk.auth.domain.exception.AuthServiceException;
 
 import java.util.Locale;
 
-
 @Slf4j
 @ControllerAdvice
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto;
+package ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

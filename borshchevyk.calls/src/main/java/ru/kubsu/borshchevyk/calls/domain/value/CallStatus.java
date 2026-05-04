@@ -1,4 +1,4 @@
-package ru.kubsu.borshchevyk.calls.domain.model;
+package ru.kubsu.borshchevyk.calls.domain.value;
 
 /**
  * Enum representing the lifecycle status of a Call.

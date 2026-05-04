@@ -1,6 +1,5 @@
-package ru.kubsu.borshchevyk.calls.domain.model;
+package ru.kubsu.borshchevyk.calls.domain.value;
 
-import ru.kubsu.borshchevyk.calls.domain.exception.DomainValidationException;
 import java.util.UUID;
 
 /**
@@ -9,7 +8,7 @@ import java.util.UUID;
 public record CallId(UUID value) {
     public CallId {
         if (value == null) {
-            throw new DomainValidationException("CallId value cannot be null");
+            throw new IllegalArgumentException("CallId value cannot be null");
         }
     }
 

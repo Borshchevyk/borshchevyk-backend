@@ -1,4 +1,4 @@
-package ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto;
+package ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;

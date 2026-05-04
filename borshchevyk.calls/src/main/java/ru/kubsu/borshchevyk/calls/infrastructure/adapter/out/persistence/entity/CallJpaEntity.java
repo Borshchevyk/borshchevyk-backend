@@ -2,7 +2,7 @@ package ru.kubsu.borshchevyk.calls.infrastructure.adapter.out.persistence.entity
 
 import jakarta.persistence.*;
 import lombok.*;
-import ru.kubsu.borshchevyk.calls.domain.model.CallStatus;
+import ru.kubsu.borshchevyk.calls.domain.value.CallStatus;
 
 import java.time.Instant;
 import java.util.HashSet;

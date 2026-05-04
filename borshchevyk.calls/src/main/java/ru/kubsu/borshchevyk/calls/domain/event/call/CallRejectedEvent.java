@@ -1,7 +1,7 @@
 package ru.kubsu.borshchevyk.calls.domain.event.call;
 
 import ru.kubsu.borshchevyk.calls.domain.model.Call;
-import ru.kubsu.borshchevyk.calls.domain.model.UserId;
+import ru.kubsu.borshchevyk.calls.domain.value.UserId;
 
 import java.util.Set;
 import java.util.UUID;

@@ -9,7 +9,7 @@ import java.util.UUID;
  */
 @Builder
 @Schema(description = "Short user information")
-public record UserDto(
+public record UserResponse(
         @Schema(description = "Unique user ID", requiredMode = Schema.RequiredMode.REQUIRED, example = "123e4567-e89b-12d3-a456-426614174000")
         UUID id,
         

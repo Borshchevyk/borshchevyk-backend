@@ -2,7 +2,7 @@ package ru.kubsu.borshchevyk.calls.application.dto.command;
 
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import ru.kubsu.borshchevyk.calls.domain.model.UserId;
+import ru.kubsu.borshchevyk.calls.domain.value.UserId;
 import java.util.Set;
 
 /**

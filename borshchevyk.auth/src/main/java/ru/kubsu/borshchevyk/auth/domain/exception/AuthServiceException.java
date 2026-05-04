@@ -72,7 +72,6 @@ public abstract class AuthServiceException extends RuntimeException {
         SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR);
 
         private final HttpStatus httpStatus;
-        private static final String ERROR_PREFIX = "error.";
 
         ErrorCode(HttpStatus httpStatus) {
             this.httpStatus = httpStatus;
@@ -80,7 +79,7 @@ public abstract class AuthServiceException extends RuntimeException {
 
         @Override
         public String toString() {
-            return ERROR_PREFIX + this.name().toUpperCase();
+            return this.name().toUpperCase();
         }
     }
 }

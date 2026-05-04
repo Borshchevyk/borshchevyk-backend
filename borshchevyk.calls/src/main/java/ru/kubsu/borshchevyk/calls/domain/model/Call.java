@@ -2,6 +2,10 @@ package ru.kubsu.borshchevyk.calls.domain.model;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NonNull;
+import ru.kubsu.borshchevyk.calls.domain.value.CallId;
+import ru.kubsu.borshchevyk.calls.domain.value.CallStatus;
+import ru.kubsu.borshchevyk.calls.domain.value.UserId;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -17,6 +21,7 @@ import java.util.stream.Collectors;
 public class Call {
     private final CallId id;
     private final String roomId;
+    @NonNull
     private final UserId initiatorId;
     private CallStatus status;
     private final Instant createdAt;

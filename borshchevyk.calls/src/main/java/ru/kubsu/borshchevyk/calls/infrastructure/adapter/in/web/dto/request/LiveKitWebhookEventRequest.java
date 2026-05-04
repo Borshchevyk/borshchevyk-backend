@@ -1,4 +1,4 @@
-package ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto;
+package ru.kubsu.borshchevyk.calls.infrastructure.adapter.in.web.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Schema(description = "LiveKit webhook event payload")
-public record LiveKitWebhookEventDto(
+public record LiveKitWebhookEventRequest(
         @Schema(description = "Type of the event", example = "participant_joined")
         String event,
         
