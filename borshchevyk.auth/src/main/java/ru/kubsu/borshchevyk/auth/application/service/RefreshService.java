@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.kubsu.borshchevyk.auth.application.dto.command.RefreshCommand;
 import ru.kubsu.borshchevyk.auth.application.port.in.RefreshUseCase;
-import ru.kubsu.borshchevyk.auth.application.port.out.LoadAccountPort;
+import ru.kubsu.borshchevyk.auth.application.port.out.LoadAccountByIdPort;
 import ru.kubsu.borshchevyk.auth.application.port.out.TokenGeneratorPort;
 import ru.kubsu.borshchevyk.auth.application.port.out.TokenParserPort;
 import ru.kubsu.borshchevyk.auth.domain.exception.InvalidCredentialsException;
@@ -20,14 +20,14 @@ import ru.kubsu.borshchevyk.auth.domain.model.value.AccountId;
 public class RefreshService implements RefreshUseCase {
 
     private final TokenParserPort tokenParserPort;
-    private final LoadAccountPort loadAccountPort;
+    private final LoadAccountByIdPort loadAccountByIdPort;
     private final TokenGeneratorPort tokenGeneratorPort;
 
     @Override
     public VerifyResult refresh(RefreshCommand command) {
         try {
             AccountId accountId = tokenParserPort.parseRefreshToken(command.refreshToken());
-            Account account = loadAccountPort.loadAccount(accountId)
+            Account account = loadAccountByIdPort.loadAccountById(accountId)
                     .orElseThrow(InvalidCredentialsException::new);
 
             return VerifyResult.builder()

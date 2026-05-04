@@ -8,6 +8,6 @@ public class AccountNotFoundException extends AuthServiceException {
      * Constructs a new AccountNotFoundException with a default error message.
      */
     public AccountNotFoundException() {
-        super(ErrorCode.ACCOUNT_NOT_FOUND, "Account not found.");
+        super(ErrorCode.ACCOUNT_NOT_FOUND);
     }
 }

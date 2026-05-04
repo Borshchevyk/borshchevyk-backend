@@ -8,6 +8,6 @@ public class InvalidSignatureException extends AuthServiceException {
      * Constructs a new InvalidSignatureException with a default error message.
      */
     public InvalidSignatureException() {
-        super(ErrorCode.INVALID_SIGNATURE, "Invalid cryptographic signature.");
+        super(ErrorCode.INVALID_SIGNATURE);
     }
 }

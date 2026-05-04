@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.kubsu.borshchevyk.auth.application.port.in.SyncAccountDeletedUseCase;
 import ru.kubsu.borshchevyk.auth.application.port.out.DeleteAccountPort;
-import ru.kubsu.borshchevyk.auth.application.port.out.LoadAccountPort;
+import ru.kubsu.borshchevyk.auth.application.port.out.LoadAccountByIdPort;
 import ru.kubsu.borshchevyk.auth.application.port.out.SaveAccountPort;
 import ru.kubsu.borshchevyk.auth.domain.event.UserDeletedEvent;
 import ru.kubsu.borshchevyk.auth.domain.model.value.AccountId;
@@ -16,8 +16,6 @@ import ru.kubsu.borshchevyk.auth.domain.model.value.AccountId;
 @RequiredArgsConstructor
 public class SyncAccountDeletedService implements SyncAccountDeletedUseCase {
 
-    private final LoadAccountPort loadAccountPort;
-    private final SaveAccountPort saveAccountPort;
     private final DeleteAccountPort deleteAccountPort;
 
     @Override

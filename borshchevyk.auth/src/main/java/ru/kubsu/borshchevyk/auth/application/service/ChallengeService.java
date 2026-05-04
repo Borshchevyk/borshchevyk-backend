@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.kubsu.borshchevyk.auth.application.dto.command.ChallengeCommand;
 import ru.kubsu.borshchevyk.auth.application.port.in.ChallengeUseCase;
 import ru.kubsu.borshchevyk.auth.application.port.out.ChallengeStorePort;
-import ru.kubsu.borshchevyk.auth.application.port.out.LoadAccountPort;
+import ru.kubsu.borshchevyk.auth.application.port.out.LoadAccountByIdPort;
 import ru.kubsu.borshchevyk.auth.domain.exception.InvalidCredentialsException;
 import ru.kubsu.borshchevyk.auth.domain.model.result.ChallengeResult;
 import ru.kubsu.borshchevyk.auth.domain.model.value.AccountId;
@@ -19,14 +19,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChallengeService implements ChallengeUseCase {
 
-    private final LoadAccountPort loadAccountPort;
+    private final LoadAccountByIdPort loadAccountByIdPort;
     private final ChallengeStorePort challengeStorePort;
 
     @Override
     public ChallengeResult challenge(ChallengeCommand command) {
         AccountId accountId = new AccountId(command.userId());
         
-        loadAccountPort.loadAccount(accountId)
+        loadAccountByIdPort.loadAccountById(accountId)
                 .orElseThrow(InvalidCredentialsException::new);
 
         String generatedChallenge = UUID.randomUUID().toString();

@@ -12,5 +12,5 @@ public interface SignatureVerifierPort {
      * @param publicKey the public key to use for verification
      * @return true if the signature is valid, false otherwise
      */
-    boolean verifySignature(String challenge, String signature, String publicKey);
+    void verifySignature(String challenge, String signature, String publicKey);
 }

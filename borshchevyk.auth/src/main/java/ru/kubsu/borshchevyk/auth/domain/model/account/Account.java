@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import ru.kubsu.borshchevyk.auth.domain.exception.IncorrectInputFormatException;
+import ru.kubsu.borshchevyk.auth.domain.exception.InvalidCredentialsException;
 import ru.kubsu.borshchevyk.auth.domain.model.value.AccountId;
 import ru.kubsu.borshchevyk.auth.domain.model.value.Email;
 import ru.kubsu.borshchevyk.auth.domain.model.value.Tag;
@@ -57,7 +59,7 @@ public class Account {
      */
     public void updateEmail(Email newEmail) {
         if (newEmail == null) {
-            throw new IllegalArgumentException("Email cannot be null");
+            throw new IncorrectInputFormatException(IncorrectInputFormatException.InputFormat.EMAIL);
         }
         this.email = newEmail;
     }
@@ -69,7 +71,7 @@ public class Account {
      */
     public void updateTag(Tag newTag) {
         if (newTag == null) {
-            throw new IllegalArgumentException("Tag cannot be null");
+            throw new IncorrectInputFormatException(IncorrectInputFormatException.InputFormat.TAG);
         }
         this.tag = newTag;
     }
@@ -81,7 +83,7 @@ public class Account {
      */
     public void updatePasswordHash(String newPasswordHash) {
         if (newPasswordHash == null || newPasswordHash.isBlank()) {
-            throw new IllegalArgumentException("Password hash cannot be empty");
+            throw new IncorrectInputFormatException(IncorrectInputFormatException.InputFormat.PASSWORD);
         }
         this.passwordHash = newPasswordHash;
     }

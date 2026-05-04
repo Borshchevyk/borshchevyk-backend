@@ -1,79 +1,45 @@
 package ru.kubsu.borshchevyk.auth.infrastructure.exception;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ProblemDetail;
+import org.springframework.context.MessageSource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import ru.kubsu.borshchevyk.auth.domain.exception.*;
+import ru.kubsu.borshchevyk.auth.domain.exception.AuthServiceException;
 
-import java.time.Instant;
+import java.util.Locale;
 
-/**
- * Global exception handler for the authentication microservice.
- */
+
 @Slf4j
 @ControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ProblemDetail handleAlreadyExists(UserAlreadyExistsException ex) {
-        log.warn("User already exists: {}", ex.getMessage());
-        return createProblemDetail(HttpStatus.CONFLICT, "User Already Exists", ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ProblemDetail handleInvalidCredentials(InvalidCredentialsException ex) {
-        log.warn("Invalid credentials: {}", ex.getMessage());
-        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Invalid Credentials", ex.getMessage());
-    }
-
-    @ExceptionHandler(AccountNotFoundException.class)
-    public ProblemDetail handleAccountNotFound(AccountNotFoundException ex) {
-        log.warn("Account not found: {}", ex.getMessage());
-        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Account Not Found", ex.getMessage());
-    }
-
-    @ExceptionHandler(ChallengeExpiredException.class)
-    public ProblemDetail handleChallengeExpired(ChallengeExpiredException ex) {
-        log.warn("Challenge expired: {}", ex.getMessage());
-        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Challenge Expired", ex.getMessage());
-    }
-
-    @ExceptionHandler(InvalidSignatureException.class)
-    public ProblemDetail handleInvalidSignature(InvalidSignatureException ex) {
-        log.warn("Invalid signature: {}", ex.getMessage());
-        return createProblemDetail(HttpStatus.UNAUTHORIZED, "Invalid Signature", ex.getMessage());
-    }
-
-    @ExceptionHandler(IncorrectInputFormatException.class)
-    public ProblemDetail handleIncorrectInputFormat(IncorrectInputFormatException ex) {
-        log.warn("Incorrect input format: {}", ex.getMessage());
-        return createProblemDetail(HttpStatus.BAD_REQUEST, "Incorrect Input Format", ex.getMessage());
-    }
+    private final MessageSource messageSource;
 
     @ExceptionHandler(AuthServiceException.class)
-    public ProblemDetail handleAuthServiceException(AuthServiceException ex) {
-        log.error("Auth service exception: {}", ex.getMessage());
-        return createProblemDetail(HttpStatus.BAD_REQUEST, "Auth Service Error", ex.getMessage());
-    }
+    public ResponseEntity<AuthServiceException.ErrorResponse> handleAuthException(AuthServiceException ex, Locale locale) {
+        log.error("Auth error [{}]: {}", ex.getCode(), ex.getMessage());
 
-    @ExceptionHandler(MessagingSerializationException.class)
-    public ProblemDetail handleMessagingSerializationException(MessagingSerializationException ex) {
-        log.error("Messaging serialization exception", ex);
-        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Serialization Error", ex.getMessage());
+        String translatedMessage = messageSource.getMessage(
+                ex.getCode().toString(),
+                ex.getArgs(),
+                locale
+        );
+
+        AuthServiceException.ErrorResponse body = new AuthServiceException.ErrorResponse(
+                ex.getCode(),
+                translatedMessage,
+                ex.getInstant()
+        );
+
+        return ResponseEntity.status(ex.getHttpStatus()).body(body);
     }
 
     @ExceptionHandler(Exception.class)
-    public ProblemDetail handleGeneralException(Exception ex) {
-        log.error("Unexpected error occurred", ex);
-        return createProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "An unexpected error occurred");
-    }
-
-    private ProblemDetail createProblemDetail(HttpStatus status, String title, String detail) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, detail);
-        problemDetail.setTitle(title);
-        problemDetail.setProperty("timestamp", Instant.now());
-        return problemDetail;
+    public void handleGeneralException(Exception ex) {
+        log.error("Unexpected error", ex);
+        throw AuthServiceException.getDefaultException();
     }
 }
