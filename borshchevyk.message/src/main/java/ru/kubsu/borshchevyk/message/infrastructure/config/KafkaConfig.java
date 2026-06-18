@@ -8,10 +8,6 @@ import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
 @Configuration
 public class KafkaConfig {
 
@@ -20,7 +16,6 @@ public class KafkaConfig {
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(template,
                 (record, ex) -> new TopicPartition(record.topic() + ".DLT", record.partition()));
 
-        // Retry 3 times with 2 seconds interval
         return new DefaultErrorHandler(recoverer, new FixedBackOff(2000L, 3));
     }
 }

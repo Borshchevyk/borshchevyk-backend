@@ -4,9 +4,6 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * @author Aleksey Timko
- */
 public class ChatMemberId implements Serializable {
     private UUID chatId;
     private UUID userId;

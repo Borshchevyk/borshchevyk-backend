@@ -8,24 +8,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
+import ru.kubsu.borshchevyk.message.application.dto.command.JoinChatByLinkCommand;
+import ru.kubsu.borshchevyk.message.application.dto.query.GenerateInviteLinkQuery;
 import ru.kubsu.borshchevyk.message.application.port.in.GenerateInviteLinkUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.JoinChatByLinkUseCase;
-import ru.kubsu.borshchevyk.message.application.port.out.ChatEventPublisherPort;
+import ru.kubsu.borshchevyk.message.application.port.out.PublishChatEventPort;
+import ru.kubsu.borshchevyk.message.domain.event.chat.ChatMemberEvent;
 import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ChatResponse;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatEnrichmentService;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatFacade;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService;
-import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ChatMemberEvent;
 
 import java.util.UUID;
 
-/**
- * Controller for managing chat invites.
- *
- * @author Aleksey Timko
- */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/chats")
@@ -37,7 +34,7 @@ public class ChatInviteController {
     private final JoinChatByLinkUseCase joinChatByLinkUseCase;
     private final ChatFacade chatFacade;
     private final SimpMessagingTemplate messagingTemplate;
-    private final ChatEventPublisherPort chatEventPublisherPort;
+    private final PublishChatEventPort PublishChatEventPort;
     private final ChatEnrichmentService chatEnrichmentService;
     private final UserEnrichmentService userEnrichmentService;
 
@@ -50,7 +47,8 @@ public class ChatInviteController {
             @PathVariable UUID chatId,
             @RequestHeader("X-User-Id") UUID requesterId) {
         log.info("Request to generate invite link for chat {} from user {}", chatId, requesterId);
-        return generateInviteLinkUseCase.generateInviteLink(chatId, requesterId);
+        GenerateInviteLinkQuery query = new GenerateInviteLinkQuery(chatId, requesterId);
+        return generateInviteLinkUseCase.generateInviteLink(query);
     }
 
     @Operation(summary = "Join chat by link", description = "Joins a chat using an invite code.")
@@ -62,11 +60,12 @@ public class ChatInviteController {
             @PathVariable String inviteCode,
             @RequestHeader("X-User-Id") UUID userId) {
         log.info("Request to join chat by link from user {}", userId);
-        Chat chat = joinChatByLinkUseCase.joinChatByLink(inviteCode, userId);
+        JoinChatByLinkCommand command = new JoinChatByLinkCommand(inviteCode, userId);
+        Chat chat = joinChatByLinkUseCase.joinChatByLink(command);
         messagingTemplate.convertAndSend("/topic/chat/" + chat.getId().value() + "/members",
                 new ChatMemberEvent(chatEnrichmentService.enrichChat(chat.getId().value(), userId), userEnrichmentService.enrichUser(userId), "JOIN"));
         
-        chatEventPublisherPort.publishChatEvent(
+        PublishChatEventPort.publishChatEvent(
                 new UserId(userId), 
                 chat.getId(), 
                 "JOINED"

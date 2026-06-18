@@ -15,11 +15,6 @@ import ru.kubsu.borshchevyk.message.application.port.in.UnpinChatUseCase;
 
 import java.util.UUID;
 
-/**
- * Controller for managing chat pins.
- *
- * @author Aleksey Timko
- */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/chats")

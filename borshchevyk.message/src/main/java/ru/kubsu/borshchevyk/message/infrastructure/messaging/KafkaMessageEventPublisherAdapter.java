@@ -9,18 +9,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import ru.kubsu.borshchevyk.message.application.port.out.MessageEventPublisherPort;
-import ru.kubsu.borshchevyk.message.domain.event.MessageCreatedEvent;
-import ru.kubsu.borshchevyk.message.domain.event.MessageDeletedEvent;
-import ru.kubsu.borshchevyk.message.domain.model.message.Message;
+import ru.kubsu.borshchevyk.message.domain.event.message.MessageCreatedEvent;
+import ru.kubsu.borshchevyk.message.domain.event.message.MessageDeletedEvent;
 import ru.kubsu.borshchevyk.message.domain.exception.MessagingSerializationException;
+import ru.kubsu.borshchevyk.message.domain.model.message.Message;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor

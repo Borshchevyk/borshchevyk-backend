@@ -6,11 +6,6 @@ import ru.kubsu.borshchevyk.message.domain.model.chat.ChatType;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Command to create a new chat.
- *
- * @author Aleksey Timko
- */
 @Builder
 public record CreateChatCommand(
     UUID creatorId,
@@ -19,5 +14,4 @@ public record CreateChatCommand(
     String description,
     boolean commentsEnabled,
     List<UUID> initialMemberIds
-) {
-}
+) { }

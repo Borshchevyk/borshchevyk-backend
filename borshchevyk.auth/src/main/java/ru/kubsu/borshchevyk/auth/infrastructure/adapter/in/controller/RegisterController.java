@@ -59,7 +59,7 @@ public class RegisterController {
     public ResponseEntity<RegisterResponse> register(
             @Valid @RequestBody RegisterRequest registerRequest
     ) {
-        log.info("Registering user"); // Removed PII (email)
+        log.info("Registering user");
         RegisterCommand registerCommand = registerMapper.toCommand(registerRequest);
         RegisterResult registerResult = registerUseCase.register(registerCommand);
         RegisterResponse registerResponse = registerMapper.toResponse(registerResult);

@@ -7,11 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-/**
- * Domain model representing an attachment within a Message.
- *
- * @author Aleksey Timko
- */
 @Data
 @Builder
 @NoArgsConstructor

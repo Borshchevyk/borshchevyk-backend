@@ -1,4 +1,5 @@
 package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade;
+import ru.kubsu.borshchevyk.message.domain.exception.*;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,10 +11,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
+
+import ru.kubsu.borshchevyk.grpc.UserResponse;
+
 @Service
 @RequiredArgsConstructor
 public class UserEnrichmentService {

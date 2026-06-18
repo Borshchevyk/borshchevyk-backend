@@ -18,12 +18,10 @@ import ru.kubsu.borshchevyk.message.application.dto.command.InviteUserCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.KickUserCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.LeaveChatCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.UpdatePermissionsCommand;
-import ru.kubsu.borshchevyk.message.application.port.in.InviteUserUseCase;
-import ru.kubsu.borshchevyk.message.application.port.in.KickUserUseCase;
-import ru.kubsu.borshchevyk.message.application.port.in.LeaveChatUseCase;
-import ru.kubsu.borshchevyk.message.application.port.in.LoadChatMembersUseCase;
-import ru.kubsu.borshchevyk.message.application.port.in.UpdateMemberPermissionsUseCase;
-import ru.kubsu.borshchevyk.message.application.port.out.ChatEventPublisherPort;
+import ru.kubsu.borshchevyk.message.application.dto.query.LoadChatMembersQuery;
+import ru.kubsu.borshchevyk.message.application.port.in.*;
+import ru.kubsu.borshchevyk.message.application.port.out.PublishChatEventPort;
+import ru.kubsu.borshchevyk.message.domain.event.chat.ChatMemberEvent;
 import ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
@@ -35,17 +33,11 @@ import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatEnr
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.mapper.PresentationChatMapper;
 import ru.kubsu.borshchevyk.message.infrastructure.exception.MessageErrorResponse;
-import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ChatMemberEvent;
 
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Controller for managing chat members and permissions.
- *
- * @author Aleksey Timko
- */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/chats")
@@ -60,7 +52,7 @@ public class ChatMemberController {
     private final LoadChatMembersUseCase loadChatMembersUseCase;
     private final PresentationChatMapper presentationChatMapper;
     private final SimpMessagingTemplate messagingTemplate;
-    private final ChatEventPublisherPort chatEventPublisherPort;
+    private final PublishChatEventPort PublishChatEventPort;
     private final ChatEnrichmentService chatEnrichmentService;
     private final UserEnrichmentService userEnrichmentService;
 
@@ -76,7 +68,8 @@ public class ChatMemberController {
             @RequestParam(defaultValue = "50") int size) {
         log.info("Request to get members for chat {} from user {} page {} size {}", chatId, requesterId, page, size);
         Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
-        Page<ChatMember> membersPage = loadChatMembersUseCase.loadChatMembers(chatId, requesterId, pageable);
+        LoadChatMembersQuery query = new LoadChatMembersQuery(chatId, requesterId, pageable);
+        Page<ChatMember> membersPage = loadChatMembersUseCase.loadChatMembers(query);
         
         List<UUID> userIds = membersPage.getContent().stream()
                 .map(m -> m.getUserId().value())
@@ -124,7 +117,7 @@ public class ChatMemberController {
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
                 new ChatMemberEvent(chatEnrichmentService.enrichChat(chatId, requesterId), userEnrichmentService.enrichUser(request.targetUserId()), "JOIN"));
         
-        chatEventPublisherPort.publishChatEvent(
+        PublishChatEventPort.publishChatEvent(
                 new UserId(request.targetUserId()), 
                 new ChatId(chatId), 
                 "JOINED"
@@ -154,7 +147,7 @@ public class ChatMemberController {
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
                 new ChatMemberEvent(chatEnrichmentService.enrichChat(chatId, requesterId), userEnrichmentService.enrichUser(targetUserId), "LEAVE"));
         
-        chatEventPublisherPort.publishChatEvent(
+        PublishChatEventPort.publishChatEvent(
                 new UserId(targetUserId), 
                 new ChatId(chatId), 
                 "KICKED"
@@ -180,7 +173,7 @@ public class ChatMemberController {
         messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
                 new ChatMemberEvent(chatEnrichmentService.enrichChat(chatId, requesterId), userEnrichmentService.enrichUser(requesterId), "LEAVE"));
         
-        chatEventPublisherPort.publishChatEvent(
+        PublishChatEventPort.publishChatEvent(
                 new UserId(requesterId), 
                 new ChatId(chatId), 
                 "LEFT"
@@ -212,7 +205,7 @@ public class ChatMemberController {
         
         updateMemberPermissionsUseCase.updatePermissions(command);
         
-        chatEventPublisherPort.publishChatEvent(
+        PublishChatEventPort.publishChatEvent(
                 new UserId(targetUserId), 
                 new ChatId(chatId), 
                 "PERMISSIONS_UPDATED"

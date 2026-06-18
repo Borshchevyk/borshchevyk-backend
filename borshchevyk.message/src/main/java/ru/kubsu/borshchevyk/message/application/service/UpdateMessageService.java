@@ -4,12 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import ru.kubsu.borshchevyk.message.application.dto.command.UpdateMessageCommand;
 import ru.kubsu.borshchevyk.message.application.port.in.UpdateMessageUseCase;
-import ru.kubsu.borshchevyk.message.application.port.out.ChatMemberPort;
-import ru.kubsu.borshchevyk.message.application.port.out.MessageEventPublisherPort;
-import ru.kubsu.borshchevyk.message.application.port.out.MessagePort;
+import ru.kubsu.borshchevyk.message.application.port.out.*;
 import ru.kubsu.borshchevyk.message.domain.exception.ForbiddenActionException;
 import ru.kubsu.borshchevyk.message.domain.exception.MessageNotFoundException;
 import ru.kubsu.borshchevyk.message.domain.exception.UserNotInChatException;
@@ -18,27 +15,22 @@ import ru.kubsu.borshchevyk.message.domain.model.message.Message;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.MessageId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
-import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * UpdateMessageService implementation.
- *
- * @author Aleksey Timko
- * @since 2026-05-01
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UpdateMessageService implements UpdateMessageUseCase {
 
-    private final MessagePort messagePort;
-    private final ChatMemberPort chatMemberPort;
-    private final MessageEventPublisherPort messageEventPublisherPort;
-    private final RealtimeNotificationPort realtimeNotificationPort;
+    private final SaveMessagePort saveMessagePort;
+    private final LoadMessagePort loadMessagePort;
+    private final LoadChatMemberPort loadChatMemberPort;
+    private final NotifyUserPort notifyUserPort;
+
+    private final LoadChatMembersPort loadChatMembersPort;
 
     @Override
     @Transactional
@@ -49,14 +41,14 @@ public class UpdateMessageService implements UpdateMessageUseCase {
         ChatId chatId = new ChatId(command.chatId());
         UserId requesterId = new UserId(command.requesterId());
 
-        Message message = messagePort.findById(messageId)
+        Message message = loadMessagePort.findById(messageId)
                 .orElseThrow(() -> new MessageNotFoundException("Message not found with id: " + command.messageId()));
 
         if (!message.getChatId().equals(chatId)) {
             throw new IllegalArgumentException("Message does not belong to this chat");
         }
 
-        ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
+        loadChatMemberPort.findByChatIdAndUserId(chatId, requesterId)
                 .orElseThrow(() -> new UserNotInChatException("User is not a member of the chat"));
 
         if (!message.getAuthorId().equals(requesterId)) {
@@ -65,14 +57,13 @@ public class UpdateMessageService implements UpdateMessageUseCase {
 
         message.setText(command.text());
         message.setUpdatedAt(LocalDateTime.now());
-        Message updatedMessage = messagePort.save(message);
+        Message updatedMessage = saveMessagePort.save(message);
 
-        List<ChatMember> members = chatMemberPort.findByChatId(chatId);
+        List<ChatMember> members = loadChatMembersPort.findByChatId(chatId);
         List<String> memberIds = members.stream().map(m -> m.getUserId().value().toString()).collect(Collectors.toList());
 
-        // Notify via WebSockets directly here for updates (or through a new publishMessageUpdatedEvent method if needed)
         for (String targetId : memberIds) {
-            realtimeNotificationPort.notifyUser(new UserId(java.util.UUID.fromString(targetId)), updatedMessage);
+            notifyUserPort.notifyUser(new UserId(java.util.UUID.fromString(targetId)), updatedMessage);
         }
 
         log.info("Message updated successfully with ID: {}", updatedMessage.getId().value());

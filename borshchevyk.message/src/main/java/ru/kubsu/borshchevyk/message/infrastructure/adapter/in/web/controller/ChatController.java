@@ -11,38 +11,27 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.message.application.dto.command.ClearChatHistoryCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.CreateChatCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.DeleteChatCommand;
+import ru.kubsu.borshchevyk.message.application.dto.query.LoadUserChatsQuery;
 import ru.kubsu.borshchevyk.message.application.port.in.ClearChatHistoryUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.CreateChatUseCase;
-import ru.kubsu.borshchevyk.message.application.port.in.CreatePrivateChatUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.DeleteChatUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.LoadUserChatsUseCase;
-import ru.kubsu.borshchevyk.message.application.port.out.ChatEventPublisherPort;
 import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
-import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
+import ru.kubsu.borshchevyk.message.domain.model.chat.ChatType;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request.CreateChatRequest;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request.CreatePrivateChatRequest;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ChatResponse;
-import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatEnrichmentService;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatFacade;
-import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService;
 import ru.kubsu.borshchevyk.message.infrastructure.exception.MessageErrorResponse;
-import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ChatMemberEvent;
 
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Controller for managing chats.
- * Handles HTTP requests for creation, deletion, and history clearance.
- *
- * @author Aleksey Timko
- */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/chats")
@@ -55,10 +44,6 @@ public class ChatController {
     private final DeleteChatUseCase deleteChatUseCase;
     private final LoadUserChatsUseCase loadUserChatsUseCase;
     private final ChatFacade chatFacade;
-    private final SimpMessagingTemplate messagingTemplate;
-    private final ChatEventPublisherPort chatEventPublisherPort;
-    private final ChatEnrichmentService chatEnrichmentService;
-    private final UserEnrichmentService userEnrichmentService;
 
     @Operation(summary = "Create a new chat", description = "Creates a new chat with the given type, title, description, and initial members.")
     @ApiResponses(value = {
@@ -83,19 +68,6 @@ public class ChatController {
         
         Chat chat = createChatUseCase.createChat(command);
 
-        if (request.initialMemberIds() != null) {
-            for (UUID memberId : request.initialMemberIds()) {
-                messagingTemplate.convertAndSend("/topic/chat/" + chat.getId().value() + "/members",
-                        new ChatMemberEvent(chatEnrichmentService.enrichChat(chat.getId().value(), userId), userEnrichmentService.enrichUser(memberId), "JOIN"));
-                
-                chatEventPublisherPort.publishChatEvent(
-                        new UserId(memberId), 
-                        chat.getId(), 
-                        "JOINED"
-                );
-            }
-        }
-
         return chatFacade.enrichChatResponse(chat, userId);
     }
 
@@ -111,14 +83,9 @@ public class ChatController {
             @RequestHeader("X-User-Id") @Parameter(description = "ID of the authenticated user") UUID userId,
             @RequestBody CreatePrivateChatRequest request) {
         log.info("Request to create private chat from user {} to user {}", userId, request.targetUserId());
-        
-        Chat chat = ((CreatePrivateChatUseCase) createChatUseCase).createPrivateChat(userId, request.targetUserId());
-        
-        chatEventPublisherPort.publishChatEvent(
-                new UserId(request.targetUserId()), 
-                chat.getId(), 
-                "JOINED"
-        );
+
+        CreateChatCommand command = new CreateChatCommand(userId, ChatType.PRIVATE, null, null, false, List.of(userId, request.targetUserId()));
+        Chat chat = createChatUseCase.createChat(command);
         
         return chatFacade.enrichChatResponse(chat, userId);
     }
@@ -131,7 +98,8 @@ public class ChatController {
     public List<ChatResponse> getUserChats(
             @RequestHeader("X-User-Id") @Parameter(description = "ID of the authenticated user") UUID userId) {
         log.info("Request to get chats for user: {}", userId);
-        List<Chat> chats = loadUserChatsUseCase.loadUserChats(new UserId(userId));
+        LoadUserChatsQuery query = new LoadUserChatsQuery(new UserId(userId));
+        List<Chat> chats = loadUserChatsUseCase.loadUserChats(query);
         return chatFacade.enrichChatResponses(chats, userId);
     }
 

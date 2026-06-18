@@ -6,17 +6,13 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import ru.kubsu.borshchevyk.message.infrastructure.websocket.UserPrincipal;
-import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.TypingEvent;
-import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService;
+import ru.kubsu.borshchevyk.message.domain.event.chat.TypingEvent;
+import ru.kubsu.borshchevyk.message.domain.model.user.UserPrincipal;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto;
+import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService;
 
 import java.util.UUID;
 
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
 @Slf4j
 @Controller
 @RequiredArgsConstructor

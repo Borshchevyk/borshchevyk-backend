@@ -3,20 +3,25 @@ package ru.kubsu.borshchevyk.message.infrastructure.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.kubsu.borshchevyk.message.domain.exception.*;
 
 import java.time.LocalDateTime;
 
-/**
- * Global exception handler for the message service.
- *
- * @author Aleksey Timko
- */
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MessageServiceException.class)
+    public ResponseEntity<MessageErrorResponse> handleMessageServiceException(MessageServiceException ex) {
+        log.error("Domain exception occurred: {}", ex.getCode(), ex);
+        HttpStatus status = switch (ex.getCode()) {
+            case SERVER_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR;
+            default -> HttpStatus.INTERNAL_SERVER_ERROR;
+        };
+        return MessageErrorResponse.buildResponse(status, ex);
+    }
 
     @ExceptionHandler(ChatNotFoundException.class)
     public ResponseEntity<MessageErrorResponse> handleNotFound(ChatNotFoundException ex) {

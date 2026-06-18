@@ -11,10 +11,7 @@ import java.util.UUID;
 @Table(name = "chat_members", indexes = {
         @Index(name = "idx_chat_member_user", columnList = "user_id")
 })
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
+
 @IdClass(ChatMemberId.class)
 @Getter
 @Setter

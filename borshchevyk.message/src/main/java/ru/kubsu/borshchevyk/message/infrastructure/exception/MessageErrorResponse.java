@@ -7,10 +7,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
 @Slf4j
 @Schema(description = "Standard message service error response")
 public record MessageErrorResponse(

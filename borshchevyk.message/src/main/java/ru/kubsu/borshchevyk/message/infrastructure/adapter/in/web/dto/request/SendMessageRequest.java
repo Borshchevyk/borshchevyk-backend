@@ -1,4 +1,5 @@
 package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request;
+import ru.kubsu.borshchevyk.message.domain.exception.*;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
@@ -6,10 +7,6 @@ import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
 @Schema(description = "Request to send a new message")
 public record SendMessageRequest(
         @Schema(description = "Text of the message", example = "Hello, world!", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

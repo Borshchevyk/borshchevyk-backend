@@ -6,22 +6,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.kubsu.borshchevyk.grpc.UserResponse;
+import ru.kubsu.borshchevyk.message.application.dto.query.SearchPublicChatsQuery;
 import ru.kubsu.borshchevyk.message.application.port.in.SearchChatsUseCase;
+import ru.kubsu.borshchevyk.message.domain.model.chat.Chat;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ChatResponse;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.GlobalSearchResponse;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.ChatFacade;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.out.grpc.UserGrpcClient;
-import ru.kubsu.borshchevyk.grpc.UserResponse;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/search")
@@ -40,8 +38,9 @@ public class GlobalSearchController {
             @RequestParam String query,
             @RequestHeader(value = "X-User-Id", required = false) UUID requesterId) {
         log.info("Request to search globally with query: {}", query);
-        
-        List<ru.kubsu.borshchevyk.message.domain.model.chat.Chat> foundChats = searchChatsUseCase.searchPublicChats(query);
+
+        SearchPublicChatsQuery searchPublicChatsQuery = new SearchPublicChatsQuery(query);
+        List<Chat> foundChats = searchChatsUseCase.searchPublicChats(searchPublicChatsQuery);
         List<ChatResponse> chatResponses = chatFacade.enrichChatResponses(foundChats, requesterId);
 
         List<UserResponse> userResponses = userGrpcClient.searchUsers(query, requesterId);

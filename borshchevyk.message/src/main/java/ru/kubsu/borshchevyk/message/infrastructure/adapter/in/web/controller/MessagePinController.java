@@ -10,6 +10,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.message.application.dto.command.PinMessageCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.UnpinMessageCommand;
+import ru.kubsu.borshchevyk.message.application.dto.query.LoadPinnedMessagesQuery;
 import ru.kubsu.borshchevyk.message.application.port.in.LoadPinnedMessagesUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.PinMessageUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.UnpinMessageUseCase;
@@ -20,11 +21,6 @@ import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.mapper.Present
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Controller for managing pinned messages in chats.
- *
- * @author Aleksey Timko
- */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/chats/{chatId}/messages")
@@ -87,7 +83,8 @@ public class MessagePinController {
             @PathVariable UUID chatId,
             @RequestHeader("X-User-Id") UUID userId) {
         log.info("Request to get pinned messages in chat {} by user {}", chatId, userId);
-        List<Message> messages = loadPinnedMessagesUseCase.loadPinnedMessages(chatId, userId);
+        LoadPinnedMessagesQuery query = new LoadPinnedMessagesQuery(chatId, userId);
+        List<Message> messages = loadPinnedMessagesUseCase.loadPinnedMessages(query);
         return presentationMessageMapper.toResponseList(messages, userId);
     }
 }
