@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.kubsu.borshchevyk.media.application.port.out.S3Port;
+import ru.kubsu.borshchevyk.media.domain.exception.StorageException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
@@ -17,6 +18,12 @@ import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignReques
 import java.io.InputStream;
 import java.time.Duration;
 
+/**
+ * Adapter for AWS S3 implementing the S3Port.
+ * Handles interactions with object storage.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -82,10 +89,10 @@ public class S3Adapter implements S3Port {
             log.info("Successfully uploaded file {} to S3 bucket {}", s3Key, bucket);
         } catch (S3Exception e) {
             log.error("S3 SDK error during upload for key {}: {}", s3Key, e.awsErrorDetails().errorMessage(), e);
-            throw new RuntimeException("S3 Upload failed", e);
+            throw new StorageException("S3 Upload failed", e);
         } catch (Exception e) {
             log.error("Unexpected error during S3 upload for key {}", s3Key, e);
-            throw new RuntimeException("Exception during S3 upload", e);
+            throw new StorageException("Exception during S3 upload", e);
         }
     }
 
@@ -100,10 +107,10 @@ public class S3Adapter implements S3Port {
             return s3Client.getObject(getObjectRequest);
         } catch (S3Exception e) {
             log.error("S3 SDK error during download for key {}: {}", s3Key, e.awsErrorDetails().errorMessage(), e);
-            throw new RuntimeException("S3 Download failed", e);
+            throw new StorageException("S3 Download failed", e);
         } catch (Exception e) {
             log.error("Unexpected error during S3 download for key {}", s3Key, e);
-            throw new RuntimeException("Exception during S3 download", e);
+            throw new StorageException("Exception during S3 download", e);
         }
     }
 

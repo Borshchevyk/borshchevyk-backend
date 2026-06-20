@@ -12,6 +12,11 @@ import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Service for adding user contacts.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -40,3 +45,4 @@ public class AddContactService implements AddContactUseCase {
         return contactPort.save(contact);
     }
 }
+

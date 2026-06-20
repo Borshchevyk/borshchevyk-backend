@@ -8,9 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import ru.kubsu.borshchevyk.message.infrastructure.redis.NotificationDto;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService;
+import ru.kubsu.borshchevyk.message.infrastructure.redis.dto.NotificationDto;
+
+import ru.kubsu.borshchevyk.message.domain.model.call.CallEventType;
 
 import java.util.Set;
 import java.util.UUID;
@@ -36,7 +38,7 @@ public class KafkaCallEventConsumerAdapter {
         private Set<String> participants;
     }
 
-    @KafkaListener(topics = "${app.kafka.topics.call-events:call-events-topic}", groupId = "${spring.kafka.consumer.group-id:message-service-group}")
+    @KafkaListener(topics = "${app.kafka.topics.call-events}", groupId = "${spring.kafka.consumer.group-id}")
     public void consumeCallEvent(String payload) {
         log.debug("Received call event payload: {}", payload);
         try {
@@ -69,26 +71,12 @@ public class KafkaCallEventConsumerAdapter {
             );
 
             if (callEventMessage.getParticipants() != null) {
-                Set<String> targetParticipants = callEventMessage.getParticipants();
-                String actorIdStr = callEventMessage.getActorId();
-                String initiatorIdStr = callEventMessage.getInitiatorId();
-
-                if ("INITIATED".equals(callEventMessage.getEventType())) {
-                    // Send to everyone except the initiator
-                    targetParticipants = targetParticipants.stream()
-                            .filter(id -> !id.equals(actorIdStr))
-                            .collect(Collectors.toSet());
-                } else if ("ACCEPTED".equals(callEventMessage.getEventType()) || "REJECTED".equals(callEventMessage.getEventType())) {
-                    // Send only to the initiator
-                    targetParticipants = targetParticipants.stream()
-                            .filter(id -> id.equals(initiatorIdStr) && !id.equals(actorIdStr))
-                            .collect(Collectors.toSet());
-                } else if ("ENDED".equals(callEventMessage.getEventType())) {
-                    // Send to everyone except the actor who ended it
-                    targetParticipants = targetParticipants.stream()
-                            .filter(id -> !id.equals(actorIdStr))
-                            .collect(Collectors.toSet());
-                }
+                CallEventType eventType = CallEventType.fromString(callEventMessage.getEventType());
+                Set<String> targetParticipants = eventType.determineTargetParticipants(
+                        callEventMessage.getParticipants(),
+                        callEventMessage.getActorId(),
+                        callEventMessage.getInitiatorId()
+                );
 
                 for (String participantId : targetParticipants) {
                     NotificationDto notification = new NotificationDto(

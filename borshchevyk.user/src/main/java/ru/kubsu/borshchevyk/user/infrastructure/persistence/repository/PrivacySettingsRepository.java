@@ -6,6 +6,11 @@ import ru.kubsu.borshchevyk.user.infrastructure.persistence.entity.PrivacySettin
 
 import java.util.UUID;
 
+/**
+ * Spring Data JPA repository for {@link PrivacySettingsEntity}.
+ *
+ * @author Aleksey Timko
+ */
 @Repository
 public interface PrivacySettingsRepository extends JpaRepository<PrivacySettingsEntity, UUID> {
 }

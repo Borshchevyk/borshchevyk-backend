@@ -4,14 +4,14 @@ server:
 
 spring:
   application:
-    name: ${AUTH_SERVICE_NAME}
+    name: borshchevyk.auth
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
+    url: ${SPRING_DATASOURCE_URL_AUTH}
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: ${JPA_HIBERNATE_DDL-AUTO}
+      ddl-auto: ${JPA_HIBERNATE_DDL_AUTO}
     database: ${JPA_DATABASE}
   data:
     redis:
@@ -20,16 +20,16 @@ spring:
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
     producer:
-      key-serializer: ${KAFKA_PRODUCER_KEY_SERIALIZER}
-      value-serializer: ${KAFKA_PRODUCER_VALUE_SERIALIZER}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:
       group-id: auth-service-group
   boot:
     admin:
       client:
-        url: "http://admin-service:${ADMIN_SERVICE_PORT:8085}/admin"
-        username: ${ADMIN_USERNAME:admin}
-        password: ${ADMIN_PASSWORD:admin}
+        url: "${ADMIN_SERVICE_URL}"
+        username: ${ADMIN_USERNAME}
+        password: ${ADMIN_PASSWORD}
         instance:
           prefer-ip: true
 
@@ -39,11 +39,14 @@ app:
       user-registered: ${KAFKA_TOPIC_USER_REGISTERED}
       user-updated: ${KAFKA_TOPIC_USER_UPDATED}
       user-deleted: ${KAFKA_TOPIC_USER_DELETED}
+  auth:
+    challenge:
+      ttl: ${AUTH_CHALLENGE_TTL}
 
 grpc:
   client:
     message-service:
-      address: 'static://message-service:9091'
+      address: '${GRPC_MESSAGE_SERVICE_ADDRESS}'
       negotiation-type: plaintext
 
 jwt:
@@ -62,7 +65,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "health,info,env,metrics,loggers,httpexchanges,logfile"
+        include: "*"
   endpoint:
     health:
       show-details: always

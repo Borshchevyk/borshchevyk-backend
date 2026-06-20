@@ -11,6 +11,11 @@ import ru.kubsu.borshchevyk.media.domain.model.AttachmentType;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * JPA Entity for storing attachment metadata in the database.
+ *
+ * @author Aleksey Timko
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -34,6 +39,9 @@ public class AttachmentEntity {
 
     @Column(name = "thumbnail_key")
     private String thumbnailKey;
+
+    @Column(name = "thumbnail_id")
+    private UUID thumbnailId;
 
     @Column(name = "original_filename")
     private String originalFilename;

@@ -1,14 +1,18 @@
 package ru.kubsu.borshchevyk.media.application.dto.command;
 
 import lombok.Builder;
-import lombok.Value;
 
 import java.util.List;
 import java.util.UUID;
 
-@Value
+/**
+ * Command to validate the existence and ownership of multiple attachments.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class ValidateAttachmentsCommand {
-    List<UUID> attachmentIds;
-    UUID requesterId;
+public record ValidateAttachmentsCommand(
+        List<UUID> attachmentIds,
+        UUID requesterId
+) {
 }

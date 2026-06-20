@@ -1,11 +1,11 @@
 package ru.kubsu.borshchevyk.auth.application.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kubsu.borshchevyk.auth.application.dto.command.RegisterCommand;
 import ru.kubsu.borshchevyk.auth.application.port.in.RegisterUseCase;
+import ru.kubsu.borshchevyk.auth.application.port.out.CreateSavedMessagesPort;
 import ru.kubsu.borshchevyk.auth.application.port.out.LoadAccountByEmailPort;
 import ru.kubsu.borshchevyk.auth.application.port.out.PasswordEncoderPort;
 import ru.kubsu.borshchevyk.auth.application.port.out.SaveAccountPort;
@@ -22,11 +22,7 @@ import java.util.UUID;
 
 /**
  * Service for user registration.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RegisterService implements RegisterUseCase {
@@ -35,25 +31,16 @@ public class RegisterService implements RegisterUseCase {
     private final SaveAccountPort saveAccountPort;
     private final PasswordEncoderPort passwordEncoderPort;
     private final UserRegisteredEventPublisherPort userRegisteredEventPublisherPort;
-    private final ru.kubsu.borshchevyk.auth.infrastructure.adapter.out.grpc.ChatInternalGrpcClient chatInternalGrpcClient;
+    private final CreateSavedMessagesPort createSavedMessagesPort;
 
-    /**
-     * Registers a new user account.
-     *
-     * @param command the registration command containing account details
-     * @return the registration result containing the new user ID
-     * @throws UserAlreadyExistsException if an account with the same email already exists
-     */
     @Override
     @Transactional
     public RegisterResult register(RegisterCommand command) {
-        log.info("Attempting to register new user with email: {}", command.email());
         Email email = new Email(command.email());
         
         loadAccountByEmailPort.loadAccountByEmail(email)
                 .ifPresent(account -> {
-                    log.warn("Registration failed: account with email {} already exists", command.email());
-                    throw new UserAlreadyExistsException(email.getValue());
+                    throw new UserAlreadyExistsException(email.value());
                 });
 
         Tag tag = new Tag(command.tag());
@@ -73,19 +60,14 @@ public class RegisterService implements RegisterUseCase {
 
         userRegisteredEventPublisherPort.publish(UserRegisteredEvent.builder()
                 .userId(accountId.value())
-                .email(email.getValue())
-                .tag(tag.getValue())
+                .email(email.value())
+                .tag(tag.value())
                 .firstName(command.firstName())
                 .lastName(command.lastName())
                 .build());
 
-        try {
-            chatInternalGrpcClient.createSavedMessages(accountId.value());
-        } catch (Exception e) {
-            log.error("Failed to create saved messages for user: {}", accountId.value(), e);
-        }
+        createSavedMessagesPort.createSavedMessages(accountId);
 
-        log.info("Successfully registered new user with ID: {}", accountId.value());
         return RegisterResult.builder()
                 .userId(accountId.value())
                 .build();

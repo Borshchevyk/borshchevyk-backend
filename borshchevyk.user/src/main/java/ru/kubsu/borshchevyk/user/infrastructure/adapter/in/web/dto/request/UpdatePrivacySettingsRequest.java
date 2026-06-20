@@ -3,6 +3,11 @@ package ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import ru.kubsu.borshchevyk.user.domain.model.privacy.Visibility;
 
+/**
+ * Request DTO for updating the user's privacy settings.
+ *
+ * @author Aleksey Timko
+ */
 public record UpdatePrivacySettingsRequest(
     @Schema(description = "Visibility of user's email", example = "NOBODY")
     Visibility emailVisibility,

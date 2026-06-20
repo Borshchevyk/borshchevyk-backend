@@ -9,6 +9,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Spring Data JPA repository for Attachment entities.
+ *
+ * @author Aleksey Timko
+ */
 @Repository
 public interface AttachmentRepository extends JpaRepository<AttachmentEntity, UUID> {
     List<AttachmentEntity> findByStatusAndCreatedAtBefore(AttachmentStatus status, LocalDateTime createdAt);

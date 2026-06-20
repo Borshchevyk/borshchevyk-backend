@@ -17,6 +17,11 @@ import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 
 import java.util.UUID;
 
+/**
+ * Service for retrieving user profiles with privacy settings applied.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -53,14 +58,19 @@ public class GetUserProfileService implements GetUserProfileUseCase {
     private User applyPrivacy(User user, UserId requesterId) {
         PrivacySettings settings = getPrivacySettings(user.getUserId());
 
-        if (!canSeeEmail(user.getUserId(), requesterId, settings.getEmailVisibility())) {
+        if (!hasVisibility(user.getUserId(), requesterId, settings.getEmailVisibility())) {
             user.setEmail(null);
+        }
+
+        if (!hasVisibility(user.getUserId(), requesterId, settings.getProfilePhotoVisibility())) {
+            user.setAvatarUrl(null);
+            user.setAvatars(new java.util.ArrayList<>());
         }
 
         return user;
     }
 
-    private boolean canSeeEmail(UserId targetId, UserId requesterId, Visibility visibility) {
+    private boolean hasVisibility(UserId targetId, UserId requesterId, Visibility visibility) {
         if (visibility == Visibility.EVERYONE) return true;
         if (visibility == Visibility.NOBODY) return false;
         if (visibility == Visibility.CONTACTS && requesterId != null) {
@@ -69,3 +79,4 @@ public class GetUserProfileService implements GetUserProfileUseCase {
         return false;
     }
 }
+

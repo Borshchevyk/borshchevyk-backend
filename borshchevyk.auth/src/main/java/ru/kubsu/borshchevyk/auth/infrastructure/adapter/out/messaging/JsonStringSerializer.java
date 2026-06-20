@@ -9,9 +9,6 @@ import ru.kubsu.borshchevyk.auth.domain.exception.MessagingSerializationExceptio
 
 /**
  * Helper component for JSON serialization.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Slf4j
 @Component
@@ -32,7 +29,7 @@ public class JsonStringSerializer {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize object of type: {}", object.getClass().getName(), e);
-            throw new MessagingSerializationException("Failed to serialize object to JSON", e);
+            throw new MessagingSerializationException("Failed to serialize object to JSON " + object.getClass().getName());
         }
     }
 }

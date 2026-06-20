@@ -33,4 +33,7 @@ public class MessageAttachmentEmbeddable {
 
     @Column(name = "duration")
     private Double duration;
+
+    @Column(name = "thumbnail_id")
+    private UUID thumbnailId;
 }

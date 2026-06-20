@@ -1,9 +1,10 @@
 package ru.kubsu.borshchevyk.media.domain.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-@ResponseStatus(HttpStatus.FORBIDDEN)
+/**
+ * Exception thrown when a user attempts an action they are not permitted to perform on an attachment.
+ *
+ * @author Aleksey Timko
+ */
 public class ForbiddenActionException extends RuntimeException {
     public ForbiddenActionException(String message) {
         super(message);

@@ -4,21 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import ru.kubsu.borshchevyk.auth.domain.exception.IncorrectInputFormatException;
+import ru.kubsu.borshchevyk.auth.domain.exception.InvalidCredentialsException;
 import ru.kubsu.borshchevyk.auth.domain.model.value.AccountId;
 import ru.kubsu.borshchevyk.auth.domain.model.value.Email;
 import ru.kubsu.borshchevyk.auth.domain.model.value.Tag;
 
 /**
  * Domain model representing a user account in the authentication system.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
+ * Encapsulates the state and business logic of an account.
  */
-@Slf4j
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
@@ -55,4 +51,40 @@ public class Account {
      * User's private key, encrypted with their password.
      */
     private String encryptedPrivateKey;
+
+    /**
+     * Updates the email of the account.
+     *
+     * @param newEmail the new email to set
+     */
+    public void updateEmail(Email newEmail) {
+        if (newEmail == null) {
+            throw new IncorrectInputFormatException(IncorrectInputFormatException.InputFormat.EMAIL);
+        }
+        this.email = newEmail;
+    }
+
+    /**
+     * Updates the tag of the account.
+     *
+     * @param newTag the new tag to set
+     */
+    public void updateTag(Tag newTag) {
+        if (newTag == null) {
+            throw new IncorrectInputFormatException(IncorrectInputFormatException.InputFormat.TAG);
+        }
+        this.tag = newTag;
+    }
+
+    /**
+     * Updates the user's password hash.
+     *
+     * @param newPasswordHash the new password hash
+     */
+    public void updatePasswordHash(String newPasswordHash) {
+        if (newPasswordHash == null || newPasswordHash.isBlank()) {
+            throw new IncorrectInputFormatException(IncorrectInputFormatException.InputFormat.PASSWORD);
+        }
+        this.passwordHash = newPasswordHash;
+    }
 }

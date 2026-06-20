@@ -1,120 +1,111 @@
 package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.mapper;
 
-import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.kubsu.borshchevyk.message.domain.model.chat.*;
+import ru.kubsu.borshchevyk.message.domain.model.chat.type.Channel;
+import ru.kubsu.borshchevyk.message.domain.model.chat.type.GroupChat;
+import ru.kubsu.borshchevyk.message.domain.model.chat.type.PrivateChat;
+import ru.kubsu.borshchevyk.message.domain.model.chat.type.SavedMessages;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.*;
-import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.ChatMemberEntity;
-import ru.kubsu.borshchevyk.message.infrastructure.persistence.repository.ChatMemberRepository;
 
-import java.time.LocalDateTime;
+import ru.kubsu.borshchevyk.message.domain.model.chat.member_permissions.ChatMemberPermissions;
+import ru.kubsu.borshchevyk.message.domain.model.chat.visitor.ChatVisitor;
+
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", imports = {ChatMemberPermissions.class})
 public abstract class PresentationChatMapper {
 
-    @Autowired
-    private ChatMemberRepository chatMemberRepository;
-
-    @Autowired
-    private ru.kubsu.borshchevyk.message.infrastructure.adapter.out.grpc.UserGrpcClient userGrpcClient;
-
-    public ChatResponse toResponse(Chat chat, @Context UUID requesterId) {
+    public ChatResponse toResponse(Chat chat) {
         if (chat == null) {
             return null;
         }
 
-        if (chat instanceof PrivateChat p) {
-            UUID partnerId = chatMemberRepository.findByChatId(p.getId().value())
-                    .stream()
-                    .map(ChatMemberEntity::getUserId)
-                    .filter(id -> !id.equals(requesterId))
-                    .findFirst()
-                    .orElse(null);
-
-            String partnerName = null;
-            String partnerAvatarUrl = null;
-            LocalDateTime partnerLastOnline = null;
-
-            if (partnerId != null) {
-                try {
-                    ru.kubsu.borshchevyk.grpc.UserResponse userResponse = userGrpcClient.getUserInfo(partnerId);
-                    partnerName = (userResponse.getFirstName() + " " + userResponse.getLastName()).trim();
-                    if (partnerName.isEmpty()) {
-                        partnerName = userResponse.getTag();
-                    }
-                    partnerAvatarUrl = userResponse.getAvatarUrl().isEmpty() ? null : userResponse.getAvatarUrl();
-                } catch (Exception e) {
-                    // Fallback to ID if user-service is down
-                    partnerName = "User " + partnerId.toString().substring(0, 8);
-                }
+        return chat.accept(new ChatVisitor<ChatResponse>() {
+            @Override
+            public ChatResponse visit(PrivateChat c) {
+                return mapPrivateChat(c);
             }
 
-            return PrivateChatResponse.builder()
-                    .id(map(p.getId()))
-                    .type(ChatType.PRIVATE)
-                    .createdAt(p.getCreatedAt())
-                    .isDeletable(p.isDeletable())
-                    .allowedReactions(p.getAllowedReactions())
-                    .partnerId(partnerId)
-                    .partnerName(partnerName)
-                    .partnerAvatarUrl(partnerAvatarUrl)
-                    .partnerLastOnline(partnerLastOnline)
-                    .build();
-        } else if (chat instanceof GroupChat g) {
-            return GroupChatResponse.builder()
-                    .id(map(g.getId()))
-                    .type(ChatType.GROUP)
-                    .createdAt(g.getCreatedAt())
-                    .isDeletable(g.isDeletable())
-                    .title(g.getTitle())
-                    .description(g.getDescription())
-                    .commentsEnabled(g.isCommentsEnabled())
-                    .allowedReactions(g.getAllowedReactions())
-                    .build();
-        } else if (chat instanceof Channel c) {
-            return ChannelResponse.builder()
-                    .id(map(c.getId()))
-                    .type(ChatType.CHANNEL)
-                    .createdAt(c.getCreatedAt())
-                    .isDeletable(c.isDeletable())
-                    .title(c.getTitle())
-                    .description(c.getDescription())
-                    .commentsEnabled(c.isCommentsEnabled())
-                    .allowedReactions(c.getAllowedReactions())
-                    .build();
-        } else if (chat instanceof SavedMessages s) {
-            return SavedMessagesResponse.builder()
-                    .id(map(s.getId()))
-                    .type(ChatType.SAVED_MESSAGES)
-                    .createdAt(s.getCreatedAt())
-                    .isDeletable(s.isDeletable())
-                    .allowedReactions(s.getAllowedReactions())
-                    .build();
-        }
+            @Override
+            public ChatResponse visit(GroupChat c) {
+                return mapGroupChat(c);
+            }
 
-        throw new IllegalArgumentException("Unknown chat type");
+            @Override
+            public ChatResponse visit(Channel c) {
+                return mapChannel(c);
+            }
+
+            @Override
+            public ChatResponse visit(SavedMessages c) {
+                return mapSavedMessages(c);
+            }
+        });
     }
 
-    public List<ChatResponse> toResponseList(List<Chat> chats, @Context UUID requesterId) {
+    public List<ChatResponse> toResponseList(List<Chat> chats) {
         if (chats == null) {
             return null;
         }
         return chats.stream()
-                .map(chat -> toResponse(chat, requesterId))
+                .map(this::toResponse)
                 .collect(Collectors.toList());
     }
+
+    @Mapping(target = "id", source = "id.value")
+    @Mapping(target = "type", constant = "PRIVATE")
+    @Mapping(target = "isDeletable", source = "deletable")
+    @Mapping(target = "partnerId", ignore = true)
+    @Mapping(target = "partnerName", ignore = true)
+    @Mapping(target = "partnerAvatarUrl", ignore = true)
+    @Mapping(target = "partnerLastOnline", ignore = true)
+    @Mapping(target = "lastMessage", ignore = true)
+    @Mapping(target = "lastMessageAt", ignore = true)
+    @Mapping(target = "unreadCount", ignore = true)
+    @Mapping(target = "isPinned", ignore = true)
+    protected abstract PrivateChatResponse mapPrivateChat(PrivateChat chat);
+
+    @Mapping(target = "id", source = "id.value")
+    @Mapping(target = "type", constant = "GROUP")
+    @Mapping(target = "isDeletable", source = "deletable")
+    @Mapping(target = "lastMessage", ignore = true)
+    @Mapping(target = "lastMessageAt", ignore = true)
+    @Mapping(target = "unreadCount", ignore = true)
+    @Mapping(target = "isPinned", ignore = true)
+    protected abstract GroupChatResponse mapGroupChat(GroupChat chat);
+
+    @Mapping(target = "id", source = "id.value")
+    @Mapping(target = "type", constant = "CHANNEL")
+    @Mapping(target = "isDeletable", source = "deletable")
+    @Mapping(target = "lastMessage", ignore = true)
+    @Mapping(target = "lastMessageAt", ignore = true)
+    @Mapping(target = "unreadCount", ignore = true)
+    @Mapping(target = "isPinned", ignore = true)
+    protected abstract ChannelResponse mapChannel(Channel chat);
+
+    @Mapping(target = "id", source = "id.value")
+    @Mapping(target = "type", constant = "SAVED_MESSAGES")
+    @Mapping(target = "isDeletable", source = "deletable")
+    @Mapping(target = "lastMessage", ignore = true)
+    @Mapping(target = "lastMessageAt", ignore = true)
+    @Mapping(target = "unreadCount", ignore = true)
+    @Mapping(target = "isPinned", ignore = true)
+    protected abstract SavedMessagesResponse mapSavedMessages(SavedMessages chat);
 
     @Mapping(target = "chatId", source = "chatId.value")
     @Mapping(target = "userId", source = "userId.value")
     @Mapping(target = "lastReadMessageId", source = "lastReadMessageId.value")
     @Mapping(target = "userDetails", ignore = true)
+    @Mapping(target = "canSendMessages", expression = "java(chatMember.getPermissions().hasPermission(ChatMemberPermissions.PermissionType.SEND_MESSAGES))")
+    @Mapping(target = "canDeleteMessages", expression = "java(chatMember.getPermissions().hasPermission(ChatMemberPermissions.PermissionType.DELETE_MESSAGES))")
+    @Mapping(target = "canInviteUsers", expression = "java(chatMember.getPermissions().hasPermission(ChatMemberPermissions.PermissionType.INVITE_USERS))")
+    @Mapping(target = "canChangeInfo", expression = "java(chatMember.getPermissions().hasPermission(ChatMemberPermissions.PermissionType.CHANGE_CHAT_INFO))")
     public abstract ChatMemberResponse toMemberResponse(ChatMember chatMember);
 
     public abstract List<ChatMemberResponse> toMemberResponseList(List<ChatMember> chatMembers);

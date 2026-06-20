@@ -17,6 +17,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Service for searching users.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -57,14 +62,19 @@ public class SearchUsersService implements SearchUsersUseCase {
     private User applyPrivacy(User user, UserId requesterId) {
         PrivacySettings settings = getPrivacySettings(user.getUserId());
 
-        if (!canSeeEmail(user.getUserId(), requesterId, settings.getEmailVisibility())) {
+        if (!hasVisibility(user.getUserId(), requesterId, settings.getEmailVisibility())) {
             user.setEmail(null);
+        }
+
+        if (!hasVisibility(user.getUserId(), requesterId, settings.getProfilePhotoVisibility())) {
+            user.setAvatarUrl(null);
+            user.setAvatars(new java.util.ArrayList<>());
         }
 
         return user;
     }
 
-    private boolean canSeeEmail(UserId targetId, UserId requesterId, Visibility visibility) {
+    private boolean hasVisibility(UserId targetId, UserId requesterId, Visibility visibility) {
         if (visibility == Visibility.EVERYONE) return true;
         if (visibility == Visibility.NOBODY) return false;
         if (visibility == Visibility.CONTACTS && requesterId != null) {
@@ -73,3 +83,4 @@ public class SearchUsersService implements SearchUsersUseCase {
         return false;
     }
 }
+

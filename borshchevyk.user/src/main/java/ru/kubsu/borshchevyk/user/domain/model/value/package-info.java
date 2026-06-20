@@ -1,4 +1,6 @@
 /**
- * Package for ru.kubsu.borshchevyk.user.domain.model.value.
+ * Domain value objects for user properties.
+ *
+ * @author Aleksey Timko
  */
 package ru.kubsu.borshchevyk.user.domain.model.value;

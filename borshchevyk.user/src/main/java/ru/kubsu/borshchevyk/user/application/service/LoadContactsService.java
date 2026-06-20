@@ -12,6 +12,11 @@ import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Service for loading user contacts.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,3 +29,4 @@ public class LoadContactsService implements LoadContactsUseCase {
         return contactPort.loadByOwnerId(ownerId);
     }
 }
+

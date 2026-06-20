@@ -6,16 +6,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import ru.kubsu.borshchevyk.message.application.port.out.MessageEventPublisherPort;
-import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
-import ru.kubsu.borshchevyk.message.domain.event.MessageCreatedEvent;
-import ru.kubsu.borshchevyk.message.domain.event.MessageDeletedEvent;
-import ru.kubsu.borshchevyk.message.domain.model.message.Message;
+import ru.kubsu.borshchevyk.message.domain.event.message.MessageCreatedEvent;
+import ru.kubsu.borshchevyk.message.domain.event.message.MessageDeletedEvent;
 import ru.kubsu.borshchevyk.message.domain.exception.MessagingSerializationException;
-import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
+import ru.kubsu.borshchevyk.message.domain.model.message.Message;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,7 +27,6 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
-    private final RealtimeNotificationPort realtimeNotificationPort;
 
     @Override
     public void publishMessageCreatedEvent(Message message, List<String> targetUserIds) {
@@ -52,19 +50,18 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
                         .collect(Collectors.toList()) : null
         );
 
-        try {
-            String payload = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(TOPIC, message.getId().value().toString(), payload);
-            log.info("Published MessageCreatedEvent to topic {}: {}", TOPIC, payload);
-            
-            // Notify via WebSockets
-            for (String targetId : targetUserIds) {
-                realtimeNotificationPort.notifyUser(new UserId(UUID.fromString(targetId)), message);
+        Runnable publishAction = () -> {
+            try {
+                String payload = objectMapper.writeValueAsString(event);
+                kafkaTemplate.send(TOPIC, message.getId().value().toString(), payload);
+                log.info("Published MessageCreatedEvent to topic {}: {}", TOPIC, payload);
+            } catch (JsonProcessingException e) {
+                log.error("Failed to serialize MessageCreatedEvent", e);
+                throw new MessagingSerializationException("Failed to serialize event", e);
             }
-        } catch (JsonProcessingException e) {
-            log.error("Failed to serialize MessageCreatedEvent", e);
-            throw new MessagingSerializationException("Failed to serialize event", e);
-        }
+        };
+
+        executeAfterCommit(publishAction);
     }
 
     @Override
@@ -75,18 +72,30 @@ public class KafkaMessageEventPublisherAdapter implements MessageEventPublisherP
                 targetUserIds
         );
 
-        try {
-            String payload = objectMapper.writeValueAsString(event);
-            kafkaTemplate.send(TOPIC_DELETED, message.getId().value().toString(), payload);
-            log.info("Published MessageDeletedEvent to topic {}: {}", TOPIC_DELETED, payload);
-            
-            // Notify via WebSockets
-            for (String targetId : targetUserIds) {
-                realtimeNotificationPort.notifyUser(new UserId(UUID.fromString(targetId)), message);
+        Runnable publishAction = () -> {
+            try {
+                String payload = objectMapper.writeValueAsString(event);
+                kafkaTemplate.send(TOPIC_DELETED, message.getId().value().toString(), payload);
+                log.info("Published MessageDeletedEvent to topic {}: {}", TOPIC_DELETED, payload);
+            } catch (JsonProcessingException e) {
+                log.error("Failed to serialize MessageDeletedEvent", e);
+                throw new MessagingSerializationException("Failed to serialize event", e);
             }
-        } catch (JsonProcessingException e) {
-            log.error("Failed to serialize MessageDeletedEvent", e);
-            throw new MessagingSerializationException("Failed to serialize event", e);
+        };
+
+        executeAfterCommit(publishAction);
+    }
+
+    private void executeAfterCommit(Runnable action) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    action.run();
+                }
+            });
+        } else {
+            action.run();
         }
     }
 }

@@ -1,4 +1,5 @@
 package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response;
+import ru.kubsu.borshchevyk.message.domain.exception.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -30,7 +31,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public abstract class ChatResponse {
+public 
+abstract class ChatResponse {
     @Schema(description = "Unique identifier of the chat")
     private UUID id;
     @Schema(description = "Type of the chat")

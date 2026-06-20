@@ -14,6 +14,11 @@ import ru.kubsu.borshchevyk.user.domain.model.privacy.Visibility;
 
 import java.util.UUID;
 
+/**
+ * JPA entity representing a user's privacy settings in the database.
+ *
+ * @author Aleksey Timko
+ */
 @Entity
 @Table(name = "privacy_settings")
 @Data

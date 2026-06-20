@@ -1,31 +1,22 @@
 package ru.kubsu.borshchevyk.auth.domain.model.value;
 
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import ru.kubsu.borshchevyk.auth.domain.exception.IncorrectInputFormatException;
 
 /**
  * Value object representing an email address.
  *
- * @author Aleksey Timko
- * @since 2026-03-14
+ * @param value the email address string
  */
-@Slf4j
-@Getter
-public class Email {
-    private final String value;
-
+public record Email(String value) {
     /**
-     * Constructs a new Email.
+     * Constructs a new Email and validates format.
      *
-     * @param email the email address string
+     * @param value the email address string
      * @throws IncorrectInputFormatException if the email format is invalid
      */
-    public Email(String email) {
-        if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
-            log.debug("Invalid email format: {}", email);
+    public Email {
+        if (value == null || !value.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
             throw new IncorrectInputFormatException(IncorrectInputFormatException.InputFormat.EMAIL);
         }
-        this.value = email;
     }
 }

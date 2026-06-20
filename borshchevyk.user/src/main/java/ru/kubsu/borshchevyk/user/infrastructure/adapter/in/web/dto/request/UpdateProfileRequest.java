@@ -2,6 +2,11 @@ package ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+/**
+ * Request DTO for updating the user's profile information.
+ *
+ * @author Aleksey Timko
+ */
 public record UpdateProfileRequest(
     @Schema(description = "User's first name", example = "Ivan")
     String firstName,

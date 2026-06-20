@@ -2,8 +2,8 @@ package ru.kubsu.borshchevyk.message.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
+import ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class MessageEntity {
     @Column(name = "author_id", nullable = false)
     private UUID authorId;
 
-    @Column(name = "text", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "text", nullable = true, columnDefinition = "TEXT")
     private String text;
 
     @Column(name = "created_at", nullable = false)
@@ -50,9 +50,8 @@ public class MessageEntity {
     private MessageSource source;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status")
     @Builder.Default
-    private ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus status = ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus.RECEIVED_BY_SERVER;
+    private MessageStatus status = MessageStatus.RECEIVED_BY_SERVER;
 
     @Column(name = "pinned_at")
     private LocalDateTime pinnedAt;

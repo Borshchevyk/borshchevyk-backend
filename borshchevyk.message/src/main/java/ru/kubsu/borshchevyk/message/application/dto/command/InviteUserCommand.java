@@ -1,14 +1,12 @@
 package ru.kubsu.borshchevyk.message.application.dto.command;
 
 import lombok.Builder;
-import lombok.Data;
 
 import java.util.UUID;
 
-@Data
 @Builder
-public class InviteUserCommand {
-    private UUID chatId;
-    private UUID requesterId;
-    private UUID targetUserId;
-}
+public record InviteUserCommand(
+    UUID chatId,
+    UUID requesterId,
+    UUID targetUserId
+) { }

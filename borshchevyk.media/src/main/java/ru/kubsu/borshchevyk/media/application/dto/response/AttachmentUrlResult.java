@@ -1,10 +1,14 @@
 package ru.kubsu.borshchevyk.media.application.dto.response;
 
 import lombok.Builder;
-import lombok.Value;
 
-@Value
+/**
+ * Result containing the resolved URL of an attachment.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class AttachmentUrlResult {
-    String url;
+public record AttachmentUrlResult(
+        String url
+) {
 }

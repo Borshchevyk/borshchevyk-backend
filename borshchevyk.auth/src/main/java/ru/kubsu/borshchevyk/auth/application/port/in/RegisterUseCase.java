@@ -5,9 +5,6 @@ import ru.kubsu.borshchevyk.auth.domain.model.result.RegisterResult;
 
 /**
  * Use case for registering a new account.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 public interface RegisterUseCase {
     /**

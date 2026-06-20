@@ -1,4 +1,5 @@
 package ru.kubsu.borshchevyk.message.infrastructure.persistence.repository;
+import ru.kubsu.borshchevyk.message.domain.exception.*;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.ChatMember
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
 
 @Repository
 public interface ChatMemberRepository extends JpaRepository<ChatMemberEntity, ChatMemberId> {

@@ -1,4 +1,5 @@
 package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response;
+import ru.kubsu.borshchevyk.message.domain.exception.*;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
@@ -7,6 +8,7 @@ import ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
+
 
 @Schema(description = "Message details response")
 public record MessageResponse(
@@ -56,6 +58,8 @@ public record MessageResponse(
             @Schema(description = "Size of the attachment in bytes")
             Long sizeBytes,
             @Schema(description = "Duration of the attachment in seconds (for VOICE and CIRCLE)")
-            Double duration
+            Double duration,
+            @Schema(description = "ID of the thumbnail attachment (optional)")
+            UUID thumbnailId
     ) {}
 }

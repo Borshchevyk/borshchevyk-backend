@@ -17,6 +17,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A gateway filter responsible for validating JSON Web Tokens (JWT) present in incoming requests.

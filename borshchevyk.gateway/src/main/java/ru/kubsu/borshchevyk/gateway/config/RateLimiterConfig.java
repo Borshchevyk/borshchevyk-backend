@@ -8,6 +8,12 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
+/**
+ * Configuration for rate limiting in the gateway.
+ * Defines the KeyResolver to limit requests based on User ID, Authorization token, or IP address.
+ *
+ * @author Aleksey Timko
+ */
 @Configuration
 public class RateLimiterConfig {
 

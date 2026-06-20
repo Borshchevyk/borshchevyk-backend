@@ -3,6 +3,12 @@ package ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
+/**
+ * Data Transfer Object representing a user contact response in the presentation layer.
+ * Contains information about a contact in a user's contact list.
+ *
+ * @author Aleksey Timko
+ */
 public record ContactResponse(
     @Schema(description = "Contact record ID", example = "110e8400-e29b-41d4-a716-446655440000")
     String id,

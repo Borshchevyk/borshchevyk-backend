@@ -11,6 +11,11 @@ import ru.kubsu.borshchevyk.media.infrastructure.persistence.repository.Attachme
 
 import java.util.Optional;
 
+/**
+ * Adapter for persisting Attachment entities to the database using Spring Data JPA.
+ *
+ * @author Aleksey Timko
+ */
 @Component
 @RequiredArgsConstructor
 public class AttachmentAdapter implements AttachmentPort {

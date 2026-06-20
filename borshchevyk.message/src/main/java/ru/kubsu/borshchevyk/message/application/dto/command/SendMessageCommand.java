@@ -1,25 +1,19 @@
 package ru.kubsu.borshchevyk.message.application.dto.command;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
 
 import java.util.List;
 import java.util.UUID;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class SendMessageCommand {
-    private UUID chatId;
-    private UUID authorId;
-    private String text;
-    private MessageSource source;
-    private UUID forwardedFromChatId;
-    private UUID forwardedFromUserId;
-    private UUID parentMessageId;
-    private List<UUID> attachmentIds;
-}
+public record SendMessageCommand(
+    UUID chatId,
+    UUID authorId,
+    String text,
+    MessageSource source,
+    UUID forwardedFromChatId,
+    UUID forwardedFromUserId,
+    UUID parentMessageId,
+    List<UUID> attachmentIds
+) {}

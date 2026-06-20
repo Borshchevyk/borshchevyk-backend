@@ -5,10 +5,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import jakarta.servlet.http.HttpServletResponse;
 import ru.kubsu.borshchevyk.media.application.dto.command.CompleteUploadCommand;
 import ru.kubsu.borshchevyk.media.application.dto.command.GetAttachmentUrlCommand;
 import ru.kubsu.borshchevyk.media.application.dto.command.RequestUploadUrlCommand;
+import ru.kubsu.borshchevyk.media.application.dto.command.UploadAvatarCommand;
 import ru.kubsu.borshchevyk.media.application.dto.command.ValidateAttachmentsCommand;
 import ru.kubsu.borshchevyk.media.application.dto.response.AttachmentUrlResult;
 import ru.kubsu.borshchevyk.media.application.dto.response.UploadUrlResult;
@@ -21,9 +26,16 @@ import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.dto.response.Att
 import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.dto.response.ValidateAttachmentsResponse;
 import ru.kubsu.borshchevyk.media.infrastructure.adapter.in.web.mapper.PresentationMediaMapper;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * REST controller for managing media files and attachments.
+ * Provides endpoints for uploading, downloading, deleting, and validating attachments.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/media")
@@ -34,16 +46,17 @@ public class MediaController {
     private final RequestUploadUrlUseCase requestUploadUrlUseCase;
     private final CompleteUploadUseCase completeUploadUseCase;
     private final GetAttachmentUrlUseCase getAttachmentUrlUseCase;
+    private final GetThumbnailUrlUseCase getThumbnailUrlUseCase;
     private final ValidateAttachmentsUseCase validateAttachmentsUseCase;
     private final SoftDeleteUseCase softDeleteUseCase;
     private final PresentationMediaMapper presentationMediaMapper;
-    private final ru.kubsu.borshchevyk.media.application.port.in.UploadAvatarUseCase uploadAvatarUseCase;
+    private final UploadAvatarUseCase uploadAvatarUseCase;
 
     @Operation(summary = "Upload user avatar", description = "Uploads a user avatar directly and returns its URL.")
-    @PostMapping(value = "/upload/avatar", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/upload/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public AttachmentUrlResult uploadAvatar(
             @RequestHeader(value = "X-User-Id") UUID userId,
-            @RequestParam("file") org.springframework.web.multipart.MultipartFile file) throws java.io.IOException {
+            @RequestParam("file") MultipartFile file) throws IOException {
         
         log.info("Uploading avatar for user {}", userId);
         String originalFilename = file.getOriginalFilename();
@@ -52,7 +65,7 @@ public class MediaController {
             extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
         }
 
-        ru.kubsu.borshchevyk.media.application.dto.command.UploadAvatarCommand command = ru.kubsu.borshchevyk.media.application.dto.command.UploadAvatarCommand.builder()
+        UploadAvatarCommand command = UploadAvatarCommand.builder()
                 .uploaderId(userId)
                 .inputStream(file.getInputStream())
                 .contentType(file.getContentType())
@@ -63,10 +76,11 @@ public class MediaController {
 
         AttachmentUrlResult result = uploadAvatarUseCase.uploadAvatar(command);
         
-        String absoluteUrl = org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path(result.getUrl().substring("/api/v1/media".length())) // since ServletUriComponentsBuilder is relative to context path
+        String absoluteUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path(result.url().substring("/api/v1/media".length())) // since ServletUriComponentsBuilder is relative to context path
                 .build()
                 .toUriString();
+
                 
         return AttachmentUrlResult.builder().url(absoluteUrl).build();
     }
@@ -75,7 +89,7 @@ public class MediaController {
     @GetMapping("/avatars/{attachmentId}")
     public void getAvatar(
             @PathVariable UUID attachmentId,
-            jakarta.servlet.http.HttpServletResponse response) throws java.io.IOException {
+            HttpServletResponse response) throws IOException {
         
         GetAttachmentUrlCommand command = GetAttachmentUrlCommand.builder()
                 .attachmentId(attachmentId)
@@ -83,14 +97,14 @@ public class MediaController {
                 .build();
 
         AttachmentUrlResult result = getAttachmentUrlUseCase.getAttachmentUrl(command);
-        response.sendRedirect(result.getUrl());
+        response.sendRedirect(result.url());
     }
 
     @Operation(summary = "Get pre-signed URL for upload", description = "Generates a secure temporary link for the client to directly upload a file to S3 and returns attachment ID.")
     @PostMapping("/upload-url")
     public UploadUrlResult requestUploadUrl(
             @RequestHeader(value = "X-User-Id") UUID userId,
-            @RequestBody RequestUploadUrlRequest request) {
+            @jakarta.validation.Valid @RequestBody RequestUploadUrlRequest request) {
         
         log.info("Requesting upload URL for user {} type {}", userId, request.type());
 
@@ -142,6 +156,22 @@ public class MediaController {
         return getAttachmentUrlUseCase.getAttachmentUrl(command);
     }
 
+    @Operation(summary = "Get pre-signed URL for thumbnail", description = "Generates a secure temporary link for the client to download a thumbnail image.")
+    @GetMapping("/{attachmentId}/thumbnail-url")
+    public AttachmentUrlResult getThumbnailUrl(
+            @PathVariable UUID attachmentId,
+            @RequestHeader(value = "X-User-Id") UUID userId) {
+
+        log.info("Getting thumbnail URL for attachment {} by user {}", attachmentId, userId);
+
+        GetAttachmentUrlCommand command = GetAttachmentUrlCommand.builder()
+                .attachmentId(attachmentId)
+                .requesterId(userId)
+                .build();
+
+        return getThumbnailUrlUseCase.getThumbnailUrl(command);
+    }
+
     @Operation(summary = "Soft delete attachment", description = "Marks an attachment as DELETED. The file is not removed from S3 for history purposes.")
     @DeleteMapping("/{attachmentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -157,7 +187,7 @@ public class MediaController {
     @PostMapping("/validate")
     public ValidateAttachmentsResponse validateAttachments(
             @RequestHeader(value = "X-User-Id") UUID userId,
-            @RequestBody ValidateAttachmentsRequest request) {
+            @jakarta.validation.Valid @RequestBody ValidateAttachmentsRequest request) {
         
         log.info("Validating attachments for user {}", userId);
 
@@ -169,18 +199,12 @@ public class MediaController {
         ValidateAttachmentsResult result = validateAttachmentsUseCase.validateAttachments(command);
         
         List<ValidateAttachmentsResponse.AttachmentMetadataResponse> metadataResponses = null;
-        if (result.getAttachments() != null) {
-            metadataResponses = result.getAttachments().stream()
-                    .map(m -> new ValidateAttachmentsResponse.AttachmentMetadataResponse(
-                            m.getId(),
-                            m.getType(),
-                            m.getOriginalFilename(),
-                            m.getExtension(),
-                            m.getSizeBytes(),
-                            m.getDuration()
-                    ))                    .toList();
+        if (result.attachments() != null) {
+            metadataResponses = result.attachments().stream()
+                    .map(presentationMediaMapper::toMetadataResponse)
+                    .toList();
         }
         
-        return new ValidateAttachmentsResponse(result.isValid(), metadataResponses);
+        return new ValidateAttachmentsResponse(result.valid(), metadataResponses);
     }
 }

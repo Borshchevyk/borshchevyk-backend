@@ -1,4 +1,5 @@
 package ru.kubsu.borshchevyk.message.infrastructure.persistence.repository;
+import ru.kubsu.borshchevyk.message.domain.exception.*;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +10,7 @@ import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.ChatEntity
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 
 @Repository
 public interface ChatRepository extends JpaRepository<ChatEntity, UUID> {

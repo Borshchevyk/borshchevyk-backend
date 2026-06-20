@@ -6,8 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kubsu.borshchevyk.message.application.dto.command.UpdateChatReactionsCommand;
 import ru.kubsu.borshchevyk.message.application.port.in.UpdateChatReactionsUseCase;
-import ru.kubsu.borshchevyk.message.application.port.out.ChatMemberPort;
-import ru.kubsu.borshchevyk.message.application.port.out.ChatPort;
+import ru.kubsu.borshchevyk.message.application.port.out.LoadChatMemberPort;
+import ru.kubsu.borshchevyk.message.application.port.out.LoadChatPort;
+import ru.kubsu.borshchevyk.message.application.port.out.SaveChatPort;
 import ru.kubsu.borshchevyk.message.domain.exception.ChatNotFoundException;
 import ru.kubsu.borshchevyk.message.domain.exception.ForbiddenActionException;
 import ru.kubsu.borshchevyk.message.domain.exception.UserNotInChatException;
@@ -22,28 +23,29 @@ import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 @RequiredArgsConstructor
 public class UpdateChatReactionsService implements UpdateChatReactionsUseCase {
 
-    private final ChatPort chatPort;
-    private final ChatMemberPort chatMemberPort;
+    private final LoadChatMemberPort loadChatMemberPort;
+    private final SaveChatPort saveChatPort;
+    private final LoadChatPort loadChatPort;
 
     @Override
     @Transactional
     public void updateChatReactions(UpdateChatReactionsCommand command) {
-        log.info("User {} is updating allowed reactions in chat {}", command.getRequesterId(), command.getChatId());
+        log.info("User {} is updating allowed reactions in chat {}", command.requesterId(), command.chatId());
 
-        ChatId chatId = new ChatId(command.getChatId());
-        UserId requesterId = new UserId(command.getRequesterId());
+        ChatId chatId = new ChatId(command.chatId());
+        UserId requesterId = new UserId(command.requesterId());
 
-        Chat chat = chatPort.findById(chatId)
+        Chat chat = loadChatPort.findById(chatId)
                 .orElseThrow(() -> new ChatNotFoundException("Chat not found"));
 
-        ChatMember requester = chatMemberPort.findByChatIdAndUserId(chatId, requesterId)
+        ChatMember requester = loadChatMemberPort.findByChatIdAndUserId(chatId, requesterId)
                 .orElseThrow(() -> new UserNotInChatException("User is not a member of the chat"));
 
         if (requester.getRole() != ChatRole.OWNER && requester.getRole() != ChatRole.ADMIN) {
             throw new ForbiddenActionException("Only admins and owners can update allowed reactions");
         }
 
-        chat.setAllowedReactions(command.getAllowedReactions());
-        chatPort.save(chat);
+        chat.setAllowedReactions(command.allowedReactions());
+        saveChatPort.save(chat);
     }
 }

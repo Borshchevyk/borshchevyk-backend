@@ -13,6 +13,12 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.net.URI;
 
+/**
+ * Configuration for AWS S3 client and presigner.
+ * Connects to S3-compatible storage (like Cloud.ru).
+ *
+ * @author Aleksey Timko
+ */
 @Configuration
 public class S3Config {
 

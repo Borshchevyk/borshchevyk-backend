@@ -1,5 +1,6 @@
 package ru.kubsu.borshchevyk.user.application.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,13 +35,16 @@ public class CreateUserService implements CreateUserUseCase {
     public void createUser(UserRegisteredEvent event) {
         log.info("Processing user creation for ID: {}", event.userId());
         
-        User user = User.builder()
-                .userId(new UserId(event.userId()))
-                .email(new Email(event.email()))
-                .tag(new Tag(event.tag()))
-                .firstName(event.firstName())
-                .lastName(event.lastName())
-                .build();
+        User user = new User(
+                new UserId(event.userId()),
+                new Email(event.email()),
+                new Tag(event.tag()),
+                event.firstName(),
+                event.lastName(),
+                null,
+                null,
+                List.of()
+        );
         
         saveUserPort.saveUser(user);
         log.info("Successfully created user profile for ID: {}", event.userId());

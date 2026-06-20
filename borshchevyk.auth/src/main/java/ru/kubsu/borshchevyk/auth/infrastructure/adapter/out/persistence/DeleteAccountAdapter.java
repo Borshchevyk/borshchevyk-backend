@@ -9,9 +9,6 @@ import ru.kubsu.borshchevyk.auth.infrastructure.adapter.out.persistence.reposito
 
 /**
  * Adapter for deleting accounts from the database.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Slf4j
 @Component

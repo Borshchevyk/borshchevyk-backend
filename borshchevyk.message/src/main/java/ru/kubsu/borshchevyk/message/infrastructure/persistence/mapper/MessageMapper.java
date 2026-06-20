@@ -3,17 +3,16 @@ package ru.kubsu.borshchevyk.message.infrastructure.persistence.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.kubsu.borshchevyk.message.domain.model.message.Message;
+import ru.kubsu.borshchevyk.message.domain.model.message.MessageAttachment;
+import ru.kubsu.borshchevyk.message.domain.model.message.MessageReaction;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.MessageId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
+import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageAttachmentEmbeddable;
 import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageEntity;
+import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageReactionEmbeddable;
 
 import java.util.UUID;
-
-import ru.kubsu.borshchevyk.message.domain.model.message.MessageReaction;
-import ru.kubsu.borshchevyk.message.domain.model.message.MessageAttachment;
-import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageReactionEmbeddable;
-import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageAttachmentEmbeddable;
 
 @Mapper(componentModel = "spring")
 public interface MessageMapper {

@@ -1,4 +1,6 @@
 /**
- * Package for ru.kubsu.borshchevyk.user.domain.event.
+ * Domain events representing state changes in the user domain.
+ *
+ * @author Aleksey Timko
  */
 package ru.kubsu.borshchevyk.user.domain.event;

@@ -4,6 +4,9 @@ import de.codecentric.boot.admin.server.config.EnableAdminServer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * Main application class for Borshchevyk Admin Service.
+ * */
 @SpringBootApplication
 @EnableAdminServer
 public class Application {

@@ -11,6 +11,11 @@ import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 
 import java.util.UUID;
 
+/**
+ * Service for removing user contacts.
+ *
+ * @author Aleksey Timko
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,3 +35,4 @@ public class RemoveContactService implements RemoveContactUseCase {
         contactPort.remove(contact);
     }
 }
+

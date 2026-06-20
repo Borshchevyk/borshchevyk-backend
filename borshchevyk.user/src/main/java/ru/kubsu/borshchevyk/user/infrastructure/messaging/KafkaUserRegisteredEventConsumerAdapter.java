@@ -29,15 +29,15 @@ public class KafkaUserRegisteredEventConsumerAdapter {
      *
      * @param payload the JSON payload of the user registration event
      */
-    @KafkaListener(topics = "${app.kafka.topics.user-registered}", groupId = "${spring.kafka.consumer.group-id:user-service-group}")
+    @KafkaListener(topics = "${app.kafka.topics.user-registered}", groupId = "${spring.kafka.consumer.group-id}")
     public void consume(String payload) {
-        log.debug("Received UserRegisteredEvent payload: {}", payload);
+        log.debug("Received UserRegisteredEvent payload");
         try {
             UserRegisteredEvent event = objectMapper.readValue(payload, UserRegisteredEvent.class);
             createUserUseCase.createUser(event);
             log.info("Successfully processed UserRegisteredEvent for user: {}", event.userId());
         } catch (JsonProcessingException e) {
-            log.error("Failed to parse UserRegisteredEvent payload: {}", payload, e);
+            log.error("Failed to parse UserRegisteredEvent payload", e);
         } catch (Exception e) {
             log.error("Error processing UserRegisteredEvent", e);
         }

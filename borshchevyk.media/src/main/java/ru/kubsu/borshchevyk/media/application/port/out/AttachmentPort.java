@@ -8,6 +8,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Port for managing Attachment domain entities in the persistent store.
+ *
+ * @author Aleksey Timko
+ */
 public interface AttachmentPort {
     Attachment save(Attachment attachment);
     Optional<Attachment> findById(AttachmentId id);

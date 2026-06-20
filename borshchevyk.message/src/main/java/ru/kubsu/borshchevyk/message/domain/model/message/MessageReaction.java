@@ -5,5 +5,4 @@ import java.util.UUID;
 public record MessageReaction(
         UUID userId,
         String reaction
-) {
-}
+) { }

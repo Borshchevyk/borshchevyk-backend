@@ -1,7 +1,14 @@
 package ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
 
+/**
+ * Data Transfer Object representing a user profile response in the presentation layer.
+ * Contains public user information returned to clients.
+ *
+ * @author Aleksey Timko
+ */
 public record UserProfileResponse(
     @Schema(description = "Unique identifier of the user", example = "550e8400-e29b-41d4-a716-446655440000")
     String userId,
@@ -18,5 +25,5 @@ public record UserProfileResponse(
     @Schema(description = "URL to the user's avatar image", example = "https://example.com/avatar.jpg")
     String avatarUrl,
     @Schema(description = "List of user's avatar images")
-    java.util.List<String> avatars
+    List<String> avatars
 ) {}

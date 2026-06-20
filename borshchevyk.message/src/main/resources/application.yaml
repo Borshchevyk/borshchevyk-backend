@@ -1,17 +1,17 @@
 server:
-  port: ${MESSAGE_SERVICE_PORT:8083}
+  port: ${MESSAGE_SERVICE_PORT}
   forward-headers-strategy: framework
 
 spring:
   application:
     name: borshchevyk.message
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:borshchevyk_message}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:postgres}
+    url: ${SPRING_DATASOURCE_URL_MESSAGE}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${JPA_HIBERNATE_DDL_AUTO}
     show-sql: true
     properties:
       hibernate:
@@ -22,7 +22,7 @@ spring:
           order_updates: true
         generate_statistics: false
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
     consumer:
       group-id: message-service-group
       auto-offset-reset: earliest
@@ -33,30 +33,33 @@ spring:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
   data:
     redis:
-      host: ${SPRING_REDIS_HOST:localhost}
-      port: ${SPRING_REDIS_PORT:6379}
+      host: ${SPRING_REDIS_HOST}
+      port: ${SPRING_REDIS_PORT}
   boot:
     admin:
       client:
-        url: "http://admin-service:${ADMIN_SERVICE_PORT:8085}/admin"
-        username: ${ADMIN_USERNAME:admin}
-        password: ${ADMIN_PASSWORD:admin}
+        url: "${ADMIN_SERVICE_URL}"
+        username: ${ADMIN_USERNAME}
+        password: ${ADMIN_PASSWORD}
         instance:
           prefer-ip: true
 
 grpc:
   server:
-    port: ${MESSAGE_GRPC_PORT:9091}
+    port: ${MESSAGE_GRPC_PORT}
   client:
     user-service:
-      address: 'static://user-service:9090'
+      address: '${GRPC_USER_SERVICE_ADDRESS}'
       negotiation-type: plaintext
 
 app:
   kafka:
     topics:
-      user-deleted: user-deleted-events
-      user-registered: user-registered-events
+      user-deleted: ${KAFKA_TOPIC_USER_DELETED}
+      user-registered: ${KAFKA_TOPIC_USER_REGISTERED}
+      call-events: ${KAFKA_TOPIC_CALL_EVENTS}
+  media-service:
+    url: ${MEDIA_SERVICE_URL}
 
 jwt:
   secret: ${JWT_SECRET}

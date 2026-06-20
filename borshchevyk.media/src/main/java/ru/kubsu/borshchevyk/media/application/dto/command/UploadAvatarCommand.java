@@ -1,18 +1,22 @@
 package ru.kubsu.borshchevyk.media.application.dto.command;
 
 import lombok.Builder;
-import lombok.Value;
 
-import java.util.UUID;
 import java.io.InputStream;
+import java.util.UUID;
 
-@Value
+/**
+ * Command for uploading a user avatar directly.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class UploadAvatarCommand {
-    UUID uploaderId;
-    InputStream inputStream;
-    String contentType;
-    long sizeBytes;
-    String extension;
-    String originalFilename;
+public record UploadAvatarCommand(
+        UUID uploaderId,
+        InputStream inputStream,
+        String contentType,
+        long sizeBytes,
+        String extension,
+        String originalFilename
+) {
 }

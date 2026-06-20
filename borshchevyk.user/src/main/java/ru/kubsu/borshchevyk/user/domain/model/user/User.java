@@ -10,6 +10,9 @@ import ru.kubsu.borshchevyk.user.domain.model.value.Email;
 import ru.kubsu.borshchevyk.user.domain.model.value.Tag;
 import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Domain entity representing a user in the system.
  *
@@ -64,5 +67,5 @@ public class User {
      * List of user's past and current avatar images.
      */
     @Builder.Default
-    private java.util.List<String> avatars = new java.util.ArrayList<>();
+    private List<String> avatars = new ArrayList<>();
 }

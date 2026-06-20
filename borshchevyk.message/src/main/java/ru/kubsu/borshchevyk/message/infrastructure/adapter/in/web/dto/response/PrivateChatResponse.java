@@ -1,4 +1,5 @@
 package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response;
+import ru.kubsu.borshchevyk.message.domain.exception.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -10,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 import java.time.LocalDateTime;
+
 
 @JsonTypeName("PRIVATE")
 @Schema(description = "Private Chat response")

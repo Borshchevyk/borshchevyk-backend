@@ -1,13 +1,9 @@
 package ru.kubsu.borshchevyk.calls.application.port.out;
 
-import ru.kubsu.borshchevyk.calls.domain.model.Call;
-import ru.kubsu.borshchevyk.calls.domain.model.UserId;
+import ru.kubsu.borshchevyk.calls.domain.value.UserId;
 
 /**
  * Port for interacting with the LiveKit server.
- *
- * @author Aleksey Timko
- * @since 2026-04-25
  */
 public interface LiveKitPort {
     /**

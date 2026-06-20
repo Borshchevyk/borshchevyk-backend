@@ -1,5 +1,7 @@
 package ru.kubsu.borshchevyk.message.application.port.in;
 
+import ru.kubsu.borshchevyk.message.application.dto.command.UpdateChatReactionsCommand;
+
 public interface UpdateChatReactionsUseCase {
-    void updateChatReactions(ru.kubsu.borshchevyk.message.application.dto.command.UpdateChatReactionsCommand command);
+    void updateChatReactions(UpdateChatReactionsCommand command);
 }

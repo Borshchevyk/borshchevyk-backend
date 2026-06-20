@@ -8,6 +8,11 @@ import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
+/**
+ * Configuration for Kafka consumers and error handling.
+ *
+ * @author Aleksey Timko
+ */
 @Configuration
 public class KafkaConfig {
 

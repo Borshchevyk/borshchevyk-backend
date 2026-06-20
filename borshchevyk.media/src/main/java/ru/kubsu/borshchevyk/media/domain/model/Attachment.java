@@ -9,6 +9,11 @@ import ru.kubsu.borshchevyk.media.domain.model.value.AttachmentId;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Domain entity representing a media attachment.
+ *
+ * @author Aleksey Timko
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,6 +24,7 @@ public class Attachment {
     private AttachmentType type;
     private String s3Key;
     private String thumbnailKey;
+    private UUID thumbnailId;
     private String originalFilename;
     private String extension;
     private String contentType;

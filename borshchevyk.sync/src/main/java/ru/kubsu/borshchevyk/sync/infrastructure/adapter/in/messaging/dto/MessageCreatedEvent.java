@@ -1,27 +1,28 @@
 package ru.kubsu.borshchevyk.sync.infrastructure.adapter.in.messaging.dto;
 
-import lombok.Data;
-
 import java.util.List;
 
-@Data
-public class MessageCreatedEvent {
-    private String id;
-    private String chatId;
-    private String authorId;
-    private String text;
-    private String createdAt;
-    private String status;
-    private List<String> targetUserIds;
-    private List<AttachmentInfo> attachments;
-
-    @Data
-    public static class AttachmentInfo {
-        private String id;
-        private String type;
-        private String originalFilename;
-        private String extension;
-        private Long sizeBytes;
-        private Double duration;
-    }
+/**
+ * Event received when a new message is created.
+ *
+ * @author Aleksey Timko
+ */
+public record MessageCreatedEvent(
+        String id,
+        String chatId,
+        String authorId,
+        String text,
+        String createdAt,
+        String status,
+        List<String> targetUserIds,
+        List<AttachmentInfo> attachments
+) {
+    public record AttachmentInfo(
+            String id,
+            String type,
+            String originalFilename,
+            String extension,
+            Long sizeBytes,
+            Double duration
+    ) {}
 }

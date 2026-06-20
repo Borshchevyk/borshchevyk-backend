@@ -13,9 +13,6 @@ import java.util.UUID;
 
 /**
  * JPA entity representing an account in the database.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Entity
 @Table(name = "accounts")

@@ -1,25 +1,27 @@
 package ru.kubsu.borshchevyk.media.application.dto.command;
 
 import lombok.Builder;
-import lombok.Data;
 import ru.kubsu.borshchevyk.media.domain.model.AttachmentType;
 
 import java.io.InputStream;
 import java.util.UUID;
 
-@Data
+/**
+ * Command to upload an attachment directly via the server.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class UploadAttachmentCommand {
-    private UUID uploaderId;
-    private AttachmentType type;
-    private String contentType;
-    private String originalFilename;
-    private String extension;
-    private Long sizeBytes;
-    
-    private Integer width;
-    private Integer height;
-    private Double duration;
-    
-    private InputStream inputStream;
+public record UploadAttachmentCommand(
+        UUID uploaderId,
+        AttachmentType type,
+        String contentType,
+        String originalFilename,
+        String extension,
+        Long sizeBytes,
+        Integer width,
+        Integer height,
+        Double duration,
+        InputStream inputStream
+) {
 }

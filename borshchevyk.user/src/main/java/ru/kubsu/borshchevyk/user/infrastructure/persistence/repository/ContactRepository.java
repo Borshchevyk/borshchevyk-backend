@@ -8,6 +8,11 @@ import ru.kubsu.borshchevyk.user.infrastructure.persistence.entity.ContactEntity
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Spring Data JPA repository for {@link ContactEntity}.
+ *
+ * @author Aleksey Timko
+ */
 @Repository
 public interface ContactRepository extends JpaRepository<ContactEntity, UUID> {
     List<ContactEntity> findByOwnerId(UUID ownerId);

@@ -1,4 +1,5 @@
 package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request;
+import ru.kubsu.borshchevyk.message.domain.exception.*;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
@@ -8,15 +9,15 @@ import java.util.UUID;
 
 @Schema(description = "Request to send a new message")
 public record SendMessageRequest(
-        @Schema(description = "Text of the message", example = "Hello, world!", requiredMode = Schema.RequiredMode.REQUIRED)
+        @Schema(description = "Text of the message", example = "Hello, world!", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         String text,
-        
+
         @Schema(description = "Source of the message (ONLINE/OFFLINE)", example = "ONLINE", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         MessageSource source,
 
         @Schema(description = "ID of the original chat if forwarded", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         UUID forwardedFromChatId,
-        
+
         @Schema(description = "ID of the original user if forwarded", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
         UUID forwardedFromUserId,
 

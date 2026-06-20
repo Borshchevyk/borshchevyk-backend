@@ -3,6 +3,11 @@ package ru.kubsu.borshchevyk.user;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * Class documentation.
+ *
+ * @author Aleksey Timko
+ */
 @SpringBootApplication
 public class Application {
 
@@ -11,3 +16,4 @@ public class Application {
 	}
 
 }
+

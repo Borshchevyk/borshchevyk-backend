@@ -13,9 +13,6 @@ import java.util.Optional;
 
 /**
  * Adapter for loading accounts by email from the database.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Slf4j
 @Component
@@ -27,8 +24,7 @@ public class LoadAccountByEmailAdapter implements LoadAccountByEmailPort {
 
     @Override
     public Optional<Account> loadAccountByEmail(Email email) {
-        log.info("Loading account by email: {}", email.getValue());
-        return accountRepository.findByEmail(email.getValue())
-                .map(accountMapper::toDomain);
+        log.info("Loading account by email");
+        return accountRepository.findByEmail(email.value()).map(accountMapper::toDomain);
     }
 }

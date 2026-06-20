@@ -11,6 +11,7 @@ import java.util.UUID;
 @Table(name = "chat_members", indexes = {
         @Index(name = "idx_chat_member_user", columnList = "user_id")
 })
+
 @IdClass(ChatMemberId.class)
 @Getter
 @Setter
@@ -55,6 +56,9 @@ public class ChatMemberEntity {
 
     @Column(name = "last_read_message_id")
     private java.util.UUID lastReadMessageId;
+
+    @Column(name = "last_read_at")
+    private LocalDateTime lastReadAt;
 
     @Column(name = "is_pinned", nullable = false)
     @Builder.Default

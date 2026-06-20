@@ -3,7 +3,7 @@ package ru.kubsu.borshchevyk.user.application.port.out;
 import ru.kubsu.borshchevyk.user.domain.model.user.User;
 
 /**
- * Port for saving user data.
+ * Outbound port for saving user data to the persistent store.
  *
  * @author Aleksey Timko
  * @since 2026-03-15

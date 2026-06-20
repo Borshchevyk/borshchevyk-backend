@@ -1,7 +1,7 @@
 package ru.kubsu.borshchevyk.message.application.port.in;
 
-import java.util.UUID;
+import ru.kubsu.borshchevyk.message.application.dto.query.GenerateInviteLinkQuery;
 
 public interface GenerateInviteLinkUseCase {
-    String generateInviteLink(UUID chatId, UUID requesterId);
+    String generateInviteLink(GenerateInviteLinkQuery query);
 }

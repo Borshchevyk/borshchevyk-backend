@@ -3,6 +3,11 @@ package ru.kubsu.borshchevyk.user.infrastructure.adapter.in.web.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import ru.kubsu.borshchevyk.user.domain.model.privacy.Visibility;
 
+/**
+ * Data Transfer Object representing a user's privacy settings response in the presentation layer.
+ *
+ * @author Aleksey Timko
+ */
 public record PrivacySettingsResponse(
     @Schema(description = "Unique identifier of the user", example = "550e8400-e29b-41d4-a716-446655440000")
     String userId,

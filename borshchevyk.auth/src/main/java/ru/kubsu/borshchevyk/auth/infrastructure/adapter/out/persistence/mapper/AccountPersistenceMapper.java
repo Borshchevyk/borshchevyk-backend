@@ -14,9 +14,6 @@ import java.util.UUID;
 
 /**
  * MapStruct mapper for converting between {@link Account} domain model and {@link AccountJpaEntity}.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface AccountPersistenceMapper {

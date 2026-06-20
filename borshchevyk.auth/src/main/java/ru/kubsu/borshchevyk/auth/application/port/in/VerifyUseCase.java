@@ -5,9 +5,6 @@ import ru.kubsu.borshchevyk.auth.domain.model.result.VerifyResult;
 
 /**
  * Use case for verifying an account using a challenge.
- *
- * @author Aleksey Timko
- * @since 2026-03-14
  */
 public interface VerifyUseCase {
     /**

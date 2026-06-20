@@ -1,13 +1,17 @@
 package ru.kubsu.borshchevyk.media.application.dto.response;
 
 import lombok.Builder;
-import lombok.Value;
 import java.util.UUID;
 
-@Value
+/**
+ * Result containing the upload URL (e.g., presigned) and related attachment tracking information.
+ *
+ * @author Aleksey Timko
+ */
 @Builder
-public class UploadUrlResult {
-    UUID attachmentId;
-    String uploadUrl;
-    String s3Key;
+public record UploadUrlResult(
+        UUID attachmentId,
+        String uploadUrl,
+        String s3Key
+) {
 }
