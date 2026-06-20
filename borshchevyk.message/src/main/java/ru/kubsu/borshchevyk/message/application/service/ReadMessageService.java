@@ -52,9 +52,11 @@ public class ReadMessageService implements ReadMessageUseCase {
             throw new IllegalArgumentException("Message does not belong to this chat");
         }
 
-        requester.setLastReadMessageId(messageId);
-        requester.setLastReadAt(message.getCreatedAt());
-        saveChatMembersPort.saveAll(List.of(requester));
+        if (requester.getLastReadAt() == null || message.getCreatedAt().isAfter(requester.getLastReadAt())) {
+            requester.setLastReadMessageId(messageId);
+            requester.setLastReadAt(message.getCreatedAt());
+            saveChatMembersPort.saveAll(List.of(requester));
+        }
 
         if (!message.getAuthorId().equals(requesterId) && message.getStatus() != ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus.READ) {
             message.setStatus(ru.kubsu.borshchevyk.message.domain.model.message.MessageStatus.READ);
