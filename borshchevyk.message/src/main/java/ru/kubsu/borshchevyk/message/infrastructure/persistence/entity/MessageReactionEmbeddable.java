@@ -7,10 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
 @Embeddable
 @Data
 @NoArgsConstructor

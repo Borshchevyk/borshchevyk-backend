@@ -4,25 +4,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
-import ru.kubsu.borshchevyk.message.infrastructure.websocket.UserPrincipal;
-import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.TypingEvent;
-import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService;
+import ru.kubsu.borshchevyk.message.domain.event.chat.TypingEvent;
+import ru.kubsu.borshchevyk.message.domain.model.user.UserPrincipal;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto;
+import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.WebSocketEventBroadcaster;
 
 import java.util.UUID;
 
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
 @Slf4j
 @Controller
 @RequiredArgsConstructor
 public class ChatWebSocketController {
 
-    private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketEventBroadcaster eventBroadcaster;
     private final UserEnrichmentService userEnrichmentService;
 
     @MessageMapping("/chat/{chatId}/typing")
@@ -35,7 +31,7 @@ public class ChatWebSocketController {
         log.debug("User {} is typing in chat {}: {}", userId, chatId, isTyping);
 
         ShortUserDto user = userEnrichmentService.enrichUser(userId);
-        TypingEvent event = new TypingEvent(user, isTyping);
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/typing", event);
+        TypingEvent event = new TypingEvent(chatId, user, isTyping);
+        eventBroadcaster.broadcastToChatMembers(chatId, "TYPING", event);
     }
 }

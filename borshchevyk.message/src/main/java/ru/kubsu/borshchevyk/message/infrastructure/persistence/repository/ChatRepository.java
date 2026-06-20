@@ -1,4 +1,5 @@
 package ru.kubsu.borshchevyk.message.infrastructure.persistence.repository;
+import ru.kubsu.borshchevyk.message.domain.exception.*;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,10 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
+
 @Repository
 public interface ChatRepository extends JpaRepository<ChatEntity, UUID> {
     List<ChatEntity> findByIdIn(List<UUID> ids);

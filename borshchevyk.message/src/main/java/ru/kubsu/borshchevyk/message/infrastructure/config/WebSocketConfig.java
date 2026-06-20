@@ -6,12 +6,8 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import ru.kubsu.borshchevyk.message.infrastructure.websocket.JwtChannelInterceptor;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.interceptor.JwtChannelInterceptor;
 
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {

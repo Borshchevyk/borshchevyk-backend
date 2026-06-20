@@ -41,8 +41,10 @@ public class EndCallService implements EndCallUseCase {
         call.endCall();
         Call savedCall = saveCallPort.saveCall(call);
 
-        CallEvent event = new CallEndedEvent(savedCall);
-        publishCallEventPort.publish(event);
+        if (!command.isSyncMutation()) {
+            CallEvent event = new CallEndedEvent(savedCall);
+            publishCallEventPort.publish(event);
+        }
 
         return savedCall;
     }

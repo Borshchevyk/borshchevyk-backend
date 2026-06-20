@@ -6,29 +6,24 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kubsu.borshchevyk.message.application.port.out.MessagePort;
-import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
-import ru.kubsu.borshchevyk.message.domain.event.MessageCreatedEvent;
-import ru.kubsu.borshchevyk.message.domain.event.MessageDeletedEvent;
-import ru.kubsu.borshchevyk.message.domain.model.message.Message;
+import ru.kubsu.borshchevyk.message.application.port.out.LoadMessagePort;
+import ru.kubsu.borshchevyk.message.application.port.out.NotifyUserPort;
+import ru.kubsu.borshchevyk.message.domain.event.message.MessageCreatedEvent;
+import ru.kubsu.borshchevyk.message.domain.event.message.MessageDeletedEvent;
 import ru.kubsu.borshchevyk.message.domain.model.value.MessageId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 
 import java.util.UUID;
 
-/**
- * Consumes message events from Kafka and proxies them to the realtime notification port.
- *
- * @author Aleksey Timko
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class KafkaMessageEventConsumerAdapter {
 
+    private final LoadMessagePort loadMessagePort;
+    private final NotifyUserPort notifyUserPort;
+
     private final ObjectMapper objectMapper;
-    private final MessagePort messagePort;
-    private final RealtimeNotificationPort realtimeNotificationPort;
 
     @Transactional(readOnly = true)
     @KafkaListener(topics = "messages.events", groupId = "${spring.kafka.consumer.group-id}")
@@ -37,9 +32,9 @@ public class KafkaMessageEventConsumerAdapter {
         try {
             MessageCreatedEvent event = objectMapper.readValue(payload, MessageCreatedEvent.class);
             if (event.id() != null && event.targetUserIds() != null && !event.targetUserIds().isEmpty()) {
-                messagePort.findById(new MessageId(event.id())).ifPresent(message -> {
+                loadMessagePort.findById(new MessageId(event.id())).ifPresent(message -> {
                     for (String targetId : event.targetUserIds()) {
-                        realtimeNotificationPort.notifyUser(new UserId(UUID.fromString(targetId)), message);
+                        notifyUserPort.notifyUser(new UserId(UUID.fromString(targetId)), message);
                     }
                 });
             }
@@ -55,9 +50,9 @@ public class KafkaMessageEventConsumerAdapter {
         try {
             MessageDeletedEvent event = objectMapper.readValue(payload, MessageDeletedEvent.class);
             if (event.messageId() != null && event.targetUserIds() != null && !event.targetUserIds().isEmpty()) {
-                messagePort.findById(new MessageId(event.messageId())).ifPresent(message -> {
+                loadMessagePort.findById(new MessageId(event.messageId())).ifPresent(message -> {
                     for (String targetId : event.targetUserIds()) {
-                        realtimeNotificationPort.notifyUser(new UserId(UUID.fromString(targetId)), message);
+                        notifyUserPort.notifyUser(new UserId(UUID.fromString(targetId)), message);
                     }
                 });
             }

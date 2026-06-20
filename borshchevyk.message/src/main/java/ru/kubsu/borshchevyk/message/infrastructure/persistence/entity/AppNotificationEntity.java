@@ -7,11 +7,6 @@ import ru.kubsu.borshchevyk.message.domain.model.notification.NotificationType;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * JPA entity for persistent notifications.
- *
- * @author Aleksey Timko
- */
 @Entity
 @Table(name = "notifications")
 @Getter

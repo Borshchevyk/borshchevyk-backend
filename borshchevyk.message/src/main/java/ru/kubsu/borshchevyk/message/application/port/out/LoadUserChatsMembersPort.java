@@ -1,0 +1,10 @@
+package ru.kubsu.borshchevyk.message.application.port.out;
+
+import ru.kubsu.borshchevyk.message.domain.model.chat.ChatMember;
+import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
+
+import java.util.List;
+
+public interface LoadUserChatsMembersPort {
+    List<ChatMember> findByUserId(UserId userId);
+}

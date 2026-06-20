@@ -6,9 +6,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import ru.kubsu.borshchevyk.message.application.port.out.NotificationPort;
-import ru.kubsu.borshchevyk.message.application.port.out.PushNotificationPort;
-import ru.kubsu.borshchevyk.message.application.port.out.RealtimeNotificationPort;
+import ru.kubsu.borshchevyk.message.application.port.out.NotifyChatEventPort;
+import ru.kubsu.borshchevyk.message.application.port.out.SaveNotificationPort;
+import ru.kubsu.borshchevyk.message.application.port.out.SendPushNotificationPort;
 import ru.kubsu.borshchevyk.message.domain.model.notification.AppNotification;
 import ru.kubsu.borshchevyk.message.domain.model.notification.NotificationType;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
@@ -18,20 +18,16 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Consumes chat events from Kafka and proxies them to the realtime notification port.
- *
- * @author Aleksey Timko
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class KafkaChatEventConsumerAdapter {
 
+    private final NotifyChatEventPort notifyChatEventPort;
+    private final SaveNotificationPort saveNotificationPort;
+
     private final ObjectMapper objectMapper;
-    private final RealtimeNotificationPort realtimeNotificationPort;
-    private final NotificationPort notificationPort;
-    private final PushNotificationPort pushNotificationPort;
+    private final SendPushNotificationPort sendPushNotificationPort;
 
     @KafkaListener(topics = "chats.events", groupId = "${spring.kafka.consumer.group-id}")
     public void consumeChatEvent(String payload) {
@@ -46,10 +42,8 @@ public class KafkaChatEventConsumerAdapter {
                 UserId userId = new UserId(UUID.fromString(userIdStr));
                 ChatId chatId = new ChatId(UUID.fromString(chatIdStr));
                 
-                // Proxy to Realtime WebSocket / Redis
-                realtimeNotificationPort.notifyChatEvent(userId, chatId, action);
+                notifyChatEventPort.notifyChatEvent(userId, chatId, action);
                 
-                // Save to Persistent Notification Center and Send Push
                 if ("JOINED".equals(action)) {
                     AppNotification notification = AppNotification.builder()
                             .id(UUID.randomUUID())
@@ -61,8 +55,8 @@ public class KafkaChatEventConsumerAdapter {
                             .createdAt(LocalDateTime.now())
                             .build();
 
-                    notificationPort.save(notification);
-                    pushNotificationPort.sendPushNotification(notification);
+                    saveNotificationPort.save(notification);
+                    sendPushNotificationPort.sendPushNotification(notification);
                 }
             }
         } catch (Exception e) {

@@ -65,13 +65,15 @@ public class EditUserService implements EditUserUseCase {
         }
         saveUserPort.saveUser(user);
 
-        userEventPublisherPort.publishUpdated(UserUpdatedEvent.builder()
-                .userId(userId.getValue())
-                .email(user.getEmail() != null ? user.getEmail().getValue() : null)
-                .tag(user.getTag() != null ? user.getTag().getValue() : null)
-                .build());
+        if (!command.isSyncMutation()) {
+            userEventPublisherPort.publishUpdated(UserUpdatedEvent.builder()
+                    .userId(userId.getValue())
+                    .email(user.getEmail() != null ? user.getEmail().getValue() : null)
+                    .tag(user.getTag() != null ? user.getTag().getValue() : null)
+                    .build());
+        }
 
-        log.info("Successfully updated user profile for ID: {}", command.userId());
+        log.info("Successfully updated user profile for ID: {} (isSyncMutation: {})", command.userId(), command.isSyncMutation());
         
         return EditUserResult.builder()
                 .userId(user.getUserId().getValue().toString())

@@ -6,13 +6,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.WebSocketEventBroadcaster;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.message.application.dto.command.ReadMessageCommand;
+import ru.kubsu.borshchevyk.message.application.dto.query.LoadMessageCommentsQuery;
+import ru.kubsu.borshchevyk.message.application.dto.query.LoadMessageReadersQuery;
 import ru.kubsu.borshchevyk.message.application.port.in.LoadMessageCommentsUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.LoadMessageReadersUseCase;
 import ru.kubsu.borshchevyk.message.application.port.in.ReadMessageUseCase;
-import ru.kubsu.borshchevyk.message.application.port.out.ChatEventPublisherPort;
+import ru.kubsu.borshchevyk.message.application.port.out.PublishChatEventPort;
+import ru.kubsu.borshchevyk.message.domain.event.message.ReadMessageEvent;
 import ru.kubsu.borshchevyk.message.domain.model.message.Message;
 import ru.kubsu.borshchevyk.message.domain.model.value.ChatId;
 import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
@@ -20,16 +23,10 @@ import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.M
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.ShortUserDto;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.facade.UserEnrichmentService;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.mapper.PresentationMessageMapper;
-import ru.kubsu.borshchevyk.message.infrastructure.websocket.dto.ReadReceiptEvent;
 
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Controller for managing message read receipts and comments.
- *
- * @author Aleksey Timko
- */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/chats/{chatId}/messages")
@@ -42,8 +39,8 @@ public class MessageReadController {
     private final LoadMessageCommentsUseCase loadMessageCommentsUseCase;
     private final PresentationMessageMapper presentationMessageMapper;
     private final UserEnrichmentService userEnrichmentService;
-    private final ChatEventPublisherPort chatEventPublisherPort;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final PublishChatEventPort PublishChatEventPort;
+    private final WebSocketEventBroadcaster eventBroadcaster;
 
     @Operation(summary = "Mark message as read", description = "Marks a specific message as read by the user.")
     @ApiResponses(value = {
@@ -65,10 +62,10 @@ public class MessageReadController {
         readMessageUseCase.readMessage(command);
 
         ShortUserDto user = userEnrichmentService.enrichUser(userId);
-        ReadReceiptEvent event = new ReadReceiptEvent(user, messageId);
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/read", event);
+        ReadMessageEvent event = new ReadMessageEvent(chatId, user, messageId);
+        eventBroadcaster.broadcastToChatMembers(chatId, "MESSAGE_READ", event);
         
-        chatEventPublisherPort.publishChatEvent(
+        PublishChatEventPort.publishChatEvent(
                 new UserId(userId),
                 new ChatId(chatId),
                 "READ"
@@ -85,7 +82,8 @@ public class MessageReadController {
             @PathVariable UUID messageId,
             @RequestHeader("X-User-Id") UUID userId) {
         log.info("Request to get readers of message {} in chat {} by user {}", messageId, chatId, userId);
-        List<UUID> readerIds = loadMessageReadersUseCase.loadMessageReaders(chatId, messageId, userId);
+        LoadMessageReadersQuery query = new LoadMessageReadersQuery(chatId, messageId, userId);
+        List<UUID> readerIds = loadMessageReadersUseCase.loadMessageReaders(query);
         return userEnrichmentService.enrichUsers(readerIds);
     }
 
@@ -101,7 +99,8 @@ public class MessageReadController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         log.info("Request to get comments for message {} in chat {} by user {} (page: {}, size: {})", messageId, chatId, userId, page, size);
-        List<Message> comments = loadMessageCommentsUseCase.loadMessageComments(chatId, messageId, userId, page, size);
+        LoadMessageCommentsQuery query = new LoadMessageCommentsQuery(chatId, messageId, userId, page, size);
+        List<Message> comments = loadMessageCommentsUseCase.loadMessageComments(query);
         return presentationMessageMapper.toResponseList(comments, userId);
     }
 }

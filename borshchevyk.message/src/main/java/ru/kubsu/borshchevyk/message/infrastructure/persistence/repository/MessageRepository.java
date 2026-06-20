@@ -1,4 +1,5 @@
 package ru.kubsu.borshchevyk.message.infrastructure.persistence.repository;
+import ru.kubsu.borshchevyk.message.domain.exception.*;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,10 +12,7 @@ import ru.kubsu.borshchevyk.message.infrastructure.persistence.entity.MessageEnt
 import java.util.List;
 import java.util.UUID;
 
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
+
 @Repository
 public interface MessageRepository extends JpaRepository<MessageEntity, UUID> {
     Page<MessageEntity> findByChatIdOrderByCreatedAtDesc(UUID chatId, Pageable pageable);

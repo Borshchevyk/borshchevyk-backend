@@ -7,6 +7,8 @@ import ru.kubsu.borshchevyk.user.application.dto.command.UpdateProfileCommand;
 import ru.kubsu.borshchevyk.user.application.port.in.UpdateProfileUseCase;
 import ru.kubsu.borshchevyk.user.application.port.out.LoadUserPort;
 import ru.kubsu.borshchevyk.user.application.port.out.SaveUserPort;
+import ru.kubsu.borshchevyk.user.application.port.out.UserEventPublisherPort;
+import ru.kubsu.borshchevyk.user.domain.event.UserUpdatedEvent;
 import ru.kubsu.borshchevyk.user.domain.exception.UserNotFoundException;
 import ru.kubsu.borshchevyk.user.domain.model.user.User;
 import ru.kubsu.borshchevyk.user.domain.model.value.UserId;
@@ -24,6 +26,7 @@ import java.util.UUID;
 public class UpdateProfileService implements UpdateProfileUseCase {
     private final LoadUserPort loadUserPort;
     private final SaveUserPort saveUserPort;
+    private final UserEventPublisherPort userEventPublisherPort;
 
     @Override
     public User updateProfile(UpdateProfileCommand command) {
@@ -46,6 +49,13 @@ public class UpdateProfileService implements UpdateProfileUseCase {
         }
 
         saveUserPort.saveUser(user);
+
+        if (!command.isSyncMutation()) {
+            userEventPublisherPort.publishUpdated(UserUpdatedEvent.builder()
+                    .userId(userId.getValue())
+                    .build());
+        }
+
         return user;
     }
 }

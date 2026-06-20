@@ -17,4 +17,8 @@ public interface SyncWebMapper {
     SyncEventDto toDto(SyncEvent event);
 
     List<SyncEventDto> toDtoList(List<SyncEvent> events);
+
+    SyncEvent toDomain(SyncEventDto dto);
+
+    List<SyncEvent> toDomainList(List<SyncEventDto> dtos);
 }

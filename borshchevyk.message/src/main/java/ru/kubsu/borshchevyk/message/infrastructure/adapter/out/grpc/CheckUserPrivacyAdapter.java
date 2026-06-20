@@ -6,11 +6,6 @@ import ru.kubsu.borshchevyk.message.application.port.out.CheckUserPrivacyPort;
 
 import java.util.UUID;
 
-/**
- * Adapter for checking user privacy settings via gRPC.
- *
- * @author Aleksey Timko
- */
 @Component
 @RequiredArgsConstructor
 public class CheckUserPrivacyAdapter implements CheckUserPrivacyPort {
@@ -19,6 +14,6 @@ public class CheckUserPrivacyAdapter implements CheckUserPrivacyPort {
 
     @Override
     public boolean canInviteToChat(UUID targetUserId, UUID requesterId) {
-        return userGrpcClient.checkInvitePermission(targetUserId, requesterId);
+        return !userGrpcClient.checkInvitePermission(targetUserId, requesterId);
     }
 }

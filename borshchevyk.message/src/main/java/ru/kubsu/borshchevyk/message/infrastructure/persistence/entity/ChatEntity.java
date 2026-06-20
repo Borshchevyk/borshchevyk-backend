@@ -3,7 +3,6 @@ package ru.kubsu.borshchevyk.message.infrastructure.persistence.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import ru.kubsu.borshchevyk.message.domain.model.chat.ChatType;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -19,9 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public /**
- * @author Aleksey Timko
- */
+public 
 abstract class ChatEntity {
 
     @Id

@@ -2,22 +2,23 @@ package ru.kubsu.borshchevyk.sync.domain.model;
 
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Domain model representing a synchronization event.
+ * Domain model representing a synchronization event in the CRDT/Vector Clock architecture.
  *
  * @author Aleksey Timko
- * @since 2026-03-01
+ * @since 2026-06-18
  */
 @Builder
 public record SyncEvent(
-        UUID eventId,
-        UUID targetUserId,
-        Long sequenceNumber,
+        UUID id,
+        UUID entityId,
+        UUID userId,
         EventType eventType,
         String payload,
-        LocalDateTime createdAt
+        VectorClock vectorClock,
+        Instant timestamp
 ) {
 }

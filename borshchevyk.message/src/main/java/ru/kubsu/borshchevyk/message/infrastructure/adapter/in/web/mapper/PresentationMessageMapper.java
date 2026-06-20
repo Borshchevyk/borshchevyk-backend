@@ -1,4 +1,5 @@
 package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.mapper;
+import ru.kubsu.borshchevyk.message.domain.exception.*;
 
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
@@ -19,9 +20,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
-public /**
- * @author Aleksey Timko
- */
+public 
 abstract class PresentationMessageMapper {
 
     @Autowired

@@ -14,11 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.message.application.dto.command.DeleteMessageCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.SendMessageCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.UpdateMessageCommand;
-import ru.kubsu.borshchevyk.message.application.port.in.DeleteMessageUseCase;
-import ru.kubsu.borshchevyk.message.application.port.in.LoadChatAttachmentsUseCase;
-import ru.kubsu.borshchevyk.message.application.port.in.LoadChatHistoryUseCase;
-import ru.kubsu.borshchevyk.message.application.port.in.SendMessageUseCase;
-import ru.kubsu.borshchevyk.message.application.port.in.UpdateMessageUseCase;
+import ru.kubsu.borshchevyk.message.application.dto.query.LoadChatAttachmentsQuery;
+import ru.kubsu.borshchevyk.message.application.dto.query.LoadChatHistoryQuery;
+import ru.kubsu.borshchevyk.message.application.port.in.*;
 import ru.kubsu.borshchevyk.message.domain.model.message.Message;
 import ru.kubsu.borshchevyk.message.domain.model.message.MessageSource;
 import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.request.SendMessageRequest;
@@ -30,12 +28,6 @@ import ru.kubsu.borshchevyk.message.infrastructure.exception.MessageErrorRespons
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Controller for managing messages in chats.
- * Handles HTTP requests to send, update, delete, and load message history.
- *
- * @author Aleksey Timko
- */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/chats/{chatId}/messages")
@@ -91,7 +83,8 @@ public class MessageController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         log.info("Request to load chat history for chat {} from user {} (page: {}, size: {})", chatId, userId, page, size);
-        List<Message> messages = loadChatHistoryUseCase.loadChatHistory(chatId, userId, page, size);
+        LoadChatHistoryQuery query = new LoadChatHistoryQuery(chatId, userId, page, size);
+        List<Message> messages = loadChatHistoryUseCase.loadChatHistory(query);
         return presentationMessageMapper.toResponseList(messages, userId);
     }
 
@@ -107,7 +100,8 @@ public class MessageController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size) {
         log.info("Request to load chat attachments for chat {} from user {} (type: {}, page: {}, size: {})", chatId, userId, type, page, size);
-        List<Message> messages = loadChatAttachmentsUseCase.loadChatAttachments(chatId, userId, type, page, size);
+        LoadChatAttachmentsQuery query = new LoadChatAttachmentsQuery(chatId, userId, type, page, size);
+        List<Message> messages = loadChatAttachmentsUseCase.loadChatAttachments(query);
         return presentationMessageMapper.toResponseList(messages, userId);
     }
 

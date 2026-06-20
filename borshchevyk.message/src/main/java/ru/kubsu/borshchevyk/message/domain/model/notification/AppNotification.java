@@ -8,11 +8,6 @@ import ru.kubsu.borshchevyk.message.domain.model.value.UserId;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Domain model for a persistent notification in the Notification Center.
- *
- * @author Aleksey Timko
- */
 @Getter
 @Builder
 @AllArgsConstructor

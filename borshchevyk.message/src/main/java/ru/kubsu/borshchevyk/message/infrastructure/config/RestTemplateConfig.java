@@ -4,10 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
 @Configuration
 public class RestTemplateConfig {
 

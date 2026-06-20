@@ -44,8 +44,10 @@ public class JoinCallService implements JoinCallUseCase {
             throw new UserForbiddenException();
         }
 
-        CallEvent event = new CallAcceptedEvent(call, command.userId());
-        publishCallEventPort.publish(event);
+        if (!command.isSyncMutation()) {
+            CallEvent event = new CallAcceptedEvent(call, command.userId());
+            publishCallEventPort.publish(event);
+        }
 
         return liveKitPort.generateJoinToken(call.getRoomId(), command.userId(), true);
     }

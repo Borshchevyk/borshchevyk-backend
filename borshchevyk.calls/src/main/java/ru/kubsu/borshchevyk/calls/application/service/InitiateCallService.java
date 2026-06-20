@@ -49,8 +49,10 @@ public class InitiateCallService implements InitiateCallUseCase {
 
         Call savedCall = saveCallPort.saveCall(call);
 
-        CallEvent event = new CallInitiatedEvent(savedCall);
-        publishCallEventPort.publish(event);
+        if (!command.isSyncMutation()) {
+            CallEvent event = new CallInitiatedEvent(savedCall);
+            publishCallEventPort.publish(event);
+        }
 
         return savedCall;
     }

@@ -1,4 +1,5 @@
 package ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response;
+import ru.kubsu.borshchevyk.message.domain.exception.*;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,10 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-/**
- * @author Aleksey Timko
- * @since 2026-05-01
- */
+
 @JsonTypeName("GROUP")
 @Schema(description = "Group Chat response")
 @Data
