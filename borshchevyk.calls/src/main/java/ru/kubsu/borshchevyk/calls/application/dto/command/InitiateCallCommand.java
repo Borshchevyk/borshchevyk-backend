@@ -12,5 +12,10 @@ public record InitiateCallCommand(
         @NotNull(message = "Initiator ID cannot be null")
         UserId initiatorId,
         @NotEmpty(message = "Participant IDs cannot be empty")
-        Set<UserId> participantIds
-) {}
+        Set<UserId> participantIds,
+        boolean isSyncMutation
+) {
+    public InitiateCallCommand(UserId initiatorId, Set<UserId> participantIds) {
+        this(initiatorId, participantIds, false);
+    }
+}

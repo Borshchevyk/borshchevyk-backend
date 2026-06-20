@@ -33,8 +33,10 @@ public class LeaveCallService implements LeaveCallUseCase {
         Call call = loadCallPort.loadCall(command.callId())
                 .orElseThrow(CallNotFoundException::new);
 
-        CallEvent event = new CallRejectedEvent(call, command.userId());
-        publishCallEventPort.publish(event);
+        if (!command.isSyncMutation()) {
+            CallEvent event = new CallRejectedEvent(call, command.userId());
+            publishCallEventPort.publish(event);
+        }
 
         call.removeParticipant(command.userId());
         return saveCallPort.saveCall(call);

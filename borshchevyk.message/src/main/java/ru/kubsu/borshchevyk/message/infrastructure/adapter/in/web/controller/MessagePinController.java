@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.WebSocketEventBroadcaster;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.message.application.dto.command.PinMessageCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.UnpinMessageCommand;
@@ -32,7 +32,7 @@ public class MessagePinController {
     private final UnpinMessageUseCase unpinMessageUseCase;
     private final LoadPinnedMessagesUseCase loadPinnedMessagesUseCase;
     private final PresentationMessageMapper presentationMessageMapper;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketEventBroadcaster eventBroadcaster;
 
     @Operation(summary = "Pin message", description = "Pins a message in the chat (max 5).")
     @ApiResponses(value = {
@@ -51,7 +51,7 @@ public class MessagePinController {
                 .requesterId(userId)
                 .build();
         pinMessageUseCase.pinMessage(command);
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/pin", messageId);
+        eventBroadcaster.broadcastToChatMembers(chatId, "MESSAGE_PINNED", messageId);
     }
 
     @Operation(summary = "Unpin message", description = "Unpins a message in the chat.")
@@ -71,7 +71,7 @@ public class MessagePinController {
                 .requesterId(userId)
                 .build();
         unpinMessageUseCase.unpinMessage(command);
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/unpin", messageId);
+        eventBroadcaster.broadcastToChatMembers(chatId, "MESSAGE_UNPINNED", messageId);
     }
 
     @Operation(summary = "Get pinned messages", description = "Gets all pinned messages for a chat.")

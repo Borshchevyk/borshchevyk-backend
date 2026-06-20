@@ -32,10 +32,13 @@ spring:
 app:
   kafka:
     topics:
-      user-registered: ${KAFKA_TOPIC_USER_REGISTERED}
-      user-updated: ${KAFKA_TOPIC_USER_UPDATED}
-      message-created: ${KAFKA_TOPIC_MESSAGE_CREATED}
-      message-deleted: ${KAFKA_TOPIC_MESSAGE_DELETED}
+      user-registered: ${KAFKA_TOPIC_USER_REGISTERED:user-registered-events}
+      user-updated: ${KAFKA_TOPIC_USER_UPDATED:user-updated-events}
+      user-deleted: ${KAFKA_TOPIC_USER_DELETED:user-deleted-events}
+      message-created: ${KAFKA_TOPIC_MESSAGE_CREATED:messages.events}
+      message-deleted: ${KAFKA_TOPIC_MESSAGE_DELETED:messages.deleted.events}
+      chat-events: ${KAFKA_TOPIC_CHAT_EVENTS:chats.events}
+      call-events: ${KAFKA_TOPIC_CALL_EVENTS:call-events}
 
 springdoc:
   swagger-ui:

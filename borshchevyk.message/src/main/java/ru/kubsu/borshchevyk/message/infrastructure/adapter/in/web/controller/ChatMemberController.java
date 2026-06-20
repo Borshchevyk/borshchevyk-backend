@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.WebSocketEventBroadcaster;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.message.application.dto.command.InviteUserCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.KickUserCommand;
@@ -51,7 +51,7 @@ public class ChatMemberController {
     private final UpdateMemberPermissionsUseCase updateMemberPermissionsUseCase;
     private final LoadChatMembersUseCase loadChatMembersUseCase;
     private final PresentationChatMapper presentationChatMapper;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketEventBroadcaster eventBroadcaster;
     private final PublishChatEventPort PublishChatEventPort;
     private final ChatEnrichmentService chatEnrichmentService;
     private final UserEnrichmentService userEnrichmentService;
@@ -114,7 +114,7 @@ public class ChatMemberController {
                 .build();
         inviteUserUseCase.inviteUser(command);
         
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
+        eventBroadcaster.broadcastToChatMembers(chatId, "MEMBER_ADDED",
                 new ChatMemberEvent(chatEnrichmentService.enrichChat(chatId, requesterId), userEnrichmentService.enrichUser(request.targetUserId()), "JOIN"));
         
         PublishChatEventPort.publishChatEvent(
@@ -144,7 +144,7 @@ public class ChatMemberController {
                 .build();
         kickUserUseCase.kickUser(command);
         
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
+        eventBroadcaster.broadcastToChatMembers(chatId, "MEMBER_REMOVED",
                 new ChatMemberEvent(chatEnrichmentService.enrichChat(chatId, requesterId), userEnrichmentService.enrichUser(targetUserId), "LEAVE"));
         
         PublishChatEventPort.publishChatEvent(
@@ -170,7 +170,7 @@ public class ChatMemberController {
                 .build();
         leaveChatUseCase.leaveChat(command);
         
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/members",
+        eventBroadcaster.broadcastToChatMembers(chatId, "MEMBER_REMOVED",
                 new ChatMemberEvent(chatEnrichmentService.enrichChat(chatId, requesterId), userEnrichmentService.enrichUser(requesterId), "LEAVE"));
         
         PublishChatEventPort.publishChatEvent(

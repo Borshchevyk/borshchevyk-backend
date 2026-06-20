@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.WebSocketEventBroadcaster;
+import java.util.UUID;
 import org.springframework.stereotype.Component;
 import ru.kubsu.borshchevyk.message.infrastructure.redis.dto.NotificationDto;
 
@@ -18,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 public class RedisMessageSubscriber implements MessageListener {
 
     private final ObjectMapper objectMapper;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketEventBroadcaster eventBroadcaster;
 
     @Override
     public void onMessage(@NonNull Message message, byte[] pattern) {
@@ -27,25 +28,25 @@ public class RedisMessageSubscriber implements MessageListener {
             NotificationDto notification = objectMapper.readValue(jsonStr, NotificationDto.class);
 
             if (notification.getMessage() != null) {
-                messagingTemplate.convertAndSendToUser(
-                        notification.getTargetUserId(),
-                        "/queue/messages",
+                eventBroadcaster.broadcastToUser(
+                        UUID.fromString(notification.getTargetUserId()),
+                        notification.getMessage().isDeleted() ? "MESSAGE_DELETED" : "MESSAGE_CREATED",
                         notification.getMessage()
                 );
             }
 
             if (notification.getChatEvent() != null) {
-                messagingTemplate.convertAndSendToUser(
-                        notification.getTargetUserId(),
-                        "/queue/chats",
+                eventBroadcaster.broadcastToUser(
+                        UUID.fromString(notification.getTargetUserId()),
+                        "CHAT_EVENT",
                         notification.getChatEvent()
                 );
             }
 
             if (notification.getCallEvent() != null) {
-                messagingTemplate.convertAndSendToUser(
-                        notification.getTargetUserId(),
-                        "/queue/calls",
+                eventBroadcaster.broadcastToUser(
+                        UUID.fromString(notification.getTargetUserId()),
+                        "CALL_EVENT",
                         notification.getCallEvent()
                 );
             }

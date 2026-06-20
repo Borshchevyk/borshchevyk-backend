@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.WebSocketEventBroadcaster;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.message.application.dto.command.AddReactionCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.RemoveReactionCommand;
@@ -27,7 +27,7 @@ public class MessageReactionController {
 
     private final AddReactionUseCase addReactionUseCase;
     private final RemoveReactionUseCase removeReactionUseCase;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketEventBroadcaster eventBroadcaster;
     private final UserEnrichmentService userEnrichmentService;
 
     @Operation(summary = "Add reaction", description = "Adds a reaction to a message.")
@@ -49,7 +49,7 @@ public class MessageReactionController {
                 .reaction(reaction)
                 .build();
         addReactionUseCase.addReaction(command);
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/reactions", new ReactionEvent(messageId, userEnrichmentService.enrichUser(userId), reaction, true));
+        eventBroadcaster.broadcastToChatMembers(chatId, "REACTION_ADDED", new ReactionEvent(chatId, messageId, userEnrichmentService.enrichUser(userId), reaction, true));
     }
 
     @Operation(summary = "Remove reaction", description = "Removes a reaction from a message.")
@@ -72,6 +72,6 @@ public class MessageReactionController {
                 .build();
         removeReactionUseCase.removeReaction(command);
         ShortUserDto user = userEnrichmentService.enrichUser(userId);
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/reactions", new ReactionEvent(messageId, user, reaction, false));
+        eventBroadcaster.broadcastToChatMembers(chatId, "REACTION_REMOVED", new ReactionEvent(chatId, messageId, user, reaction, false));
     }
 }

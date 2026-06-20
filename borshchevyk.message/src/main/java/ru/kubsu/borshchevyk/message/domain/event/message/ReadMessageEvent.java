@@ -5,6 +5,7 @@ import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.S
 import java.util.UUID;
 
 public record ReadMessageEvent(
+        UUID chatId,
         ShortUserDto user,
         UUID messageId
 ) { }

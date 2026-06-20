@@ -5,6 +5,7 @@ import ru.kubsu.borshchevyk.message.infrastructure.adapter.in.web.dto.response.S
 import java.util.UUID;
 
 public record ReactionEvent(
+        UUID chatId,
         UUID messageId,
         ShortUserDto user,
         String reaction,

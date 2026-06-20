@@ -8,5 +8,10 @@ import java.util.UUID;
 public record DeleteMessageCommand(
     UUID messageId,
     UUID requesterId,
-    boolean forAll
-) { }
+    boolean forAll,
+    boolean isSyncMutation
+) { 
+    public DeleteMessageCommand(UUID messageId, UUID requesterId, boolean forAll) {
+        this(messageId, requesterId, forAll, false);
+    }
+}

@@ -2,7 +2,7 @@ package ru.kubsu.borshchevyk.message.application.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.WebSocketEventBroadcaster;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.kubsu.borshchevyk.message.application.dto.command.DeleteMessageCommand;
@@ -38,7 +38,7 @@ public class DeleteMessageService implements DeleteMessageUseCase {
     private final LoadChatMembersPort loadChatMembersPort;
 
     private final MessageEventPublisherPort messageEventPublisherPort;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketEventBroadcaster eventBroadcaster;
 
     @Override
     @Transactional
@@ -65,16 +65,18 @@ public class DeleteMessageService implements DeleteMessageUseCase {
                 message.setDeleted(true);
                 saveMessagePort.save(message);
 
-                List<ChatMember> members = loadChatMembersPort.findByChatId(chatId);
-                List<String> memberIds = members.stream().map(m -> m.getUserId().value().toString()).collect(Collectors.toList());
+                if (!command.isSyncMutation()) {
+                    List<ChatMember> members = loadChatMembersPort.findByChatId(chatId);
+                    List<String> memberIds = members.stream().map(m -> m.getUserId().value().toString()).collect(Collectors.toList());
 
-                messageEventPublisherPort.publishMessageDeletedEvent(message, memberIds);
+                    messageEventPublisherPort.publishMessageDeletedEvent(message, memberIds);
+                }
             } else {
                 throw new ForbiddenActionException("User is not allowed to delete this message for everyone");
             }
         } else {
             saveDeletedMessagePort.save(messageId, requesterId);
-            messagingTemplate.convertAndSendToUser(requesterId.value().toString(), "/queue/messages/deleted", messageId.value());
+            eventBroadcaster.broadcastToUser(requesterId.value(), "MESSAGE_DELETED", messageId.value());
         }
     }
 }

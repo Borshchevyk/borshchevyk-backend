@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.WebSocketEventBroadcaster;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectedEvent;
@@ -22,7 +22,7 @@ import java.util.UUID;
 public class PresenceEventListener {
 
     private final StringRedisTemplate redisTemplate;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketEventBroadcaster eventBroadcaster;
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
@@ -36,8 +36,8 @@ public class PresenceEventListener {
                     .userId(UUID.fromString(userIdStr))
                     .isOnline(true)
                     .build();
-            messagingTemplate.convertAndSend("/topic/presence", presence);
-            messagingTemplate.convertAndSend("/topic/user/" + userIdStr + "/presence", presence);
+            eventBroadcaster.broadcastToAll("PRESENCE_UPDATE", presence);
+            eventBroadcaster.broadcastToUser(UUID.fromString(userIdStr), "PRESENCE_UPDATE", presence);
         }
     }
 
@@ -55,8 +55,8 @@ public class PresenceEventListener {
                     .isOnline(false)
                     .lastSeenAt(now)
                     .build();
-            messagingTemplate.convertAndSend("/topic/presence", presence);
-            messagingTemplate.convertAndSend("/topic/user/" + userIdStr + "/presence", presence);
+            eventBroadcaster.broadcastToAll("PRESENCE_UPDATE", presence);
+            eventBroadcaster.broadcastToUser(UUID.fromString(userIdStr), "PRESENCE_UPDATE", presence);
         }
     }
 }

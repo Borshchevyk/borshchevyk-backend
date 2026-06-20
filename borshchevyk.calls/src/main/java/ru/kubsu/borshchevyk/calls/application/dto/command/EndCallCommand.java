@@ -11,5 +11,10 @@ public record EndCallCommand(
         @NotNull(message = "Call ID cannot be null")
         CallId callId,
         @NotNull(message = "User ID cannot be null")
-        UserId userId
-) {}
+        UserId userId,
+        boolean isSyncMutation
+) {
+    public EndCallCommand(CallId callId, UserId userId) {
+        this(callId, userId, false);
+    }
+}

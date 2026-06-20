@@ -9,5 +9,10 @@ public record UpdateMessageCommand(
     UUID messageId,
     UUID chatId,
     UUID requesterId,
-    String text
-) { }
+    String text,
+    boolean isSyncMutation
+) { 
+    public UpdateMessageCommand(UUID messageId, UUID chatId, UUID requesterId, String text) {
+        this(messageId, chatId, requesterId, text, false);
+    }
+}

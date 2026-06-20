@@ -32,16 +32,17 @@ public class DeleteUserService implements DeleteUserUseCase {
      * @param userId UUID of the user to delete
      */
     @Override
-    public void deleteUser(String userId) {
+    public void deleteUser(String userId, boolean isSyncMutation) {
         log.info("Deleting user profile with ID: {}", userId);
-        
+
         UserId id = new UserId(UUID.fromString(userId));
         deleteUserPort.deleteUser(id);
-        
-        userEventPublisherPort.publishDeleted(UserDeletedEvent.builder()
-                .userId(id.getValue())
-                .build());
-        
-        log.info("Successfully deleted user and published event for ID: {}", userId);
-    }
-}
+
+        if (!isSyncMutation) {
+            userEventPublisherPort.publishDeleted(UserDeletedEvent.builder()
+                    .userId(id.getValue())
+                    .build());
+        }
+
+        log.info("Successfully deleted user for ID: {} (isSyncMutation: {})", userId, isSyncMutation);
+    }}

@@ -59,14 +59,16 @@ public class UpdateMessageService implements UpdateMessageUseCase {
         message.setUpdatedAt(LocalDateTime.now());
         Message updatedMessage = saveMessagePort.save(message);
 
-        List<ChatMember> members = loadChatMembersPort.findByChatId(chatId);
-        List<String> memberIds = members.stream().map(m -> m.getUserId().value().toString()).collect(Collectors.toList());
+        if (!command.isSyncMutation()) {
+            List<ChatMember> members = loadChatMembersPort.findByChatId(chatId);
+            List<String> memberIds = members.stream().map(m -> m.getUserId().value().toString()).collect(Collectors.toList());
 
-        for (String targetId : memberIds) {
-            notifyUserPort.notifyUser(new UserId(java.util.UUID.fromString(targetId)), updatedMessage);
+            for (String targetId : memberIds) {
+                notifyUserPort.notifyUser(new UserId(java.util.UUID.fromString(targetId)), updatedMessage);
+            }
         }
 
-        log.info("Message updated successfully with ID: {}", updatedMessage.getId().value());
+        log.info("Message updated successfully with ID: {} (isSyncMutation: {})", updatedMessage.getId().value(), command.isSyncMutation());
         return updatedMessage;
     }
 }

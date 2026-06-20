@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.message.application.dto.command.UpdateChatInfoCommand;
 import ru.kubsu.borshchevyk.message.application.dto.command.UpdateChatReactionsCommand;
@@ -42,7 +42,7 @@ public class ChatSettingsController {
     private final UpdateChatReactionsUseCase updateChatReactionsUseCase;
     private final LoadChatMembersUseCase loadChatMembersUseCase;
     private final ChatEnrichmentService chatEnrichmentService;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final ru.kubsu.borshchevyk.message.infrastructure.websocket.WebSocketEventBroadcaster eventBroadcaster;
     private final PublishChatEventPort PublishChatEventPort;
 
     @Operation(summary = "Update chat info", description = "Updates the title and/or description of a chat.")
@@ -67,7 +67,7 @@ public class ChatSettingsController {
                 .build();
         updateChatInfoUseCase.updateChatInfo(command);
 
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/info",
+        eventBroadcaster.broadcastToChatMembers(chatId, "CHAT_INFO_UPDATED",
                 new ChatInfoEvent(chatEnrichmentService.enrichChat(chatId, requesterId), request.description(), request.commentsEnabled()));
 
         LoadChatMembersQuery query = new LoadChatMembersQuery(chatId, requesterId, Pageable.unpaged());
@@ -97,7 +97,7 @@ public class ChatSettingsController {
                 .build();
         updateChatReactionsUseCase.updateChatReactions(command);
 
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/settings",
+        eventBroadcaster.broadcastToChatMembers(chatId, "CHAT_SETTINGS_UPDATED",
                 new ChatSettingsEvent(chatEnrichmentService.enrichChat(chatId, requesterId), request.allowedReactions()));
     }
 }

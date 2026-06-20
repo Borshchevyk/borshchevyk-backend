@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.WebSocketEventBroadcaster;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.message.application.dto.command.JoinChatByLinkCommand;
 import ru.kubsu.borshchevyk.message.application.dto.query.GenerateInviteLinkQuery;
@@ -33,7 +33,7 @@ public class ChatInviteController {
     private final GenerateInviteLinkUseCase generateInviteLinkUseCase;
     private final JoinChatByLinkUseCase joinChatByLinkUseCase;
     private final ChatFacade chatFacade;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketEventBroadcaster eventBroadcaster;
     private final PublishChatEventPort PublishChatEventPort;
     private final ChatEnrichmentService chatEnrichmentService;
     private final UserEnrichmentService userEnrichmentService;
@@ -62,7 +62,7 @@ public class ChatInviteController {
         log.info("Request to join chat by link from user {}", userId);
         JoinChatByLinkCommand command = new JoinChatByLinkCommand(inviteCode, userId);
         Chat chat = joinChatByLinkUseCase.joinChatByLink(command);
-        messagingTemplate.convertAndSend("/topic/chat/" + chat.getId().value() + "/members",
+        eventBroadcaster.broadcastToChatMembers(chat.getId().value(), "MEMBER_ADDED",
                 new ChatMemberEvent(chatEnrichmentService.enrichChat(chat.getId().value(), userId), userEnrichmentService.enrichUser(userId), "JOIN"));
         
         PublishChatEventPort.publishChatEvent(

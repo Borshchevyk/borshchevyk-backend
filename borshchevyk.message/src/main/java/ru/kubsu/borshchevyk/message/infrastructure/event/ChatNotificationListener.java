@@ -3,7 +3,7 @@ package ru.kubsu.borshchevyk.message.infrastructure.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.WebSocketEventBroadcaster;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import ru.kubsu.borshchevyk.message.application.port.out.PublishChatEventPort;
@@ -21,7 +21,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChatNotificationListener {
 
-    private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketEventBroadcaster eventBroadcaster;
     private final PublishChatEventPort publishChatEventPort;
     private final ChatEnrichmentService chatEnrichmentService;
     private final UserEnrichmentService userEnrichmentService;
@@ -40,9 +40,9 @@ public class ChatNotificationListener {
 
     private void sendJoinNotification(UUID chatId, UUID creatorId, UUID memberId) {
         try {
-            // WebSocket Notification
-            messagingTemplate.convertAndSend(
-                    WebSocketTopics.getChatMembersTopic(chatId.toString()),
+            eventBroadcaster.broadcastToUser(
+                    memberId,
+                    "MEMBER_ADDED",
                     new ChatMemberEvent(
                             chatEnrichmentService.enrichChat(chatId, creatorId),
                             userEnrichmentService.enrichUser(memberId),

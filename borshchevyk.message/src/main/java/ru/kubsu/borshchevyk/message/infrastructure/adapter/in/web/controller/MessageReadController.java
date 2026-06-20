@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import ru.kubsu.borshchevyk.message.infrastructure.websocket.WebSocketEventBroadcaster;
 import org.springframework.web.bind.annotation.*;
 import ru.kubsu.borshchevyk.message.application.dto.command.ReadMessageCommand;
 import ru.kubsu.borshchevyk.message.application.dto.query.LoadMessageCommentsQuery;
@@ -40,7 +40,7 @@ public class MessageReadController {
     private final PresentationMessageMapper presentationMessageMapper;
     private final UserEnrichmentService userEnrichmentService;
     private final PublishChatEventPort PublishChatEventPort;
-    private final SimpMessagingTemplate messagingTemplate;
+    private final WebSocketEventBroadcaster eventBroadcaster;
 
     @Operation(summary = "Mark message as read", description = "Marks a specific message as read by the user.")
     @ApiResponses(value = {
@@ -62,8 +62,8 @@ public class MessageReadController {
         readMessageUseCase.readMessage(command);
 
         ShortUserDto user = userEnrichmentService.enrichUser(userId);
-        ReadMessageEvent event = new ReadMessageEvent(user, messageId);
-        messagingTemplate.convertAndSend("/topic/chat/" + chatId + "/read", event);
+        ReadMessageEvent event = new ReadMessageEvent(chatId, user, messageId);
+        eventBroadcaster.broadcastToChatMembers(chatId, "MESSAGE_READ", event);
         
         PublishChatEventPort.publishChatEvent(
                 new UserId(userId),
