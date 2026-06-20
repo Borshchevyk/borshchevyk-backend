@@ -84,7 +84,7 @@ public class ChatController {
             @RequestBody CreatePrivateChatRequest request) {
         log.info("Request to create private chat from user {} to user {}", userId, request.targetUserId());
 
-        CreateChatCommand command = new CreateChatCommand(userId, ChatType.PRIVATE, null, null, false, List.of(userId, request.targetUserId()));
+        CreateChatCommand command = new CreateChatCommand(userId, ChatType.PRIVATE, null, null, false, List.of(request.targetUserId()));
         Chat chat = createChatUseCase.createChat(command);
         
         return chatFacade.enrichChatResponse(chat, userId);
