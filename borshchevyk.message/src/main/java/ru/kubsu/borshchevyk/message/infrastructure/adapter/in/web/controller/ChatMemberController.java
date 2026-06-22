@@ -199,7 +199,7 @@ public class ChatMemberController {
                 .requesterId(requesterId)
                 .canSendMessages(request.canSendMessages())
                 .canDeleteMessages(request.canDeleteMessages())
-                .canInviteUsers(request.canChangeInfo())
+                .canInviteUsers(request.canInviteUsers())
                 .canChangeInfo(request.canChangeInfo())
                 .build();
         
