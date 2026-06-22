@@ -57,6 +57,7 @@ app:
     topics:
       user-deleted: ${KAFKA_TOPIC_USER_DELETED}
       user-registered: ${KAFKA_TOPIC_USER_REGISTERED}
+      user-updated: ${KAFKA_TOPIC_USER_UPDATED}
       call-events: ${KAFKA_TOPIC_CALL_EVENTS}
   media-service:
     url: ${MEDIA_SERVICE_URL}

@@ -53,6 +53,13 @@ public class UpdateProfileService implements UpdateProfileUseCase {
         if (!command.isSyncMutation()) {
             userEventPublisherPort.publishUpdated(UserUpdatedEvent.builder()
                     .userId(userId.getValue())
+                    .email(user.getEmail() != null ? user.getEmail().getValue() : null)
+                    .tag(user.getTag() != null ? user.getTag().getValue() : null)
+                    .firstName(user.getFirstName())
+                    .lastName(user.getLastName())
+                    .bio(user.getBio())
+                    .avatarUrl(user.getAvatarUrl())
+                    .avatars(user.getAvatars())
                     .build());
         }
 

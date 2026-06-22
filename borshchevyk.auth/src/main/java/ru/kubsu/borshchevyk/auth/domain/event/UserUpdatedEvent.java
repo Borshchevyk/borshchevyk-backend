@@ -15,5 +15,10 @@ import java.util.UUID;
 public record UserUpdatedEvent(
         UUID userId,
         String email,
-        String tag
+        String tag,
+        String firstName,
+        String lastName,
+        String bio,
+        String avatarUrl,
+        java.util.List<String> avatars
 ) { }
