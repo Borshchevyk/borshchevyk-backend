@@ -30,18 +30,16 @@ public interface ChatMemberMapper {
     @Mapping(target = "lastReadMessageId", source = "lastReadMessageId")
     @Mapping(target = "lastReadAt", source = "lastReadAt")
     @Mapping(target = "isPinned", source = "pinned")
-    @Mapping(target = "permissions", ignore = true)
+    @Mapping(target = "permissions", source = "entity")
     ChatMember toDomain(ChatMemberEntity entity);
 
-    @org.mapstruct.AfterMapping
-    default void mapPermissions(ChatMemberEntity entity, @org.mapstruct.MappingTarget ChatMember domain) {
-        if (domain.getPermissions() == null) {
-             domain.setPermissions(new ChatMemberPermissions());
-        }
-        if (!entity.isCanSendMessages()) domain.getPermissions().revokePermission(ChatMemberPermissions.PermissionType.SEND_MESSAGES);
-        if (!entity.isCanDeleteMessages()) domain.getPermissions().revokePermission(ChatMemberPermissions.PermissionType.DELETE_MESSAGES);
-        if (!entity.isCanInviteUsers()) domain.getPermissions().revokePermission(ChatMemberPermissions.PermissionType.INVITE_USERS);
-        if (!entity.isCanChangeInfo()) domain.getPermissions().revokePermission(ChatMemberPermissions.PermissionType.CHANGE_CHAT_INFO);
+    default ChatMemberPermissions mapPermissions(ChatMemberEntity entity) {
+        ChatMemberPermissions permissions = new ChatMemberPermissions();
+        if (!entity.isCanSendMessages()) permissions.revokePermission(ChatMemberPermissions.PermissionType.SEND_MESSAGES);
+        if (!entity.isCanDeleteMessages()) permissions.revokePermission(ChatMemberPermissions.PermissionType.DELETE_MESSAGES);
+        if (!entity.isCanInviteUsers()) permissions.revokePermission(ChatMemberPermissions.PermissionType.INVITE_USERS);
+        if (!entity.isCanChangeInfo()) permissions.revokePermission(ChatMemberPermissions.PermissionType.CHANGE_CHAT_INFO);
+        return permissions;
     }
 
     default UUID map(ChatId value) {
