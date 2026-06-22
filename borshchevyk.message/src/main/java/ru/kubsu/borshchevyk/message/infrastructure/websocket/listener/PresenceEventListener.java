@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import ru.kubsu.borshchevyk.message.infrastructure.websocket.WebSocketEventBroadcaster;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
@@ -31,82 +32,92 @@ public class PresenceEventListener {
     private final LoadUserChatsMembersPort loadUserChatsMembersPort;
     private final LoadChatMembersPort loadChatMembersPort;
 
+    @Async
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
-        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        if (headerAccessor.getUser() instanceof UserPrincipal principal) {
-            String userIdStr = principal.getName();
-            log.info("User connected: {}", userIdStr);
-            UUID userUuid = UUID.fromString(userIdStr);
-            redisTemplate.opsForValue().set("presence:" + userIdStr, "ONLINE", Duration.ofMinutes(5));
-            
-            PresenceStatusResponse presence = PresenceStatusResponse.builder()
-                    .userId(userUuid)
-                    .isOnline(true)
-                    .build();
+        try {
+            StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+            if (headerAccessor.getUser() instanceof UserPrincipal principal) {
+                String userIdStr = principal.getName();
+                log.info("User connected: {}", userIdStr);
+                UUID userUuid = UUID.fromString(userIdStr);
+                redisTemplate.opsForValue().set("presence:" + userIdStr, "ONLINE", Duration.ofMinutes(5));
+                
+                PresenceStatusResponse presence = PresenceStatusResponse.builder()
+                        .userId(userUuid)
+                        .isOnline(true)
+                        .build();
 
-            // Find all chat members User A shares chats with
-            List<ChatMember> userChats = loadUserChatsMembersPort.findByUserId(new UserId(userUuid));
-            for (ChatMember userChat : userChats) {
-                List<ChatMember> chatMembers = loadChatMembersPort.findByChatId(userChat.getChatId());
-                for (ChatMember member : chatMembers) {
-                    UUID memberId = member.getUserId().value();
-                    if (!memberId.equals(userUuid)) {
-                        // 1. Notify the partner that user A is now ONLINE
-                        eventBroadcaster.broadcastToUser(memberId, "PRESENCE_UPDATE", presence);
+                // Find all chat members User A shares chats with
+                List<ChatMember> userChats = loadUserChatsMembersPort.findByUserId(new UserId(userUuid));
+                for (ChatMember userChat : userChats) {
+                    List<ChatMember> chatMembers = loadChatMembersPort.findByChatId(userChat.getChatId());
+                    for (ChatMember member : chatMembers) {
+                        UUID memberId = member.getUserId().value();
+                        if (!memberId.equals(userUuid)) {
+                            // 1. Notify the partner that user A is now ONLINE
+                            eventBroadcaster.broadcastToUser(memberId, "PRESENCE_UPDATE", presence);
 
-                        // 2. Fetch the partner's status and send it to User A
-                        String statusStr = redisTemplate.opsForValue().get("presence:" + memberId.toString());
-                        boolean isPartnerOnline = "ONLINE".equals(statusStr);
-                        Long lastSeenAt = null;
-                        if (!isPartnerOnline && statusStr != null) {
-                            try {
-                                lastSeenAt = Long.parseLong(statusStr);
-                            } catch (NumberFormatException ignored) {}
+                            // 2. Fetch the partner's status and send it to User A
+                            String statusStr = redisTemplate.opsForValue().get("presence:" + memberId.toString());
+                            boolean isPartnerOnline = "ONLINE".equals(statusStr);
+                            Long lastSeenAt = null;
+                            if (!isPartnerOnline && statusStr != null) {
+                                try {
+                                    lastSeenAt = Long.parseLong(statusStr);
+                                } catch (NumberFormatException ignored) {}
+                            }
+                            PresenceStatusResponse partnerPresence = PresenceStatusResponse.builder()
+                                    .userId(memberId)
+                                    .isOnline(isPartnerOnline)
+                                    .lastSeenAt(lastSeenAt)
+                                    .build();
+                            eventBroadcaster.broadcastToUser(userUuid, "PRESENCE_UPDATE", partnerPresence);
                         }
-                        PresenceStatusResponse partnerPresence = PresenceStatusResponse.builder()
-                                .userId(memberId)
-                                .isOnline(isPartnerOnline)
-                                .lastSeenAt(lastSeenAt)
-                                .build();
-                        eventBroadcaster.broadcastToUser(userUuid, "PRESENCE_UPDATE", partnerPresence);
                     }
                 }
-            }
 
-            eventBroadcaster.broadcastToUser(userUuid, "PRESENCE_UPDATE", presence);
+                eventBroadcaster.broadcastToUser(userUuid, "PRESENCE_UPDATE", presence);
+            }
+        } catch (Exception e) {
+            log.error("Error processing WebSocket connection event", e);
         }
     }
 
+    @Async
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-        StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
-        if (headerAccessor.getUser() instanceof UserPrincipal principal) {
-            String userIdStr = principal.getName();
-            log.info("User disconnected: {}", userIdStr);
-            UUID userUuid = UUID.fromString(userIdStr);
-            long now = Instant.now().toEpochMilli();
-            redisTemplate.opsForValue().set("presence:" + userIdStr, String.valueOf(now), Duration.ofDays(7));
+        try {
+            StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
+            if (headerAccessor.getUser() instanceof UserPrincipal principal) {
+                String userIdStr = principal.getName();
+                log.info("User disconnected: {}", userIdStr);
+                UUID userUuid = UUID.fromString(userIdStr);
+                long now = Instant.now().toEpochMilli();
+                redisTemplate.opsForValue().set("presence:" + userIdStr, String.valueOf(now), Duration.ofDays(7));
 
-            PresenceStatusResponse presence = PresenceStatusResponse.builder()
-                    .userId(userUuid)
-                    .isOnline(false)
-                    .lastSeenAt(now)
-                    .build();
+                PresenceStatusResponse presence = PresenceStatusResponse.builder()
+                        .userId(userUuid)
+                        .isOnline(false)
+                        .lastSeenAt(now)
+                        .build();
 
-            // Find all chat members User A shares chats with and notify them User A is offline
-            List<ChatMember> userChats = loadUserChatsMembersPort.findByUserId(new UserId(userUuid));
-            for (ChatMember userChat : userChats) {
-                List<ChatMember> chatMembers = loadChatMembersPort.findByChatId(userChat.getChatId());
-                for (ChatMember member : chatMembers) {
-                    UUID memberId = member.getUserId().value();
-                    if (!memberId.equals(userUuid)) {
-                        eventBroadcaster.broadcastToUser(memberId, "PRESENCE_UPDATE", presence);
+                // Find all chat members User A shares chats with and notify them User A is offline
+                List<ChatMember> userChats = loadUserChatsMembersPort.findByUserId(new UserId(userUuid));
+                for (ChatMember userChat : userChats) {
+                    List<ChatMember> chatMembers = loadChatMembersPort.findByChatId(userChat.getChatId());
+                    for (ChatMember member : chatMembers) {
+                        UUID memberId = member.getUserId().value();
+                        if (!memberId.equals(userUuid)) {
+                            eventBroadcaster.broadcastToUser(memberId, "PRESENCE_UPDATE", presence);
+                        }
                     }
                 }
-            }
 
-            eventBroadcaster.broadcastToUser(userUuid, "PRESENCE_UPDATE", presence);
+                eventBroadcaster.broadcastToUser(userUuid, "PRESENCE_UPDATE", presence);
+            }
+        } catch (Exception e) {
+            log.error("Error processing WebSocket disconnect event", e);
         }
     }
 }
