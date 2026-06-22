@@ -1,6 +1,6 @@
 server:
   port: ${ADMIN_SERVICE_PORT}
-  forward-headers-strategy: framework
+  forward-headers-strategy: native
 
 spring:
   application:
