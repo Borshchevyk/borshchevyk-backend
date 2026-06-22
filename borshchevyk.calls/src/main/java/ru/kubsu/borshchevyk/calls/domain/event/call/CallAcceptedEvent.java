@@ -10,7 +10,7 @@ public record CallAcceptedEvent(Call call, UserId userId) implements CallEvent {
 
     @Override
     public CallEventType type() {
-        return CallEventType.REJECTED;
+        return CallEventType.ACCEPTED;
     }
 
     @Override

@@ -9,7 +9,7 @@ public record CallEndedEvent(Call call) implements CallEvent {
 
     @Override
     public CallEventType type() {
-        return CallEventType.INITIATED;
+        return CallEventType.ENDED;
     }
 
     @Override
